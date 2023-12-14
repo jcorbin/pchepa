@@ -1,0 +1,3 @@
+[submodule "BOSL2"]
+	path = BOSL2
+	url = gh:revarbat/BOSL2
