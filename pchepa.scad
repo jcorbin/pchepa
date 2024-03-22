@@ -6,6 +6,8 @@ include <BOSL2/std.scad>
 // looks similar to <https://www.printables.com/model/386124> -- minimal single
 // barrel filter
 
+/// user/customizer parameters
+
 /* [Part Selection] */
 
 mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill]
@@ -82,12 +84,40 @@ $fs = 0.2; // 0.05
 // Epsilon adjustement value for cutouts
 $eps = 0.1;
 
-/// implementation
+/// dispatch / integration
+
+module __customizer_limit__() {}
 
 cover_od = filter_od + 2*cover_overhang;
 base_od = filter_od + 2*base_overhang + filter_recess;
 
-module __customizer_limit__() {}
+// TODO joinable / duo variant
+// TODO wrap around messh wall
+// TODO grill might become more of an enclosure shell wrapping around fan sides
+// TODO pockets in the base for weights or battery bank
+
+if (mode == 0) {
+  // xcopies(spacing=base_od, n=2)
+
+  filter_fan() {
+    attach(BOTTOM, TOP, overlap=filter_recess) base();
+    attach(TOP, BOTTOM) grill();
+  };
+}
+
+else if (mode == 1) {
+  base();
+}
+
+else if (mode == 2) {
+  cover();
+}
+
+else if (mode == 3) {
+  grill();
+}
+
+/// implementation
 
 module pc_fan(anchor = CENTER, spin = 0, orient = UP) {
   attachable(size = fan_size, anchor = anchor, spin = spin, orient = orient) {
@@ -195,29 +225,4 @@ module grill(anchor = CENTER, spin = 0, orient = UP) {
             cyl(h=size[2] + 2*$eps, d=grill_hole_size, $fn=6);
 
       };
-}
-
-
-// TODO joinable / duo variant
-// TODO grill / grid
-
-if (mode == 0) {
-  // xcopies(spacing=base_od, n=2)
-
-  filter_fan() {
-    attach(BOTTOM, TOP, overlap=filter_recess) base();
-    attach(TOP, BOTTOM) grill();
-  };
-}
-
-else if (mode == 1) {
-  base();
-}
-
-else if (mode == 2) {
-  cover();
-}
-
-else if (mode == 3) {
-  grill();
 }
