@@ -44,6 +44,10 @@ grill_hole_size = 4;
 
 grill_hole_spacing = 1;
 
+grill_screw = "M3";
+
+grill_screw_head = "flat";
+
 /* [HEPA Filter Metrics] */
 
 filter_od = 7 * 25.4;
@@ -64,7 +68,7 @@ filter_recess = 6;
 filter_tolerance = 0.1;
 
 // TODO heatset diam instead
-cover_screw_d = struct_val(screw_info(fan_screw), "diameter");
+cover_screw_d = struct_val(screw_info(grill_screw), "diameter");
 cover_screw_h = 8;
 
 /* [Filter Base Parameters] */
@@ -210,7 +214,7 @@ module grill(anchor = CENTER, spin = 0, orient = UP) {
 
         tag("screw") attach(TOP, BOTTOM, overlap = screw_length + $eps)
             grid_copies(spacing = fan_screw_spacing, n = [ 2, 2 ])
-                screw_hole(spec = "M3", head = "flat", thread = false,
+                screw_hole(spec = grill_screw, head = grill_screw_head, thread = false,
                            length = screw_length + 2 * $eps);
 
         tag("holes")
