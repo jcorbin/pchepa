@@ -110,15 +110,22 @@ if (mode == 0) {
 }
 
 else if (mode == 1) {
-  base();
+  base() {
+    %attach(TOP, BOTTOM, overlap=filter_recess) hepa_filter();
+  };
 }
 
 else if (mode == 2) {
-  cover();
+  cover() {
+    %attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
+    %attach(TOP, BOTTOM) pc_fan();
+  };
 }
 
 else if (mode == 3) {
-  grill();
+  grill() {
+    %attach(BOTTOM, TOP) pc_fan();
+  };
 }
 
 /// implementation
@@ -209,6 +216,8 @@ module filter_fan(anchor = CENTER, spin = 0, orient = UP) {
 module grill(anchor = CENTER, spin = 0, orient = UP) {
   screw_length = fan_size[2] + grill_height;
   size = [ grill_size, grill_size, grill_height ];
+  attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
+
     diff(remove="screw holes")
       cuboid(size=size, chamfer=grill_chamfer) {
 
@@ -229,4 +238,7 @@ module grill(anchor = CENTER, spin = 0, orient = UP) {
             cyl(h=size[2] + 2*$eps, d=grill_hole_size, $fn=6);
 
       };
+
+    children();
+  }
 }
