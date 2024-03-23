@@ -15,6 +15,12 @@ mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill]
 filter_count = 1; // [1, 2]
 // TODO filter_count = 3
 
+/* [Wraparound Wall Metrics] */
+
+wrapwall_thickness = 0.4 * 4;
+
+wrapwall_slot_depth = 5;
+
 /* [PC Fan Metrics] */
 
 // <https://superuser.com/questions/225882/what-type-of-screws-are-used-for-computer-fans>
@@ -95,13 +101,13 @@ $eps = 0.1;
 
 module __customizer_limit__() {}
 
-cover_od = filter_od + 2*cover_overhang;
-base_od = filter_od + 2*base_overhang + filter_recess;
+cover_od = filter_od + 2*wrapwall_thickness + 2*cover_overhang;
+base_od = filter_od + 2*wrapwall_thickness + 2*base_overhang + filter_recess;
 
 // TODO joinery
-// TODO wrap around messh wall
 // TODO pockets in the base for weights or battery bank
 // TODO wire passthru holes in the cover and base plates for battery integration
+// TODO model mode to generate wraparoudn wall panel
 
 if (mode == 0) {
   // xcopies(spacing=base_od, n=2)
@@ -191,7 +197,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
   attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
 
-    diff(remove="flow filter screw")
+    diff(remove="flow filter wallslot screw")
       plate(
         h=cover_height, d=cover_od, extra=extra,
         chamfer1=cover_underhang, chamfer2=cover_overhang) {
@@ -203,6 +209,12 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
         tag("filter")
           attach(BOTTOM, TOP, overlap=filter_recess)
           cyl(h=filter_recess+$eps, d=filter_od + filter_tolerance);
+
+        if (wrapwall_thickness > 0) {
+          tag("wallslot")
+            attach(BOTTOM, TOP, overlap=wrapwall_slot_depth)
+            wallslot();
+        }
 
         tag("screw")
           grid_copies(spacing = fan_screw_spacing, n = [ 2, 2 ])
@@ -217,13 +229,79 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
 module base(anchor = CENTER, spin = 0, orient = UP) {
   attachable(h = base_height, d = base_od, anchor = anchor, spin = spin, orient = orient) {
-    diff(remove="filter")
+    diff(remove="filter wallslot")
       plate(h=base_height, d=base_od, chamfer2=base_overhang) {
         tag("filter")
           attach(TOP, BOTTOM, overlap=filter_recess)
           cyl(h=filter_recess+$eps, d=filter_od + filter_tolerance);
+
+        if (wrapwall_thickness > 0) {
+          tag("wallslot")
+            attach(TOP, BOTTOM, overlap=wrapwall_slot_depth)
+            wallslot();
+        }
+
       };
 
+    children();
+  }
+}
+
+module wallslot(anchor = CENTER, spin = 0, orient = UP) {
+  slot_h = wrapwall_slot_depth + $eps;
+  slot_id = filter_od + 2*wrapwall_thickness;
+  slot_od = filter_od + 4*wrapwall_thickness;
+
+  if (filter_count == 1) {
+    attachable(h = slot_h, d = slot_od, anchor = anchor, spin = spin, orient = orient) {
+      ring(h = slot_h, id = slot_id, od = slot_od);
+      children();
+    }
+  } 
+
+  else if (filter_count == 2) {
+    extra = (base_od - slot_od)/2;
+    attachable(size = [
+      slot_od + extra,
+      slot_od,
+      slot_h,
+    ], anchor = anchor, spin = spin, orient = orient) {
+
+      union() {
+        diff() ring(h = slot_h, id = slot_id, od = slot_od) {
+          attach(RIGHT, LEFT, overlap=slot_od/2)
+            tag("remove") cube(size = [
+              slot_od/2 + $eps,
+              slot_od + 2*$eps,
+              slot_h + 2*$eps,
+            ]);
+        };
+
+        right(base_od/4 + $eps)
+          ycopies(spacing=slot_od - wrapwall_thickness-$eps, n=2)
+          cube(size = [
+            base_od/2 + 3*$eps,
+            wrapwall_thickness,
+            slot_h,
+          ], center=true);
+      }
+
+      children();
+    } 
+  }
+
+  else {
+    assert(false, "base wallslot not supported for that filter_count");
+  }
+}
+
+module ring(id, od, h, anchor = CENTER, spin = 0, orient = UP) {
+  attachable(h = h, d = od, anchor = anchor, spin = spin, orient = orient) {
+    tag_scope("ring") diff() cyl(h = h, d = od)  {
+      tag("remove")
+        attach(TOP, BOTTOM, overlap=h + $eps)
+        cyl(h = h + 2*$eps, d = id);
+    }
     children();
   }
 }
