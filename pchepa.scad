@@ -12,6 +12,9 @@ include <BOSL2/std.scad>
 
 mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill]
 
+filter_count = 1; // [1, 2]
+// TODO filter_count = 3
+
 /* [PC Fan Metrics] */
 
 // <https://superuser.com/questions/225882/what-type-of-screws-are-used-for-computer-fans>
@@ -103,16 +106,34 @@ base_od = filter_od + 2*base_overhang + filter_recess;
 if (mode == 0) {
   // xcopies(spacing=base_od, n=2)
 
-  filter_fan() {
-    attach(BOTTOM, TOP, overlap=filter_recess) base();
-    attach(TOP, BOTTOM) grill();
-  };
+  if (filter_count == 1) {
+    filter_fan() {
+      attach(BOTTOM, TOP, overlap=filter_recess) base();
+      attach(TOP, BOTTOM) grill();
+    };
+  }
+
+  else if (filter_count == 2) {
+    xcopies(spacing=base_od, n=2) zrot(180 * $idx)
+      filter_fan() {
+        attach(BOTTOM, TOP, overlap=filter_recess) base();
+        attach(TOP, BOTTOM, overlap=fan_size[2]) grill();
+      };
+  }
+
+  else {
+    assert(false, "base unsupported filter_count");
+  }
 }
 
 else if (mode == 1) {
   base() {
     %attach(TOP, BOTTOM, overlap=filter_recess) hepa_filter();
   };
+  if (filter_count > 1) {
+    right(base_od) zrot(180)
+      %render() base();
+  }
 }
 
 else if (mode == 2) {
@@ -120,6 +141,10 @@ else if (mode == 2) {
     %attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
     %attach(TOP, BOTTOM) pc_fan();
   };
+  if (filter_count > 1) {
+    right(base_od) zrot(180)
+      %render() cover();
+  }
 }
 
 else if (mode == 3) {
@@ -157,10 +182,15 @@ module hepa_filter(anchor = CENTER, spin = 0, orient = UP) {
 }
 
 module cover(anchor = CENTER, spin = 0, orient = UP) {
-  attachable(h = cover_height, d = cover_od, anchor = anchor, spin = spin, orient = orient) {
+  extra = filter_count == 0 ? 0 : (base_od - cover_od)/2;
+  size = [cover_od + extra, cover_od, cover_height];
+
+  attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
 
     diff(remove="flow filter screw")
-      cyl(h=cover_height, d=cover_od, chamfer2=cover_overhang, chamfer1=cover_underhang) {
+      plate(
+        h=cover_height, d=cover_od, extra=extra,
+        chamfer1=cover_underhang, chamfer2=cover_overhang) {
 
         tag("flow")
           attach(TOP, TOP, overlap=cover_height+$eps)
@@ -183,17 +213,66 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
 module base(anchor = CENTER, spin = 0, orient = UP) {
   attachable(h = base_height, d = base_od, anchor = anchor, spin = spin, orient = orient) {
-
     diff(remove="filter")
-      cyl(h=base_height, d=base_od, chamfer2=base_overhang) {
-
+      plate(h=base_height, d=base_od, chamfer2=base_overhang) {
         tag("filter")
           attach(TOP, BOTTOM, overlap=filter_recess)
           cyl(h=filter_recess+$eps, d=filter_od + filter_tolerance);
-
       };
 
     children();
+  }
+}
+
+module plate(h, d, extra=0, chamfer1=0, chamfer2=0, anchor = CENTER, spin = 0, orient = UP) {
+  if (filter_count == 1) {
+    attachable(h = h, d = d, anchor = anchor, spin = spin, orient = orient) {
+      cyl(h=h, d=d, chamfer1=chamfer1, chamfer2=chamfer2);
+      children();
+    }
+  }
+
+  else if (filter_count == 2) {
+    size = [d + extra, d, h];
+    attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
+      union() {
+        left(extra/2)
+          cyl(h=h, d=d, chamfer1=chamfer1, chamfer2=chamfer2);
+
+        right(extra/2)
+        right(d/4)
+          if (chamfer1 > 0) {
+            upper = max(h/2, chamfer2);
+            lower = h - upper;
+
+            up(upper/2)
+              cuboid(size=[d/2 + extra, d, upper], chamfer=chamfer2, edges=[
+                [0, 0, 1, 1], // yz -- +- -+ ++
+                [0, 0, 0, 0], // xz
+                [0, 0, 0, 0], // xy
+              ]);
+
+            down(lower/2)
+              cuboid(size=[d/2 + extra, d, lower], chamfer=chamfer1, edges=[
+                [1, 1, 0, 0], // yz -- +- -+ ++
+                [0, 0, 0, 0], // xz
+                [0, 0, 0, 0], // xy
+              ]);
+          } else {
+            cuboid(size=[d/2 + extra, d, h], chamfer=chamfer2, edges=[
+              [0, 0, 1, 1], // yz -- +- -+ ++
+              [0, 0, 0, 0], // xz
+              [0, 0, 0, 0], // xy
+            ]);
+          }
+      }
+
+      children();
+    }
+  }
+
+  else {
+    assert(false, "base unsupported filter_count");
   }
 }
 
