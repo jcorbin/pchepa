@@ -37,11 +37,11 @@ fan_rounding = 12;
 
 /* [Fan Grill Metrics] */
 
-grill_height = 3;
+grill_size = 128;
 
-grill_chamfer = 1;
+grill_thickness = 3;
 
-grill_size = 124;
+grill_chamfer = 5;
 
 grill_hole_size = 4;
 
@@ -98,10 +98,10 @@ module __customizer_limit__() {}
 cover_od = filter_od + 2*cover_overhang;
 base_od = filter_od + 2*base_overhang + filter_recess;
 
-// TODO joinable / duo variant
+// TODO joinery
 // TODO wrap around messh wall
-// TODO grill might become more of an enclosure shell wrapping around fan sides
 // TODO pockets in the base for weights or battery bank
+// TODO wire passthru holes in the cover and base plates for battery integration
 
 if (mode == 0) {
   // xcopies(spacing=base_od, n=2)
@@ -109,7 +109,7 @@ if (mode == 0) {
   if (filter_count == 1) {
     filter_fan() {
       attach(BOTTOM, TOP, overlap=filter_recess) base();
-      attach(TOP, BOTTOM) grill();
+      attach(TOP, BOTTOM, overlap=fan_size[2]) grill();
     };
   }
 
@@ -117,6 +117,7 @@ if (mode == 0) {
     xcopies(spacing=base_od, n=2) zrot(180 * $idx)
       filter_fan() {
         attach(BOTTOM, TOP, overlap=filter_recess) base();
+        right((base_od - grill_size)/4)
         attach(TOP, BOTTOM, overlap=fan_size[2]) grill();
       };
   }
@@ -149,8 +150,11 @@ else if (mode == 2) {
 
 else if (mode == 3) {
   grill() {
-    %attach(BOTTOM, TOP) pc_fan();
-  };
+    left(filter_count == 1 ? 0 : (base_od - grill_size)/4) {
+      %attach(BOTTOM, TOP, overlap=fan_size[2]) pc_fan();
+      %attach(BOTTOM, TOP) render() cover();
+    }
+  }
 }
 
 /// implementation
@@ -293,29 +297,57 @@ module filter_fan(anchor = CENTER, spin = 0, orient = UP) {
 }
 
 module grill(anchor = CENTER, spin = 0, orient = UP) {
-  screw_length = fan_size[2] + grill_height;
-  size = [ grill_size, grill_size, grill_height ];
+  extra = filter_count == 1 ? 0 : (base_od - grill_size)/2;
+  size = [
+    grill_size + extra,
+    grill_size,
+    fan_size[2] + grill_thickness
+  ];
+
+  screw_length = fan_size[2] + grill_thickness;
+
   attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
 
-    diff(remove="screw holes")
-      cuboid(size=size, chamfer=grill_chamfer) {
+    diff(remove="screw hollow holes")
+      cuboid(size=size, chamfer=grill_chamfer, edges = [
+        [0, 0, 1, 1], // yz -- +- -+ ++
+        [0, 0, 1, extra > 0 ? 0 : 1], // xz
+        [1, extra > 0 ? 0 : 1, 1, extra > 0 ? 0 : 1], // xy
+      ]) {
 
-        tag("screw") attach(TOP, BOTTOM, overlap = screw_length + $eps)
-            grid_copies(spacing = fan_screw_spacing, n = [ 2, 2 ])
-                screw_hole(spec = grill_screw, head = grill_screw_head, thread = false,
-                           length = screw_length + 2 * $eps);
+        tag("hollow")
+          right(extra ? grill_thickness + $eps : 0)
+          attach(BOTTOM, TOP, overlap=fan_size[2])
+          cuboid(size=[
+            grill_size + extra - 2 * grill_thickness + (extra > 0 ? grill_thickness + $eps : 0),
+            grill_size - 2 * grill_thickness,
+            fan_size[2] + $eps,
+          ], chamfer = grill_thickness, edges =[
+            [0, 0, 0, 0], // yz -- +- -+ ++
+            [0, 0, 0, 0], // xz
+            [1, extra > 0 ? 0 : 1, 1, extra > 0 ? 0 : 1], // xy
+          ]);
 
-        tag("holes")
-          attach(TOP, BOTTOM, overlap=size[2] + $eps)
-          grid_copies(
-            spacing=grill_hole_size + grill_hole_spacing,
-            size=grill_size,
-            stagger=true,
-            inside=circle(d=fan_id)
-          )
-            zrot(30)
-            cyl(h=size[2] + 2*$eps, d=grill_hole_size, $fn=6);
+        left(extra/2) {
 
+          tag("screw")
+            attach(TOP, BOTTOM, overlap = screw_length + $eps)
+              grid_copies(spacing = fan_screw_spacing, n = [ 2, 2 ])
+                  screw_hole(spec = grill_screw, head = grill_screw_head, thread = false,
+                             length = screw_length + 2 * $eps);
+
+          tag("holes")
+            attach(TOP, BOTTOM, overlap=size[2] + $eps)
+            grid_copies(
+              spacing=grill_hole_size + grill_hole_spacing,
+              size=grill_size,
+              stagger=true,
+              inside=circle(d=fan_id)
+            )
+              zrot(30)
+              cyl(h=size[2] + 2*$eps, d=grill_hole_size, $fn=6);
+
+        }
       };
 
     children();
