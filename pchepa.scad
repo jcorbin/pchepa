@@ -196,7 +196,7 @@ module hepa_filter(anchor = CENTER, spin = 0, orient = UP) {
 }
 
 module cover(anchor = CENTER, spin = 0, orient = UP) {
-  extra = filter_count == 0 ? 0 : (base_od - cover_od)/2;
+  extra = filter_count == 0 ? 0 : base_od - cover_od;
   size = [cover_od + extra, cover_od, cover_height];
 
   attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
@@ -321,29 +321,26 @@ module plate(h, d, extra=0, chamfer1=0, chamfer2=0, anchor = CENTER, spin = 0, o
   else if (filter_count == 2) {
     size = [d + extra, d, h];
     attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
-      union() {
-        left(extra/2)
-          cyl(h=h, d=d, chamfer1=chamfer1, chamfer2=chamfer2);
-
-        right(extra/2)
-        right(d/4)
+      left(extra/2)
+        cyl(h=h, d=d, chamfer1=chamfer1, chamfer2=chamfer2)
+        attach(RIGHT, LEFT, overlap=d/2) {
           if (chamfer1 > 0) {
             upper = max(h/2, chamfer2);
             lower = h - upper;
-
-            up(upper/2)
-              cuboid(size=[d/2 + extra, d, upper], chamfer=chamfer2, edges=[
-                [0, 0, 1, 1], // yz -- +- -+ ++
-                [0, 0, 0, 0], // xz
-                [0, 0, 0, 0], // xy
-              ]);
-
-            down(lower/2)
-              cuboid(size=[d/2 + extra, d, lower], chamfer=chamfer1, edges=[
-                [1, 1, 0, 0], // yz -- +- -+ ++
-                [0, 0, 0, 0], // xz
-                [0, 0, 0, 0], // xy
-              ]);
+            attachable(size=[d/2 + extra, d, h]) {
+              up(upper/2)
+                cuboid(size=[d/2 + extra, d, upper], chamfer=chamfer2, edges=[
+                  [0, 0, 1, 1], // yz -- +- -+ ++
+                  [0, 0, 0, 0], // xz
+                  [0, 0, 0, 0], // xy
+                ]);
+              down(lower/2)
+                cuboid(size=[d/2 + extra, d, lower], chamfer=chamfer1, edges=[
+                  [1, 1, 0, 0], // yz -- +- -+ ++
+                  [0, 0, 0, 0], // xz
+                  [0, 0, 0, 0], // xy
+                ]);
+            }
           } else {
             cuboid(size=[d/2 + extra, d, h], chamfer=chamfer2, edges=[
               [0, 0, 1, 1], // yz -- +- -+ ++
@@ -351,7 +348,7 @@ module plate(h, d, extra=0, chamfer1=0, chamfer2=0, anchor = CENTER, spin = 0, o
               [0, 0, 0, 0], // xy
             ]);
           }
-      }
+        };
 
       children();
     }
