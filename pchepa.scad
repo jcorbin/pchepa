@@ -15,6 +15,8 @@ mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill]
 filter_count = 1; // [1, 2]
 // TODO filter_count = 3
 
+buddy = true;
+
 /* [Wraparound Wall Metrics] */
 
 wrapwall_thickness = 0.4 * 4;
@@ -137,7 +139,8 @@ else if (mode == 1) {
   base() {
     %attach(TOP, BOTTOM, overlap=filter_recess) hepa_filter();
   };
-  if (filter_count > 1) {
+
+  if (filter_count > 1 && buddy) {
     right(base_od) zrot(180)
       %render() base();
   }
@@ -148,7 +151,8 @@ else if (mode == 2) {
     %attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
     %attach(TOP, BOTTOM) pc_fan();
   };
-  if (filter_count > 1) {
+
+  if (filter_count > 1 && buddy) {
     right(base_od) zrot(180)
       %render() cover();
   }
