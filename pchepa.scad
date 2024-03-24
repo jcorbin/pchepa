@@ -1,5 +1,6 @@
-include <BOSL2/screws.scad>
 include <BOSL2/std.scad>
+include <BOSL2/joiners.scad>
+include <BOSL2/screws.scad>
 
 // original inspiration <https://www.cleanairkits.com/products/exhalaron>
 // cites <https://www.mdpi.com/2075-5309/11/8/329>
@@ -10,7 +11,7 @@ include <BOSL2/std.scad>
 
 /* [Part Selection] */
 
-mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill]
+mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill, 4:Rabbit Clips]
 
 filter_count = 1; // [1, 2]
 // TODO filter_count = 3
@@ -74,6 +75,7 @@ filter_spacing = 1 * 25.4;
 cover_height = 16;
 cover_overhang = 2 + 2;
 cover_underhang = 2;
+cover_clips = 4;
 
 filter_recess = 6;
 filter_tolerance = 0.1;
@@ -87,6 +89,17 @@ cover_screw_h = 8;
 base_height = 20;
 
 base_overhang = 10;
+
+base_clips = 4;
+
+/* [Joiner Clip Parameters] */
+
+clip_length = 2 * 7;
+clip_width = 2 * 7;
+clip_depth = 3;
+clip_snap = 0.75;
+clip_thick = 1.6;
+clip_compress = 0.2;
 
 /* [Geometry Detail] */
 
@@ -143,6 +156,13 @@ else if (mode == 1) {
   if (filter_count > 1 && buddy) {
     right(base_od) zrot(180)
       %render() base();
+
+    up(1.5 * clip_depth)
+    down(base_height/2)
+    fwd(2*clip_width)
+    fwd(base_od/2)
+    right(base_od/2)
+      %render() xcopies(n=base_clips, spacing=clip_length * 2.5) clip(orient=RIGHT, spin = 90);
   }
 }
 
@@ -155,6 +175,13 @@ else if (mode == 2) {
   if (filter_count > 1 && buddy) {
     right(base_od) zrot(180)
       %render() cover();
+
+    down(1.5 * clip_depth)
+    up(cover_height/2)
+    fwd(2*clip_width)
+    fwd(cover_od/2)
+    right(base_od/2)
+      %render() xcopies(n=cover_clips, spacing=clip_length * 2.5) clip(orient=RIGHT, spin = 90);
   }
 }
 
@@ -167,7 +194,35 @@ else if (mode == 3) {
   }
 }
 
+else if (mode == 4) {
+  clip(orient=FWD);
+}
+
 /// implementation
+
+module clip(anchor = CENTER, spin = 0, orient = UP) {
+  rabbit_clip(
+    type="double",
+    length=clip_length,
+    width=clip_width,
+    snap=clip_snap,
+    thickness=clip_thick,
+    depth=clip_depth,
+    compression=clip_compress,
+    anchor = anchor, spin = spin, orient = orient);
+}
+
+module clip_socket(anchor = CENTER, spin = 0, orient = UP) {
+  rabbit_clip(
+    type="socket",
+    length=clip_length + $eps,
+    width=clip_width,
+    snap=clip_snap,
+    thickness=clip_thick,
+    depth=clip_depth,
+    compression=clip_compress,
+    anchor = anchor, spin = spin, orient = orient);
+}
 
 module pc_fan(anchor = CENTER, spin = 0, orient = UP) {
   attachable(size = fan_size, anchor = anchor, spin = spin, orient = orient) {
@@ -201,7 +256,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
   attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
 
-    diff(remove="flow filter wallslot screw")
+    diff(remove="flow filter wallslot screw socket")
       plate(
         h=cover_height, d=cover_od, extra=extra,
         chamfer1=cover_underhang, chamfer2=cover_overhang) {
@@ -225,6 +280,14 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
           attach(TOP, BOTTOM, overlap=cover_screw_h)
           cyl(h=cover_screw_h+$eps, d=cover_screw_d);
 
+        if (filter_count > 1 && cover_clips > 0) {
+          tag("socket")
+            down(clip_depth * 1.5)
+            up(cover_height / 2)
+            ycopies(l=(cover_od - 2*cover_overhang - 1.5 * clip_width), n=cover_clips)
+            attach(RIGHT, TOP, overlap=clip_length)
+            clip_socket();
+        }
       };
 
     children();
@@ -233,7 +296,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
 module base(anchor = CENTER, spin = 0, orient = UP) {
   attachable(h = base_height, d = base_od, anchor = anchor, spin = spin, orient = orient) {
-    diff(remove="filter wallslot")
+    diff(remove="filter wallslot socket")
       plate(h=base_height, d=base_od, chamfer2=base_overhang) {
         tag("filter")
           attach(TOP, BOTTOM, overlap=filter_recess)
@@ -245,6 +308,14 @@ module base(anchor = CENTER, spin = 0, orient = UP) {
             wallslot();
         }
 
+        if (filter_count > 1 && base_clips > 0) {
+          tag("socket")
+            up(clip_depth * 1.5)
+            down(base_height / 2)
+            ycopies(l=(base_od - 2*base_overhang - 1.5 * clip_width), n=base_clips)
+            attach(RIGHT, TOP, overlap=clip_length)
+            clip_socket();
+        }
       };
 
     children();
