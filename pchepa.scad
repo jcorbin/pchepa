@@ -44,8 +44,8 @@ fan_screw_spacing = 105;
 
 fan_rounding = 7;
 
-fan_wire_channel = 8;
-fan_wire_channel_chamfer = 2;
+fan_wire_channel = 6;
+fan_wire_channel_chamfer = 3;
 fan_wire_inset = 28;
 
 /* [Fan Grill Metrics] */
@@ -82,7 +82,7 @@ filter_spacing = 1 * 25.4;
 
 cover_height = 20;
 cover_overhang = 2 + 2;
-cover_underhang = 2;
+cover_underhang = 0.8;
 cover_clips = 4;
 
 filter_recess = 10;
