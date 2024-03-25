@@ -46,7 +46,7 @@ fan_rounding = 7;
 
 fan_wire_channel = 6;
 fan_wire_channel_chamfer = 3;
-fan_wire_inset = 28;
+fan_wire_inset = 30;
 
 /* [Fan Grill Metrics] */
 
@@ -66,7 +66,8 @@ grill_screw_head = "flat";
 
 /* [HEPA Filter Metrics] */
 
-filter_od = 7 * 25.4;
+// filter_od = 7 * 25.4; // 7 inch spec...
+filter_od = 180; // ... but actually need another couple mm
 
 filter_thickness = 31;
 
@@ -89,7 +90,7 @@ filter_recess = 10;
 filter_tolerance = 0.1;
 
 // TODO heatset diam instead
-cover_screw_d = struct_val(screw_info(grill_screw), "diameter");
+cover_screw_d = struct_val(screw_info(grill_screw), "diameter") + 0.2;
 cover_screw_h = 8;
 
 /* [Filter Base Parameters] */
@@ -108,6 +109,7 @@ clip_depth = 3;
 clip_snap = 0.75;
 clip_thick = 1.6;
 clip_compress = 0.2;
+clip_tolerance = 0.2;
 
 /* [Geometry Detail] */
 
@@ -229,6 +231,7 @@ module clip_socket(anchor = CENTER, spin = 0, orient = UP) {
     thickness=clip_thick,
     depth=clip_depth,
     compression=clip_compress,
+    clearance = clip_tolerance,
     anchor = anchor, spin = spin, orient = orient);
 }
 
@@ -300,7 +303,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
         if (fan_wire_channel > 0) {
           channel_length = (base_od - fan_size[0])/2 + fan_wire_inset + fan_wire_channel / 2;
           tag("channel")
-            ycopies(n=2, spacing=fan_size[1])
+            ycopies(n=2, spacing=fan_size[1] - 2*fan_wire_channel)
             up($eps)
             left(channel_length)
             attach(RIGHT + TOP, LEFT + TOP)
