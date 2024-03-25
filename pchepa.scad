@@ -38,11 +38,11 @@ fan_size = [ 120, 120, 25 ];
 
 fan_spacing = 5;
 
-fan_id = 116;
+fan_id = 120 - 2*1.8;
 
 fan_screw_spacing = 105;
 
-fan_rounding = 12;
+fan_rounding = 7;
 
 /* [Fan Grill Metrics] */
 
@@ -64,7 +64,9 @@ grill_screw_head = "flat";
 
 filter_od = 7 * 25.4;
 
-filter_id = 6 * 25.4;
+filter_thickness = 31;
+
+filter_id = filter_od - filter_thickness;
 
 filter_height = 5.9 * 25.4;
 
