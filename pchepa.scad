@@ -515,7 +515,7 @@ module grill(anchor = CENTER, spin = 0, orient = UP) {
             grill_size - 2 * grill_thickness,
             fan_size[2] + $eps,
           ], chamfer = grill_thickness, edges =[
-            [0, 0, 0, 0], // yz -- +- -+ ++
+            [0, 0, 1, 1], // yz -- +- -+ ++
             [0, 0, 0, 0], // xz
             [1, extra > 0 ? 0 : 1, 1, extra > 0 ? 0 : 1], // xy
           ]);
