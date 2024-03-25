@@ -72,18 +72,20 @@ filter_thickness = 31;
 
 filter_id = filter_od - filter_thickness;
 
+filter_grip = 1;
+
 filter_height = 5.9 * 25.4;
 
 filter_spacing = 1 * 25.4;
 
 /* [Filter Cover Parameters] */
 
-cover_height = 16;
+cover_height = 20;
 cover_overhang = 2 + 2;
 cover_underhang = 2;
 cover_clips = 4;
 
-filter_recess = 6;
+filter_recess = 10;
 filter_tolerance = 0.1;
 
 // TODO heatset diam instead
@@ -262,7 +264,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
   attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
 
-    diff(remove="flow filter wallslot screw socket channel")
+    diff(remove="flow filter wallslot screw socket channel", keep="grip")
       plate(
         h=cover_height, d=cover_od, extra=extra,
         chamfer1=cover_underhang, chamfer2=cover_overhang) {
@@ -314,6 +316,18 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
                 [1, 0, 0, 0], // xz
                 [1, 0, 1, 0], // xy
               ]);
+        }
+
+        if (filter_grip > 0) {
+          tag("grip")
+          zrot_copies(n = 8)
+          up(filter_grip)
+          left(filter_od/2)
+          down(cover_height/2)
+            teardrop(
+              h = 2*filter_grip,
+              r = filter_grip
+            );
         }
 
       };
