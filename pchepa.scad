@@ -175,7 +175,7 @@ else if (mode == 1) {
 }
 
 else if (mode == 2) {
-  cover() {
+  cover(orient=$preview ? UP : DOWN) {
     %attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
     %attach(TOP, BOTTOM) pc_fan();
   };
