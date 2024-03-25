@@ -44,9 +44,13 @@ fan_screw_spacing = 105;
 
 fan_rounding = 7;
 
+fan_wire_channel = 8;
+fan_wire_channel_chamfer = 2;
+fan_wire_inset = 28;
+
 /* [Fan Grill Metrics] */
 
-grill_size = 128;
+grill_size = 136;
 
 grill_thickness = 3;
 
@@ -258,7 +262,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
   attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
 
-    diff(remove="flow filter wallslot screw socket")
+    diff(remove="flow filter wallslot screw socket channel")
       plate(
         h=cover_height, d=cover_od, extra=extra,
         chamfer1=cover_underhang, chamfer2=cover_overhang) {
@@ -290,6 +294,28 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
             attach(RIGHT, TOP, overlap=clip_length)
             clip_socket();
         }
+
+        if (fan_wire_channel > 0) {
+          channel_length = (base_od - fan_size[0])/2 + fan_wire_inset + fan_wire_channel / 2;
+          tag("channel")
+            ycopies(n=2, spacing=fan_size[1])
+            up($eps)
+            left(channel_length)
+            attach(RIGHT + TOP, LEFT + TOP)
+            xrot(90)
+            cuboid(
+              size=[
+              channel_length + $eps,
+                fan_wire_channel,
+                fan_wire_channel+$eps,
+              ],
+              chamfer=fan_wire_channel_chamfer, edges=[
+                [1, 1, 0, 0], // yz -- +- -+ ++
+                [1, 0, 0, 0], // xz
+                [1, 0, 1, 0], // xy
+              ]);
+        }
+
       };
 
     children();
