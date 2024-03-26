@@ -95,6 +95,9 @@ filter_tolerance = 0.1;
 cover_screw_d = struct_val(screw_info(grill_screw), "diameter") + 0.2;
 cover_screw_h = 8;
 
+cover_port = [20, 20];
+cover_port_at = [-48, 48];
+
 /* [Filter Base Parameters] */
 
 base_height = 20;
@@ -269,7 +272,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
   attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
 
-    diff(remove="flow filter wallslot screw socket channel", keep="grip")
+    diff(remove="flow filter wallslot screw socket channel port", keep="grip")
       plate(
         h=cover_height, d=cover_od, extra=extra,
         chamfer1=cover_underhang, chamfer2=cover_overhang) {
@@ -334,6 +337,20 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
               r = filter_grip
             );
         }
+
+        if (cover_port[0] * cover_port[1] > 0) {
+          port_chamfer = min(cover_port/4);
+          port_size = [cover_port[0], cover_port[1], cover_height];
+
+          tag("port")
+            ycopies(cover_port_at)
+            left(port_size[0] / 2)
+            attach(TOP + RIGHT, TOP + LEFT)
+            up($eps)
+            xrot(90)
+              cuboid(port_size + [0, 0, 2*$eps], chamfer=port_chamfer, edges="Z");
+        }
+
 
       };
 
