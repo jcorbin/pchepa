@@ -198,7 +198,7 @@ else if (mode == 2) {
 }
 
 else if (mode == 3) {
-  grill() {
+  grill(orient=$preview ? UP : DOWN) {
     left(filter_count == 1 ? 0 : (base_od - grill_size)/4) {
       %attach(BOTTOM, TOP, overlap=fan_size[2]) pc_fan();
       %attach(BOTTOM, TOP) render() cover();
