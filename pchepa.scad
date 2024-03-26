@@ -64,6 +64,8 @@ grill_screw = "M3";
 
 grill_screw_head = "flat";
 
+grill_window = [ 24, 46 ];
+
 /* [HEPA Filter Metrics] */
 
 // filter_od = 7 * 25.4; // 7 inch spec...
@@ -503,7 +505,7 @@ module grill(anchor = CENTER, spin = 0, orient = UP) {
 
   attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
 
-    diff(remove="screw hollow holes")
+    diff(remove="screw hollow holes window")
       cuboid(size=size, chamfer=grill_chamfer, edges=[
         [0, 0, 1, 1], // yz -- +- -+ ++
         [0, 0, 1, extra > 0 ? 0 : 1], // xz
@@ -542,6 +544,21 @@ module grill(anchor = CENTER, spin = 0, orient = UP) {
               zrot(30)
               cyl(h=size[2] + 2*$eps, d=grill_hole_size, $fn=6);
 
+        }
+
+        if (grill_window[0] * grill_window[1] > 0) {
+          window_size = [
+            grill_window[0] + 2 * grill_thickness,
+            grill_window[1] + 2 * grill_thickness, 4 *
+            grill_thickness
+          ];
+
+          tag("window")
+            left(window_size[0] / 2)
+            up(window_size[2] / 2)
+            attach(TOP + RIGHT, TOP + LEFT)
+            xrot(90)
+              cuboid(window_size + [0, 0, $eps], chamfer=2 * grill_thickness);
         }
 
       };
