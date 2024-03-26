@@ -278,7 +278,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
         tag("filter")
           attach(BOTTOM, TOP, overlap=filter_recess)
-          cyl(h=filter_recess+$eps, d=filter_od + filter_tolerance);
+          cyl(h=filter_recess+$eps, d=filter_od + 2*filter_tolerance);
 
         if (wrapwall_thickness > 0) {
           tag("wallslot")
@@ -345,7 +345,7 @@ module base(anchor = CENTER, spin = 0, orient = UP) {
       plate(h=base_height, d=base_od, chamfer2=base_overhang) {
         tag("filter")
           attach(TOP, BOTTOM, overlap=filter_recess)
-          cyl(h=filter_recess+$eps, d=filter_od + filter_tolerance);
+          cyl(h=filter_recess+$eps, d=filter_od + 2*filter_tolerance);
 
         if (wrapwall_thickness > 0) {
           tag("wallslot")
