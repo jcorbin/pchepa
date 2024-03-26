@@ -44,7 +44,7 @@ fan_screw_spacing = 105;
 
 fan_rounding = 7;
 
-fan_wire_channel = 6;
+fan_wire_channel = 0;
 fan_wire_channel_chamfer = 3;
 fan_wire_inset = 30;
 
