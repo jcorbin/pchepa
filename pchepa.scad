@@ -11,7 +11,7 @@ include <BOSL2/screws.scad>
 
 /* [Part Selection] */
 
-mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill, 4:Rabbit Clips]
+mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill, 4:Rabbit Clips, 42:Test]
 
 filter_count = 1; // [1, 2]
 // TODO filter_count = 3
@@ -106,6 +106,8 @@ base_overhang = 10;
 
 base_clips = 4;
 
+base_with_usbc_port = true;
+
 /* [Joiner Clip Parameters] */
 
 clip_length = 2 * 7;
@@ -115,6 +117,14 @@ clip_snap = 0.75;
 clip_thick = 1.6;
 clip_compress = 0.2;
 clip_tolerance = 0.4;
+
+/* [USB-C Port Parameters] */
+
+usbc_port_front_size = [9.1, 11, 3.2];
+
+usbc_port_back_size = [9.1, 10, 1.6];
+
+usbc_port_size = usbc_port_front_size + [0, usbc_port_back_size[1], 0];
 
 /* [Geometry Detail] */
 
@@ -211,6 +221,27 @@ else if (mode == 3) {
 
 else if (mode == 4) {
   clip(orient=FWD);
+}
+
+else if (mode == 42) {
+  extra = 5;
+  left_cut = base_od - clip_length - 1.5 * usbc_port_size[0] - extra;
+  back_cut = base_od - usbc_port_size[1] - usbc_port_back_size[0] - extra;
+
+  back(back_cut/2)
+  left(left_cut/2)
+
+  diff(remove="cut") base() {
+
+    tag("cut")
+      attach(LEFT, RIGHT, overlap=left_cut)
+      cube([left_cut + $eps, base_od + 2*$eps, base_height + 2*$eps]);
+
+    tag("cut")
+      attach(BACK, FRONT, overlap=back_cut)
+      cube([base_od + 2*$eps, back_cut + $eps, base_height + 2*$eps]);
+
+  }
 }
 
 /// implementation
@@ -358,9 +389,18 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
   }
 }
 
+module usbc_port(anchor = CENTER, spin = 0, orient = UP) {
+  attachable(size = usbc_port_size, anchor = anchor, spin = spin, orient = orient) {
+    translate(-usbc_port_size/2)
+    cube(usbc_port_front_size)
+    attach(BACK, FRONT, overlap=$eps) cube(usbc_port_back_size + [0, $eps, 0]);
+    children();
+  }
+}
+
 module base(anchor = CENTER, spin = 0, orient = UP) {
   attachable(h = base_height, d = base_od, anchor = anchor, spin = spin, orient = orient) {
-    diff(remove="filter wallslot socket")
+    diff(remove="filter wallslot socket port")
       plate(h=base_height, d=base_od, chamfer2=base_overhang) {
         tag("filter")
           attach(TOP, BOTTOM, overlap=filter_recess)
@@ -380,6 +420,31 @@ module base(anchor = CENTER, spin = 0, orient = UP) {
             attach(RIGHT, TOP, overlap=clip_length)
             clip_socket();
         }
+
+        // USB C port and wire channel
+        if (base_with_usbc_port) {
+          tag("port")
+            up(usbc_port_size[2])
+            down(base_height/2)
+            back(usbc_port_size[1]) fwd($eps)
+            left(usbc_port_size[0])
+            left(clip_length)
+            attach(FRONT+RIGHT, BACK)
+            yrot(-45)
+            usbc_port() {
+              channel_chamfer = usbc_port_back_size[0]/8;
+              up((usbc_port_front_size[2] - usbc_port_back_size[2])/2)
+              fwd(channel_chamfer+$eps)
+              attach(BACK+BOTTOM, FRONT+BOTTOM)
+              xrot(-90)
+                cuboid([
+                  usbc_port_back_size[0],
+                  usbc_port_back_size[0] + channel_chamfer,
+                  100,
+                ], chamfer=channel_chamfer, edges="Z");
+            }
+        }
+
       };
 
     children();
