@@ -310,9 +310,9 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
             xrot(90)
             cuboid(
               size=[
-              channel_length + $eps,
+                channel_length + $eps,
                 fan_wire_channel,
-                fan_wire_channel+$eps,
+                fan_wire_channel + $eps,
               ],
               chamfer=fan_wire_channel_chamfer, edges=[
                 [1, 1, 0, 0], // yz -- +- -+ ++
@@ -377,7 +377,7 @@ module wallslot(anchor = CENTER, spin = 0, orient = UP) {
       ring(h = slot_h, id = slot_id, od = slot_od);
       children();
     }
-  } 
+  }
 
   else if (filter_count == 2) {
     extra = (base_od - slot_od)/2;
@@ -407,7 +407,7 @@ module wallslot(anchor = CENTER, spin = 0, orient = UP) {
       }
 
       children();
-    } 
+    }
   }
 
   else {
@@ -417,7 +417,7 @@ module wallslot(anchor = CENTER, spin = 0, orient = UP) {
 
 module ring(id, od, h, anchor = CENTER, spin = 0, orient = UP) {
   attachable(h = h, d = od, anchor = anchor, spin = spin, orient = orient) {
-    tag_scope("ring") diff() cyl(h = h, d = od)  {
+    tag_scope("ring") diff() cyl(h = h, d = od) {
       tag("remove")
         attach(TOP, BOTTOM, overlap=h + $eps)
         cyl(h = h + 2*$eps, d = id);
@@ -426,7 +426,7 @@ module ring(id, od, h, anchor = CENTER, spin = 0, orient = UP) {
   }
 }
 
-module plate(h, d, extra=0, chamfer1=0, chamfer2=0, anchor = CENTER, spin = 0, orient = UP) {
+module plate(h, d, extra=0, chamfer1=0, chamfer2=0, anchor=CENTER, spin=0, orient=UP) {
   if (filter_count == 1) {
     attachable(h = h, d = d, anchor = anchor, spin = spin, orient = orient) {
       cyl(h=h, d=d, chamfer1=chamfer1, chamfer2=chamfer2);
@@ -504,7 +504,7 @@ module grill(anchor = CENTER, spin = 0, orient = UP) {
   attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
 
     diff(remove="screw hollow holes")
-      cuboid(size=size, chamfer=grill_chamfer, edges = [
+      cuboid(size=size, chamfer=grill_chamfer, edges=[
         [0, 0, 1, 1], // yz -- +- -+ ++
         [0, 0, 1, extra > 0 ? 0 : 1], // xz
         [1, extra > 0 ? 0 : 1, 1, extra > 0 ? 0 : 1], // xy
@@ -517,7 +517,7 @@ module grill(anchor = CENTER, spin = 0, orient = UP) {
             grill_size + extra - 2 * grill_thickness + (extra > 0 ? grill_thickness + $eps : 0),
             grill_size - 2 * grill_thickness,
             fan_size[2] + $eps,
-          ], chamfer = grill_thickness, edges =[
+          ], chamfer = grill_thickness, edges = [
             [0, 0, 1, 1], // yz -- +- -+ ++
             [0, 0, 0, 0], // xz
             [1, extra > 0 ? 0 : 1, 1, extra > 0 ? 0 : 1], // xy
@@ -543,6 +543,7 @@ module grill(anchor = CENTER, spin = 0, orient = UP) {
               cyl(h=size[2] + 2*$eps, d=grill_hole_size, $fn=6);
 
         }
+
       };
 
     children();
