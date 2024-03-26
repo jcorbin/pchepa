@@ -120,9 +120,9 @@ clip_tolerance = 0.4;
 
 /* [USB-C Port Parameters] */
 
-usbc_port_front_size = [9.1, 11, 3.2];
+usbc_port_front_size = [9.3, 12, 3.4];
 
-usbc_port_back_size = [9.1, 10, 1.6];
+usbc_port_back_size = [9.3, 10, 1.8];
 
 usbc_port_size = usbc_port_front_size + [0, usbc_port_back_size[1], 0];
 
@@ -225,7 +225,10 @@ else if (mode == 4) {
 
 else if (mode == 42) {
   extra = 5;
-  left_cut = base_od - clip_length - 1.5 * usbc_port_size[0] - extra;
+  left_cut = base_od - clip_length - (
+    $preview
+      ? (1.5 * usbc_port_size[0]/8*7) // tunnel cutaway when previewing
+      : (1.5 * usbc_port_size[0] + extra));
   back_cut = base_od - usbc_port_size[1] - usbc_port_back_size[0] - extra;
 
   back(back_cut/2)
@@ -338,6 +341,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
         if (fan_wire_channel > 0) {
           channel_length = (base_od - fan_size[0])/2 + fan_wire_inset + fan_wire_channel / 2;
+
           tag("channel")
             ycopies(n=2, spacing=fan_size[1] - 2*fan_wire_channel)
             up($eps)
@@ -433,15 +437,27 @@ module base(anchor = CENTER, spin = 0, orient = UP) {
             yrot(-45)
             usbc_port() {
               channel_chamfer = usbc_port_back_size[0]/8;
+
               up((usbc_port_front_size[2] - usbc_port_back_size[2])/2)
               fwd(channel_chamfer+$eps)
-              attach(BACK+BOTTOM, FRONT+BOTTOM)
-              xrot(-90)
+              attach(BACK+BOTTOM, FRONT+BOTTOM) xrot(-90)
                 cuboid([
                   usbc_port_back_size[0],
                   usbc_port_back_size[0] + channel_chamfer,
                   100,
-                ], chamfer=channel_chamfer, edges="Z");
+                ], chamfer=channel_chamfer, edges="Z")
+
+                back(channel_chamfer/2) up(channel_chamfer/2)
+                up(2*channel_chamfer)
+                up(usbc_port_back_size[2])
+                attach(FRONT+BOTTOM, FRONT+BOTTOM)
+                  xrot(45)
+                  cube([
+                    usbc_port_back_size[0],
+                    1.5*channel_chamfer,
+                    4*channel_chamfer,
+                  ]);
+
             }
         }
 
