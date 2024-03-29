@@ -442,7 +442,7 @@ module base(anchor = CENTER, spin = 0, orient = UP) {
               fwd(channel_chamfer+$eps)
               attach(BACK+BOTTOM, FRONT+BOTTOM) xrot(-90)
                 cuboid([
-                  usbc_port_back_size[0],
+                  usbc_port_back_size[0] + 2*channel_chamfer,
                   usbc_port_back_size[0] + channel_chamfer,
                   100,
                 ], chamfer=channel_chamfer, edges="Z")
