@@ -118,13 +118,22 @@ clip_thick = 1.6;
 clip_compress = 0.2;
 clip_tolerance = 0.4;
 
-/* [USB-C Port Parameters] */
+/* [Power Module] */
 
-usbc_port_front_size = [9.3, 12, 3.4];
+// Tune for a particular USB-C 12v power trigger module
 
-usbc_port_back_size = [9.3, 10, 1.8];
+power_pcb_size = [10.8, 16.25, 1.5];
+power_socket_size = [9, 6.8, 3.2];
+power_socket_overhang = 1.6;
+power_socket_rounding = 1;
+power_module_porch = 4;
+power_module_tolerance = 0.1;
 
-usbc_port_size = usbc_port_front_size + [0, usbc_port_back_size[1], 0];
+power_module_size = [
+  max(power_pcb_size[0], power_socket_size[0]),
+  power_pcb_size[1] + power_socket_overhang,
+  power_pcb_size[2] + power_socket_size[2],
+];
 
 /* [Geometry Detail] */
 
@@ -227,9 +236,9 @@ else if (mode == 42) {
   extra = 5;
   left_cut = base_od - clip_length - (
     $preview
-      ? (1.5 * usbc_port_size[0]/8*7) // tunnel cutaway when previewing
-      : (1.5 * usbc_port_size[0] + extra));
-  back_cut = base_od - usbc_port_size[1] - usbc_port_back_size[0] - extra;
+      ? (1.5 * power_module_size[0]/8*7) // tunnel cutaway when previewing
+      : (1.5 * power_module_size[0] + extra));
+  back_cut = base_od - power_module_size[1] - power_pcb_size[0] - extra;
 
   back(back_cut/2)
   left(left_cut/2)
@@ -393,11 +402,50 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
   }
 }
 
-module usbc_port(anchor = CENTER, spin = 0, orient = UP) {
-  attachable(size = usbc_port_size, anchor = anchor, spin = spin, orient = orient) {
-    translate(-usbc_port_size/2)
-    cube(usbc_port_front_size)
-    attach(BACK, FRONT, overlap=$eps) cube(usbc_port_back_size + [0, $eps, 0]);
+module power_module(tolerance=0, profile=false, anchor = CENTER, spin = 0, orient = UP) {
+  socket_length = (profile ? power_pcb_size[1] + power_socket_overhang : power_socket_size[1]);
+  socket_overlap = socket_length - power_socket_overhang;
+  pcb_height = profile
+    ? power_pcb_size[2] + power_socket_size[2]/2
+    : power_pcb_size[2];
+
+  vtol = [tolerance, tolerance, tolerance];
+
+  attachable(size = power_module_size + 2*vtol, anchor = anchor, spin = spin, orient = orient) {
+
+    down(power_module_size[2]/2)
+    up(pcb_height/2)
+    back(power_socket_overhang/2 + tolerance)
+    cuboid([
+      power_pcb_size[0],
+      power_pcb_size[1],
+      pcb_height
+    ] + 2*vtol) {
+
+      down($eps)
+      back(socket_overlap)
+      down(profile ? power_socket_size[2]/2 : 0)
+      attach(FRONT+TOP, BACK+BOTTOM)
+      cuboid([
+        power_socket_size[0],
+        socket_length,
+        power_socket_size[2] + $eps,
+      ] + 2*vtol,
+        rounding=power_socket_rounding + tolerance, edges="Y");
+
+      if (profile && power_module_porch > 0) {
+        fwd(power_module_porch + 2*tolerance)
+        up(power_module_size[2] + 2*tolerance)
+        attach(BACK+BOTTOM, FRONT+TOP)
+          cube([
+            power_pcb_size[0],
+            power_module_porch,
+            power_module_size[2],
+          ] + 2*vtol);
+      }
+
+    }
+
     children();
   }
 }
@@ -428,36 +476,50 @@ module base(anchor = CENTER, spin = 0, orient = UP) {
         // USB C port and wire channel
         if (base_with_usbc_port) {
           tag("port")
-            up(usbc_port_size[2])
+            up(power_module_size[2])
             down(base_height/2)
-            back(usbc_port_size[1]) fwd($eps)
-            left(usbc_port_size[0])
+            back(power_module_size[1]) fwd($eps)
+            left(power_module_size[0])
             left(clip_length)
             attach(FRONT+RIGHT, BACK)
             yrot(-45)
-            usbc_port() {
-              channel_chamfer = usbc_port_back_size[0]/8;
+            power_module(profile=true, tolerance=power_module_tolerance) {
+              channel_chamfer = 1;
 
-              up((usbc_port_front_size[2] - usbc_port_back_size[2])/2)
+              up(power_pcb_size[2])
               fwd(channel_chamfer+$eps)
               attach(BACK+BOTTOM, FRONT+BOTTOM) xrot(-90)
                 cuboid([
-                  usbc_port_back_size[0] + 2*channel_chamfer,
-                  usbc_port_back_size[0] + channel_chamfer,
+                  power_pcb_size[0] + 2*channel_chamfer,
+                  power_pcb_size[0] + channel_chamfer,
                   100,
-                ], chamfer=channel_chamfer, edges="Z")
+                ], chamfer=channel_chamfer, edges="Z");
 
-                back(channel_chamfer/2) up(channel_chamfer/2)
-                up(2*channel_chamfer)
-                up(usbc_port_back_size[2])
-                attach(FRONT+BOTTOM, FRONT+BOTTOM)
-                  xrot(45)
+              cut_size = [
+                power_module_size[0] + 2*power_module_tolerance,
+                1.5*power_module_porch + 2*power_module_tolerance,
+                3*power_module_porch + 2*power_module_tolerance,
+              ];
+
+              fwd(sqrt(cut_size[1]^2 + cut_size[2]^2)/2)
+              fwd(channel_chamfer)
+              up(2*power_module_tolerance)
+              fwd(power_module_tolerance)
+              attach(BACK+TOP, FRONT+BOTTOM)
+                xrot(45)
+                cube(cut_size)
+                  back(power_socket_size[2])
+                  up($eps)
+                  attach(BOTTOM+FRONT, FRONT+BOTTOM)
                   cube([
-                    usbc_port_back_size[0],
-                    1.5*channel_chamfer,
-                    4*channel_chamfer,
+                    cut_size[0],
+                    power_socket_size[2] + $eps,
+                    power_socket_size[2]
                   ]);
 
+              %attach(CENTER, CENTER)
+                yrot(180)
+                power_module();
             }
         }
 
