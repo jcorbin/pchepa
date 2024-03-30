@@ -116,7 +116,7 @@ clip_depth = 3;
 clip_snap = 0.75;
 clip_thick = 1.6;
 clip_compress = 0.2;
-clip_tolerance = 0.4;
+clip_tolerance = 0.5;
 
 /* [Power Module] */
 
