@@ -128,7 +128,7 @@ power_socket_overhang = 1.6;
 power_socket_rounding = 1;
 power_module_cut = 4;
 power_module_porch = 14;
-power_module_tolerance = 0.15;
+power_module_tolerance = 0.2;
 
 power_module_size = [
   max(power_pcb_size[0], power_socket_size[0]),
@@ -145,6 +145,14 @@ power_channel_size = [
   2*power_channel_chamfer,
   100,
 ];
+
+power_channel_plug_size = [
+  power_channel_size[0],
+  power_channel_size[1] - 4*power_module_tolerance,
+  base_height - power_module_size[2]/2,
+];
+
+power_channel_plug_tolerance = 0.2;
 
 /* [Geometry Detail] */
 
@@ -244,19 +252,18 @@ else if (mode == 10) {
 }
 
 else if (mode == 11) {
-  base_power_channel_plug(height = base_height - power_module_size[2]/2);
+  base_power_channel_plug();
 }
 
 else if (mode == 42) {
   power_module_fit_test() {
     if (!$preview) {
-      ph = base_height - power_module_size[2]/2;
       fwd(power_channel_chamfer)
       back(power_channel_size[1] / 2)
       left(power_channel_size[0])
-      up(ph)
+      up(power_channel_plug_size[2])
       attach(LEFT+BOTTOM, RIGHT+TOP)
-        base_power_channel_plug(height = ph);
+        base_power_channel_plug();
     }
   }
 }
@@ -292,27 +299,22 @@ module power_module_fit_test(extra = 5, anchor = CENTER, spin = 0, orient = UP) 
   }
 }
 
-module base_power_channel_plug(height, anchor = CENTER, spin = 0, orient = UP) {
-  size = [
-    power_channel_size[0],
-    power_channel_size[1],
-    height,
-  ] - [
-    2*power_module_tolerance,
-    2*power_module_tolerance,
-    0
-  ];
+module base_power_channel_plug(
+  tolerance = power_channel_plug_tolerance,
+  anchor = CENTER, spin = 0, orient = UP
+) {
+  size = power_channel_plug_size - [2*tolerance, 2*tolerance, 0];
 
   attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
     diff(remove="channel notch")
-    cuboid(size, chamfer=power_channel_chamfer - power_module_tolerance, edges="Z") {
+    cuboid(size, chamfer=power_channel_chamfer - tolerance, edges="Z") {
         tag("channel")
         attach(FRONT, BACK, overlap=size[1] - size[0]/4)
           cuboid([
             size[0]/2,
             size[1] - size[0]/4 + $eps,
             size[2] + 2*$eps
-          ], chamfer=power_channel_chamfer - power_module_tolerance, edges=[
+          ], chamfer=power_channel_chamfer - tolerance, edges=[
             [0, 0, 0, 0], // yz -- +- -+ ++
             [0, 0, 0, 0], // xz
             [0, 0, 1, 1], // xy
@@ -324,7 +326,7 @@ module base_power_channel_plug(height, anchor = CENTER, spin = 0, orient = UP) {
             size[0]/3,
             power_channel_chamfer + $eps,
             size[2] + 2*$eps
-          ], chamfer=power_channel_chamfer - power_module_tolerance, edges=[
+          ], chamfer=power_channel_chamfer - tolerance, edges=[
             [0, 0, 0, 0], // yz -- +- -+ ++
             [0, 0, 0, 0], // xz
             [1, 1, 0, 0], // xy
@@ -589,13 +591,14 @@ module base(anchor = CENTER, spin = 0, orient = UP) {
                     power_socket_size[2]
                   ]);
 
+              back(2*power_module_tolerance)
               %attach(CENTER, CENTER)
                 yrot(180)
                 power_module()
                   back(power_module_tolerance)
                   attach(BACK+BOTTOM, FRONT+BOTTOM) 
                   xrot(-90)
-                  base_power_channel_plug(height = base_height - power_module_size[2]/2);
+                  base_power_channel_plug();
 
             }
         }
