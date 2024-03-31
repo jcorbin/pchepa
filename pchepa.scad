@@ -126,13 +126,24 @@ power_pcb_size = [10.8, 16.25, 1.5];
 power_socket_size = [9, 6.8, 3.2];
 power_socket_overhang = 1.6;
 power_socket_rounding = 1;
-power_module_porch = 4;
-power_module_tolerance = 0.1;
+power_module_cut = 4;
+power_module_porch = 14;
+power_module_tolerance = 0.15;
 
 power_module_size = [
   max(power_pcb_size[0], power_socket_size[0]),
   power_pcb_size[1] + power_socket_overhang,
   power_pcb_size[2] + power_socket_size[2],
+];
+
+power_channel_chamfer = 1;
+
+power_channel_size = [
+  power_pcb_size[0] + 2*power_channel_chamfer,
+  sqrt(power_pcb_size[1]^2/2) +
+  sqrt(power_pcb_size[2]^2/2) +
+  power_channel_chamfer,
+  100,
 ];
 
 /* [Geometry Detail] */
@@ -238,7 +249,7 @@ else if (mode == 42) {
     $preview
       ? (1.5 * power_module_size[0]/8*7) // tunnel cutaway when previewing
       : (1.5 * power_module_size[0] + extra));
-  back_cut = base_od - power_module_size[1] - power_pcb_size[0] - extra;
+  back_cut = base_od - power_module_size[1] - power_channel_size[1] - extra;
 
   back(back_cut/2)
   left(left_cut/2)
@@ -484,25 +495,20 @@ module base(anchor = CENTER, spin = 0, orient = UP) {
             attach(FRONT+RIGHT, BACK)
             yrot(-45)
             power_module(profile=true, tolerance=power_module_tolerance) {
-              channel_chamfer = 1;
 
               up(power_pcb_size[2])
-              fwd(channel_chamfer+$eps)
+              fwd(power_channel_chamfer+$eps)
               attach(BACK+BOTTOM, FRONT+BOTTOM) xrot(-90)
-                cuboid([
-                  power_pcb_size[0] + 2*channel_chamfer,
-                  power_pcb_size[0] + channel_chamfer,
-                  100,
-                ], chamfer=channel_chamfer, edges="Z");
+                cuboid(power_channel_size, chamfer=power_channel_chamfer, edges="Z");
 
               cut_size = [
                 power_module_size[0] + 2*power_module_tolerance,
-                1.5*power_module_porch + 2*power_module_tolerance,
-                3*power_module_porch + 2*power_module_tolerance,
+                1.5*power_module_cut + 2*power_module_tolerance,
+                3*power_module_cut + 2*power_module_tolerance,
               ];
 
               fwd(sqrt(cut_size[1]^2 + cut_size[2]^2)/2)
-              fwd(channel_chamfer)
+              fwd(power_channel_chamfer)
               up(2*power_module_tolerance)
               fwd(power_module_tolerance)
               attach(BACK+TOP, FRONT+BOTTOM)
