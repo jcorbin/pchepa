@@ -163,7 +163,7 @@ $fa = 4; // 1
 $fs = 0.2; // 0.05
 
 // Epsilon adjustement value for cutouts
-$eps = 0.1;
+$eps = 0.01;
 
 /// dispatch / integration
 
@@ -682,9 +682,11 @@ module ring(id, od, h, anchor = CENTER, spin = 0, orient = UP) {
 }
 
 module plate(h, d, extra=0, chamfer1=0, chamfer2=0, anchor=CENTER, spin=0, orient=UP) {
+  r = d/2 - 1/1024;
+
   if (filter_count == 1) {
     attachable(h = h, d = d, anchor = anchor, spin = spin, orient = orient) {
-      cyl(h=h, d=d, chamfer1=chamfer1, chamfer2=chamfer2);
+      cyl(h=h, r=r, chamfer1=chamfer1, chamfer2=chamfer2);
       children();
     }
   }
@@ -693,7 +695,7 @@ module plate(h, d, extra=0, chamfer1=0, chamfer2=0, anchor=CENTER, spin=0, orien
     size = [d + extra, d, h];
     attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
       left(extra/2)
-        cyl(h=h, d=d, chamfer1=chamfer1, chamfer2=chamfer2)
+        cyl(h=h, r=r, chamfer1=chamfer1, chamfer2=chamfer2)
         attach(RIGHT, LEFT, overlap=d/2) {
           if (chamfer1 > 0) {
             upper = max(h/2, chamfer2);
