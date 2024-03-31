@@ -11,7 +11,7 @@ include <BOSL2/screws.scad>
 
 /* [Part Selection] */
 
-mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill, 4:Rabbit Clips, 42:Test]
+mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill, 10:Rabbit Clips, 11:Base Channel Plug, 42:Test]
 
 filter_count = 1; // [1, 2]
 // TODO filter_count = 3
@@ -142,7 +142,7 @@ power_channel_size = [
   power_pcb_size[0] + 2*power_channel_chamfer,
   sqrt(power_pcb_size[1]^2/2) +
   sqrt(power_pcb_size[2]^2/2) +
-  power_channel_chamfer,
+  2*power_channel_chamfer,
   100,
 ];
 
@@ -239,14 +239,26 @@ else if (mode == 3) {
   }
 }
 
-else if (mode == 4) {
+else if (mode == 10) {
   clip(orient=FWD);
+}
+
+else if (mode == 11) {
+  base_power_channel_plug(height = base_height - power_module_size[2]/2);
 }
 
 else if (mode == 42) {
   power_module_fit_test() {
+    if (!$preview) {
+      ph = base_height - power_module_size[2]/2;
+      fwd(power_channel_chamfer)
+      back(power_channel_size[1] / 2)
+      left(power_channel_size[0])
+      up(ph)
+      attach(LEFT+BOTTOM, RIGHT+TOP)
+        base_power_channel_plug(height = ph);
+    }
   }
-
 }
 
 /// implementation
@@ -274,6 +286,50 @@ module power_module_fit_test(extra = 5, anchor = CENTER, spin = 0, orient = UP) 
       tag("cut")
         attach(BACK, FRONT, overlap=back_cut)
         cube([base_od + 2*$eps, back_cut + $eps, base_height + 2*$eps]);
+    }
+
+    children();
+  }
+}
+
+module base_power_channel_plug(height, anchor = CENTER, spin = 0, orient = UP) {
+  size = [
+    power_channel_size[0],
+    power_channel_size[1],
+    height,
+  ] - [
+    2*power_module_tolerance,
+    2*power_module_tolerance,
+    0
+  ];
+
+  attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
+    diff(remove="channel notch")
+    cuboid(size, chamfer=power_channel_chamfer - power_module_tolerance, edges="Z") {
+        tag("channel")
+        attach(FRONT, BACK, overlap=size[1] - size[0]/4)
+          cuboid([
+            size[0]/2,
+            size[1] - size[0]/4 + $eps,
+            size[2] + 2*$eps
+          ], chamfer=power_channel_chamfer - power_module_tolerance, edges=[
+            [0, 0, 0, 0], // yz -- +- -+ ++
+            [0, 0, 0, 0], // xz
+            [0, 0, 1, 1], // xy
+          ]);
+
+        tag("notch")
+        attach(BACK, FRONT, overlap=power_channel_chamfer)
+          cuboid([
+            size[0]/3,
+            power_channel_chamfer + $eps,
+            size[2] + 2*$eps
+          ], chamfer=power_channel_chamfer - power_module_tolerance, edges=[
+            [0, 0, 0, 0], // yz -- +- -+ ++
+            [0, 0, 0, 0], // xz
+            [1, 1, 0, 0], // xy
+          ]);
+
     }
 
     children();
@@ -535,7 +591,12 @@ module base(anchor = CENTER, spin = 0, orient = UP) {
 
               %attach(CENTER, CENTER)
                 yrot(180)
-                power_module();
+                power_module()
+                  back(power_module_tolerance)
+                  attach(BACK+BOTTOM, FRONT+BOTTOM) 
+                  xrot(-90)
+                  base_power_channel_plug(height = base_height - power_module_size[2]/2);
+
             }
         }
 
