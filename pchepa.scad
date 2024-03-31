@@ -244,30 +244,41 @@ else if (mode == 4) {
 }
 
 else if (mode == 42) {
-  extra = 5;
+  power_module_fit_test() {
+  }
+
+}
+
+/// implementation
+
+module power_module_fit_test(extra = 5, anchor = CENTER, spin = 0, orient = UP) {
   left_cut = base_od - clip_length - (
     $preview
       ? (1.5 * power_module_size[0]/8*7) // tunnel cutaway when previewing
       : (1.5 * power_module_size[0] + extra));
   back_cut = base_od - power_module_size[1] - power_channel_size[1] - extra;
 
-  back(back_cut/2)
-  left(left_cut/2)
+  test_size = [
+    base_od - left_cut,
+    base_od - back_cut,
+    base_height
+  ];
 
-  diff(remove="cut") base() {
+  attachable(size = test_size, anchor = anchor, spin = spin, orient = orient) {
+    back(back_cut/2)
+    left(left_cut/2)
+    diff(remove="cut") base() {
+      tag("cut")
+        attach(LEFT, RIGHT, overlap=left_cut)
+        cube([left_cut + $eps, base_od + 2*$eps, base_height + 2*$eps]);
+      tag("cut")
+        attach(BACK, FRONT, overlap=back_cut)
+        cube([base_od + 2*$eps, back_cut + $eps, base_height + 2*$eps]);
+    }
 
-    tag("cut")
-      attach(LEFT, RIGHT, overlap=left_cut)
-      cube([left_cut + $eps, base_od + 2*$eps, base_height + 2*$eps]);
-
-    tag("cut")
-      attach(BACK, FRONT, overlap=back_cut)
-      cube([base_od + 2*$eps, back_cut + $eps, base_height + 2*$eps]);
-
+    children();
   }
 }
-
-/// implementation
 
 module clip(anchor = CENTER, spin = 0, orient = UP) {
   rabbit_clip(
@@ -496,8 +507,7 @@ module base(anchor = CENTER, spin = 0, orient = UP) {
             yrot(-45)
             power_module(profile=true, tolerance=power_module_tolerance) {
 
-              up(power_pcb_size[2])
-              fwd(power_channel_chamfer+$eps)
+              fwd($eps)
               attach(BACK+BOTTOM, FRONT+BOTTOM) xrot(-90)
                 cuboid(power_channel_size, chamfer=power_channel_chamfer, edges="Z");
 
