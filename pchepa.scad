@@ -532,7 +532,7 @@ module power_module(tolerance=0, profile=false, anchor = CENTER, spin = 0, orien
 
 module base(anchor = CENTER, spin = 0, orient = UP) {
   attachable(h = base_height, d = base_od, anchor = anchor, spin = spin, orient = orient) {
-    diff(remove="filter wallslot socket port")
+    diff(remove="filter wallslot socket port", keep="grip")
       plate(h=base_height, d=base_od, chamfer2=base_overhang) {
         tag("filter")
           attach(TOP, BOTTOM, overlap=filter_recess)
@@ -551,6 +551,19 @@ module base(anchor = CENTER, spin = 0, orient = UP) {
             ycopies(l=(base_od - 2*base_overhang - 1.5 * clip_width), n=base_clips)
             attach(RIGHT, TOP, overlap=clip_length)
             clip_socket();
+        }
+
+        if (filter_grip > 0) {
+          tag("grip")
+          zrot_copies(n = 8)
+          down(filter_grip)
+          up(base_height/2)
+          left(filter_od/2)
+          xrot(180)
+            teardrop(
+              h = 2*filter_grip,
+              r = filter_grip
+            );
         }
 
         // USB C port and wire channel
