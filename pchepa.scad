@@ -11,7 +11,7 @@ include <BOSL2/screws.scad>
 
 /* [Part Selection] */
 
-mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill, 10:Rabbit Clips, 11:Base Channel Plug, 42:Test]
+mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill, 10:Rabbit Clips, 11:Base Channel Plug, 12:Wall Section, 42:Test, 43:Power Module Fit Test]
 
 filter_count = 1; // [1, 2]
 // TODO filter_count = 3
@@ -255,7 +255,15 @@ else if (mode == 11) {
   base_power_channel_plug();
 }
 
+else if (mode == 12) {
+  wall_section();
+}
+
 else if (mode == 42) {
+  wall_section(base_od - filter_od);
+}
+
+else if (mode == 43) {
   power_module_fit_test() {
     if (!$preview) {
       fwd(power_channel_chamfer)
@@ -667,6 +675,28 @@ module wallslot(anchor = CENTER, spin = 0, orient = UP) {
 
   else {
     assert(false, "base wallslot not supported for that filter_count");
+  }
+}
+
+module wall_section(w=undef, anchor = CENTER, spin = 0, orient = UP) {
+  wall_d = filter_od + 3*wrapwall_thickness;
+  wall_h = filter_height + 2*wrapwall_slot_depth;
+  wall_circ = PI * wall_d;
+  wall_leg = base_od/2;
+  wall_x = !is_undef(w) ? w
+    : filter_count == 1 ? wall_circ/2
+    : filter_count == 2 ? wall_circ/4 + wall_leg
+    : undef;
+
+  size = [
+    wall_x,
+    wall_h - 2*wrapwall_thickness,
+    wrapwall_thickness
+  ];
+
+  attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
+    cube(size, center=true);
+    children();
   }
 }
 
