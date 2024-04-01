@@ -724,34 +724,36 @@ module plate(h, d, extra=0, chamfer1=0, chamfer2=0, anchor=CENTER, spin=0, orien
   else if (filter_count == 2) {
     size = [d + extra, d, h];
     attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
-      left(extra/2)
-        cyl(h=h, r=r, chamfer1=chamfer1, chamfer2=chamfer2)
-        attach(RIGHT, LEFT, overlap=d/2) {
+      left(extra/2) {
+
+        left_half(s=2.1*size[0])
+          cyl(h=h, r=r, chamfer1=chamfer1, chamfer2=chamfer2);
+
+        right((d/2 + extra)/2)
           if (chamfer1 > 0) {
             upper = max(h/2, chamfer2);
             lower = h - upper;
-            attachable(size=[d/2 + extra, d, h]) {
-              up(upper/2)
-                cuboid(size=[d/2 + extra, d, upper], chamfer=chamfer2, edges=[
-                  [0, 0, 1, 1], // yz -- +- -+ ++
-                  [0, 0, 0, 0], // xz
-                  [0, 0, 0, 0], // xy
-                ]);
-              down(lower/2)
-                cuboid(size=[d/2 + extra, d, lower], chamfer=chamfer1, edges=[
-                  [1, 1, 0, 0], // yz -- +- -+ ++
-                  [0, 0, 0, 0], // xz
-                  [0, 0, 0, 0], // xy
-                ]);
-            }
+            up(upper/2)
+              cuboid(size=[d/2 + extra + $eps, d, upper], chamfer=chamfer2, edges=[
+                [0, 0, 1, 1], // yz -- +- -+ ++
+                [0, 0, 0, 0], // xz
+                [0, 0, 0, 0], // xy
+              ]);
+            down(lower/2)
+              cuboid(size=[d/2 + extra + $eps, d, lower], chamfer=chamfer1, edges=[
+                [1, 1, 0, 0], // yz -- +- -+ ++
+                [0, 0, 0, 0], // xz
+                [0, 0, 0, 0], // xy
+              ]);
           } else {
-            cuboid(size=[d/2 + extra, d, h], chamfer=chamfer2, edges=[
+            cuboid(size=[d/2 + extra + $eps, d, h], chamfer=chamfer2, edges=[
               [0, 0, 1, 1], // yz -- +- -+ ++
               [0, 0, 0, 0], // xz
               [0, 0, 0, 0], // xy
             ]);
           }
-        };
+
+      }
 
       children();
     }
