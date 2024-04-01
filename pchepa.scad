@@ -11,7 +11,7 @@ include <BOSL2/screws.scad>
 
 /* [Part Selection] */
 
-mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill, 10:Rabbit Clips, 11:Base Channel Plug, 12:Wall Section, 42:Test, 43:Power Module Fit Test]
+mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill, 10:Rabbit Clips, 11:Base Channel Plug, 12:Wall Section, 42:Fit Test, 43:Power Module Fit Test]
 
 filter_count = 1; // [1, 2]
 // TODO filter_count = 3
@@ -263,7 +263,7 @@ else if (mode == 12) {
 }
 
 else if (mode == 42) {
-  wall_section(base_od - filter_od);
+  wall_fit_test();
 }
 
 else if (mode == 43) {
@@ -280,6 +280,36 @@ else if (mode == 43) {
 }
 
 /// implementation
+
+module wall_fit_test() {
+  cut_size = 2.1*base_od;
+  extra = wrapwall_thickness*8 + clip_length;
+
+  cover_cut = cover_od/2 - cover_overhang - extra;
+  base_cut = base_od/2 - base_overhang - extra;
+
+  cover_size = [base_od, cover_od/2 - cover_cut, cover_height];
+  base_size = [base_od, base_od/2 - base_cut, base_height];
+  wall_size = wall_section(base_od - filter_od);
+
+  ydistribute(sizes=[
+    cover_size[1],
+    base_size[1],
+    wall_size[0]
+  ]) {
+    back(cover_size[1]/2)
+    back(cover_cut)
+      front_half(s=cut_size, y=-cover_cut) cover(orient=DOWN);
+
+    back((base_od/2 - base_cut)/2)
+    back(base_cut)
+      front_half(s=cut_size, y=-base_cut) base();
+
+    zrot(90)
+      wall_section(base_od - filter_od);
+  }
+
+}
 
 module power_module_fit_test(extra = 5, anchor = CENTER, spin = 0, orient = UP) {
   left_cut = base_od - clip_length - (
@@ -681,22 +711,23 @@ module wallslot(h=undef, anchor = CENTER, spin = 0, orient = UP) {
   }
 }
 
-module wall_section(w=undef, anchor = CENTER, spin = 0, orient = UP) {
-  wall_d = filter_od + 3*wrapwall_thickness;
-  wall_h = filter_height - 2*filter_recess + 2*wrapwall_slot_depth - 2*wrapwall_tolerance;
-  wall_circ = PI * wall_d;
-  wall_leg = base_od/2;
+function wall_section(w=undef) = let (
+  wall_d = filter_od + 3*wrapwall_thickness,
+  wall_h = filter_height - 2*filter_recess + 2*wrapwall_slot_depth - 2*wrapwall_tolerance,
+  wall_circ = PI * wall_d,
+  wall_leg = base_od/2,
   wall_x = !is_undef(w) ? w
     : filter_count == 1 ? wall_circ/2
     : filter_count == 2 ? wall_circ/4 + wall_leg
-    : undef;
-
-  size = [
+    : undef
+  ) [
     wall_x,
     wall_h - 2*wrapwall_thickness,
     wrapwall_thickness - wrapwall_tolerance
   ];
 
+module wall_section(w=undef, anchor = CENTER, spin = 0, orient = UP) {
+  size = wall_section(w);
   attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
     cube(size, center=true);
     children();
