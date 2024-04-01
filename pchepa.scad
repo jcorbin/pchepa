@@ -22,6 +22,8 @@ buddy = true;
 
 wrapwall_thickness = 0.4 * 4;
 
+wrapwall_tolerance = 0.2;
+
 wrapwall_slot_depth = 5;
 
 /* [PC Fan Metrics] */
@@ -169,8 +171,9 @@ $eps = 0.01;
 
 module __customizer_limit__() {}
 
-cover_od = filter_od + 2*wrapwall_thickness + 2*cover_overhang;
-base_od = filter_od + 2*wrapwall_thickness + 2*base_overhang + filter_recess;
+inner_d = 2*wrapwall_thickness + 4*wrapwall_tolerance;
+cover_od = filter_od + inner_d + 2*cover_overhang;
+base_od = filter_od + inner_d + 2*base_overhang + filter_recess;
 
 // TODO joinery
 // TODO pockets in the base for weights or battery bank
@@ -630,10 +633,10 @@ module base(anchor = CENTER, spin = 0, orient = UP) {
   }
 }
 
-module wallslot(anchor = CENTER, spin = 0, orient = UP) {
-  slot_h = wrapwall_slot_depth + $eps;
-  slot_id = filter_od + 2*wrapwall_thickness;
-  slot_od = filter_od + 4*wrapwall_thickness;
+module wallslot(h=undef, anchor = CENTER, spin = 0, orient = UP) {
+  slot_h = !is_undef(h) ? h : wrapwall_slot_depth + $eps;
+  slot_id = filter_od + 2*(wrapwall_thickness - wrapwall_tolerance);
+  slot_od = filter_od + 2*(2*wrapwall_thickness + wrapwall_tolerance);
 
   if (filter_count == 1) {
     attachable(h = slot_h, d = slot_od, anchor = anchor, spin = spin, orient = orient) {
@@ -661,10 +664,10 @@ module wallslot(anchor = CENTER, spin = 0, orient = UP) {
         };
 
         right(base_od/4 + $eps)
-          ycopies(spacing=slot_od - wrapwall_thickness-$eps, n=2)
+          ycopies(spacing=slot_od - wrapwall_thickness - 2.5*wrapwall_tolerance - $eps, n=2)
           cube(size = [
             base_od/2 + 3*$eps,
-            wrapwall_thickness,
+            wrapwall_thickness + 2*wrapwall_tolerance,
             slot_h,
           ], center=true);
       }
@@ -680,7 +683,7 @@ module wallslot(anchor = CENTER, spin = 0, orient = UP) {
 
 module wall_section(w=undef, anchor = CENTER, spin = 0, orient = UP) {
   wall_d = filter_od + 3*wrapwall_thickness;
-  wall_h = filter_height + 2*wrapwall_slot_depth;
+  wall_h = filter_height + 2*wrapwall_slot_depth - 2*wrapwall_tolerance;
   wall_circ = PI * wall_d;
   wall_leg = base_od/2;
   wall_x = !is_undef(w) ? w
@@ -691,7 +694,7 @@ module wall_section(w=undef, anchor = CENTER, spin = 0, orient = UP) {
   size = [
     wall_x,
     wall_h - 2*wrapwall_thickness,
-    wrapwall_thickness
+    wrapwall_thickness - wrapwall_tolerance
   ];
 
   attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
