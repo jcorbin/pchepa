@@ -683,7 +683,7 @@ module wallslot(h=undef, anchor = CENTER, spin = 0, orient = UP) {
 
 module wall_section(w=undef, anchor = CENTER, spin = 0, orient = UP) {
   wall_d = filter_od + 3*wrapwall_thickness;
-  wall_h = filter_height + 2*wrapwall_slot_depth - 2*wrapwall_tolerance;
+  wall_h = filter_height - 2*filter_recess + 2*wrapwall_slot_depth - 2*wrapwall_tolerance;
   wall_circ = PI * wall_d;
   wall_leg = base_od/2;
   wall_x = !is_undef(w) ? w
