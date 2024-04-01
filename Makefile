@@ -23,5 +23,11 @@ pchepa_clip.stl: pchepa.scad pchepa.mk
 pchepa_base_channel_plug.stl: pchepa.scad pchepa.mk
 	openscad $< -o $@ -D filter_count=2 -D mode=11
 
+pchepa_wall_section.stl: pchepa.scad pchepa.mk
+	openscad $< -o $@ -D filter_count=2 -D mode=12
+
 pchepa_test.stl: pchepa.scad pchepa.mk
 	openscad $< -o $@ -D filter_count=2 -D mode=42
+
+pchepa_power_module_test.stl: pchepa.scad pchepa.mk
+	openscad $< -o $@ -D filter_count=2 -D mode=43
