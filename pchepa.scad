@@ -83,6 +83,8 @@ filter_height = 5.9 * 25.4;
 
 filter_spacing = 1 * 25.4;
 
+filter_extra_space = 0;
+
 /* [Filter Cover Parameters] */
 
 cover_height = 20;
@@ -171,8 +173,8 @@ $eps = 0.01;
 
 module __customizer_limit__() {}
 
-slot_id = filter_od + 2*(wrapwall_thickness - wrapwall_tolerance);
-slot_od = filter_od + 2*(2*wrapwall_thickness + wrapwall_tolerance);
+slot_id = filter_od + filter_extra_space + 2*wrapwall_thickness;
+slot_od = slot_id + 2*wrapwall_thickness + 2*wrapwall_tolerance;
 
 cover_od = slot_od + 2*cover_overhang;
 base_od = slot_od + 2*base_overhang + filter_recess;
