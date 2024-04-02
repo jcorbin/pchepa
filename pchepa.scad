@@ -22,7 +22,7 @@ buddy = true;
 
 wrapwall_thickness = 0.4 * 4;
 
-wrapwall_tolerance = 0.25;
+wrapwall_tolerance = 0.4;
 
 wrapwall_slot_depth = 5;
 
