@@ -11,7 +11,7 @@ include <BOSL2/screws.scad>
 
 /* [Part Selection] */
 
-mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill, 10:Rabbit Clips, 11:Base Channel Plug, 12:Wall Section, 20:Spare Parts, 42:Fit Test, 43:Power Module Fit Test]
+mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill, 10:Rabbit Clips, 11:Base Channel Plug, 12:Wall Section, 20:Spare Parts, 42:Dev, 43:Power Module Fit Test, 44:Wall Fit Test]
 
 filter_count = 1; // [1, 2]
 // TODO filter_count = 3
@@ -272,7 +272,10 @@ else if (mode == 20) {
 }
 
 else if (mode == 42) {
-  wall_fit_test();
+  wallslot() {
+    show_anchors();
+    #cube($parent_size, center=true);
+  }
 }
 
 else if (mode == 43) {
@@ -286,6 +289,10 @@ else if (mode == 43) {
         base_power_channel_plug();
     }
   }
+}
+
+else if (mode == 44) {
+  wall_fit_test();
 }
 
 /// implementation

@@ -44,3 +44,7 @@ pchepa_duo/test.stl: pchepa.scad pchepa.mk
 pchepa_duo/power_module_test.stl: pchepa.scad pchepa.mk
 	test -d pchepa_duo || mkdir mkdir pchepa_duo
 	openscad $< -o $@ -D filter_count=2 -D mode=43
+
+pchepa_duo/wall_fit_test.stl: pchepa.scad pchepa.mk
+	test -d pchepa_duo || mkdir mkdir pchepa_duo
+	openscad $< -o $@ -D filter_count=2 -D mode=44
