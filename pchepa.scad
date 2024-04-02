@@ -468,6 +468,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
         if (wrapwall_thickness > 0) {
           tag("wallslot")
+            right((base_od - slot_od)/4 + $eps)
             attach(BOTTOM, TOP, overlap=wrapwall_slot_depth)
             wallslot();
         }
@@ -692,29 +693,14 @@ module wallslot(h=undef, anchor = CENTER, spin = 0, orient = UP) {
 
   else if (filter_count == 2) {
     extra = (base_od - slot_od)/2;
-    attachable(size = [
-      slot_od + extra,
-      slot_od,
-      slot_h,
-    ], anchor = anchor, spin = spin, orient = orient) {
-
-      union() {
-        diff() ring(h = slot_h, id = slot_id, od = slot_od) {
-          attach(RIGHT, LEFT, overlap=slot_od/2)
-            tag("remove") cube(size = [
-              slot_od/2 + $eps,
-              slot_od + 2*$eps,
-              slot_h + 2*$eps,
-            ]);
-        };
-
-        right(base_od/4 + $eps)
-          ycopies(spacing=slot_od - wrapwall_thickness - 2.5*wrapwall_tolerance - $eps, n=2)
-          cube(size = [
-            base_od/2 + 3*$eps,
-            wrapwall_thickness + 2*wrapwall_tolerance,
-            slot_h,
-          ], center=true);
+    attachable(size = [slot_od + extra + $eps, slot_od, slot_h], anchor = anchor, spin = spin, orient = orient) {
+      left((extra + $eps)/2) {
+        left_half(s=2.01*slot_od)
+          diff() cyl(d = slot_od, h = slot_h)
+          tag("remove") cyl(d = slot_id, h = slot_h + 2*$eps);
+        right_half(s=2.01*slot_od, x=-$eps)
+          diff() cube([base_od + 2*$eps, slot_od, slot_h], center=true)
+          tag("remove") cube([base_od + 4*$eps, slot_id, slot_h + 2*$eps], center=true);
       }
 
       children();
@@ -745,17 +731,6 @@ module wall_section(w=undef, anchor = CENTER, spin = 0, orient = UP) {
   size = wall_section(w);
   attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
     cube(size, center=true);
-    children();
-  }
-}
-
-module ring(id, od, h, anchor = CENTER, spin = 0, orient = UP) {
-  attachable(h = h, d = od, anchor = anchor, spin = spin, orient = orient) {
-    tag_scope("ring") diff() cyl(h = h, d = od) {
-      tag("remove")
-        attach(TOP, BOTTOM, overlap=h + $eps)
-        cyl(h = h + 2*$eps, d = id);
-    }
     children();
   }
 }
