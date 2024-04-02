@@ -171,14 +171,13 @@ $eps = 0.01;
 
 module __customizer_limit__() {}
 
-inner_d = 2*wrapwall_thickness + 4*wrapwall_tolerance;
-cover_od = filter_od + inner_d + 2*cover_overhang;
-base_od = filter_od + inner_d + 2*base_overhang + filter_recess;
+slot_id = filter_od + 2*(wrapwall_thickness - wrapwall_tolerance);
+slot_od = filter_od + 2*(2*wrapwall_thickness + wrapwall_tolerance);
 
-// TODO joinery
+cover_od = slot_od + 2*cover_overhang;
+base_od = slot_od + 2*base_overhang + filter_recess;
+
 // TODO pockets in the base for weights or battery bank
-// TODO wire passthru holes in the cover and base plates for battery integration
-// TODO model mode to generate wraparoudn wall panel
 
 if (mode == 0) {
   // xcopies(spacing=base_od, n=2)
@@ -681,8 +680,6 @@ module base(anchor = CENTER, spin = 0, orient = UP) {
 
 module wallslot(h=undef, anchor = CENTER, spin = 0, orient = UP) {
   slot_h = !is_undef(h) ? h : wrapwall_slot_depth + $eps;
-  slot_id = filter_od + 2*(wrapwall_thickness - wrapwall_tolerance);
-  slot_od = filter_od + 2*(2*wrapwall_thickness + wrapwall_tolerance);
 
   if (filter_count == 1) {
     attachable(h = slot_h, d = slot_od, anchor = anchor, spin = spin, orient = orient) {
