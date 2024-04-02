@@ -179,6 +179,10 @@ slot_od = slot_id + 2*wrapwall_thickness + 2*wrapwall_tolerance;
 cover_od = slot_od + 2*cover_overhang;
 base_od = slot_od + 2*base_overhang + filter_recess;
 
+cover_extra = filter_count < 2 ? 0 : base_od - cover_od; // FIXME why not /2 like the others
+grill_extra = filter_count < 2 ? 0 : (base_od - grill_size)/2;
+slot_extra = filter_count < 2 ? 0 : (base_od - slot_od)/2;
+
 // TODO pockets in the base for weights or battery bank
 
 if (mode == 0) {
@@ -448,14 +452,13 @@ module hepa_filter(anchor = CENTER, spin = 0, orient = UP) {
 }
 
 module cover(anchor = CENTER, spin = 0, orient = UP) {
-  extra = filter_count == 0 ? 0 : base_od - cover_od;
-  size = [cover_od + extra, cover_od, cover_height];
+  size = [cover_od + cover_extra, cover_od, cover_height];
 
   attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
 
     diff(remove="flow filter wallslot screw socket channel port", keep="grip")
       plate(
-        h=cover_height, d=cover_od, extra=extra,
+        h=cover_height, d=cover_od, extra=cover_extra,
         chamfer1=cover_underhang, chamfer2=cover_overhang) {
 
         tag("flow")
@@ -692,9 +695,8 @@ module wallslot(h=undef, anchor = CENTER, spin = 0, orient = UP) {
   }
 
   else if (filter_count == 2) {
-    extra = (base_od - slot_od)/2;
-    attachable(size = [slot_od + extra + $eps, slot_od, slot_h], anchor = anchor, spin = spin, orient = orient) {
-      left((extra + $eps)/2) {
+    attachable(size = [slot_od + slot_extra + $eps, slot_od, slot_h], anchor = anchor, spin = spin, orient = orient) {
+      left((slot_extra + $eps)/2) {
         left_half(s=2.01*slot_od)
           diff() cyl(d = slot_od, h = slot_h)
           tag("remove") cyl(d = slot_id, h = slot_h + 2*$eps);
@@ -805,9 +807,8 @@ module filter_fan(anchor = CENTER, spin = 0, orient = UP) {
 }
 
 module grill(anchor = CENTER, spin = 0, orient = UP) {
-  extra = filter_count == 1 ? 0 : (base_od - grill_size)/2;
   size = [
-    grill_size + extra,
+    grill_size + grill_extra,
     grill_size,
     fan_size[2] + grill_thickness
   ];
@@ -819,24 +820,24 @@ module grill(anchor = CENTER, spin = 0, orient = UP) {
     diff(remove="screw hollow holes window")
       cuboid(size=size, chamfer=grill_chamfer, edges=[
         [0, 0, 1, 1], // yz -- +- -+ ++
-        [0, 0, 1, extra > 0 ? 0 : 1], // xz
-        [1, extra > 0 ? 0 : 1, 1, extra > 0 ? 0 : 1], // xy
+        [0, 0, 1, grill_extra > 0 ? 0 : 1], // xz
+        [1, grill_extra > 0 ? 0 : 1, 1, grill_extra > 0 ? 0 : 1], // xy
       ]) {
 
         tag("hollow")
-          right(extra ? grill_thickness + $eps : 0)
+          right(grill_extra ? grill_thickness + $eps : 0)
           attach(BOTTOM, TOP, overlap=fan_size[2])
           cuboid(size=[
-            grill_size + extra - 2 * grill_thickness + (extra > 0 ? grill_thickness + $eps : 0),
+            grill_size + grill_extra - 2 * grill_thickness + (grill_extra > 0 ? grill_thickness + $eps : 0),
             grill_size - 2 * grill_thickness,
             fan_size[2] + $eps,
           ], chamfer = grill_thickness, edges = [
             [0, 0, 1, 1], // yz -- +- -+ ++
             [0, 0, 0, 0], // xz
-            [1, extra > 0 ? 0 : 1, 1, extra > 0 ? 0 : 1], // xy
+            [1, grill_extra > 0 ? 0 : 1, 1, grill_extra > 0 ? 0 : 1], // xy
           ]);
 
-        left(extra/2) {
+        left(grill_extra/2) {
 
           tag("screw")
             attach(TOP, BOTTOM, overlap = screw_length + $eps)
