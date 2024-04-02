@@ -11,7 +11,7 @@ include <BOSL2/screws.scad>
 
 /* [Part Selection] */
 
-mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill, 10:Rabbit Clips, 11:Base Channel Plug, 12:Wall Section, 20:Spare Parts, 42:Dev, 43:Power Module Fit Test, 44:Wall Fit Test]
+mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill, 10:Rabbit Clips, 11:Base Channel Plug, 12:Wall Section, 20:Spare Parts, 42:Dev, 43:Power Module Fit Test, 44:Wall Fit Test, 45:Cover Hole Test]
 
 filter_count = 1; // [1, 2]
 // TODO filter_count = 3
@@ -95,9 +95,7 @@ cover_clips = 4;
 filter_recess = 10;
 filter_tolerance = 0.1;
 
-// TODO heatset diam instead
-cover_screw_d = struct_val(screw_info(grill_screw), "diameter") + 0.2;
-cover_screw_h = 8;
+cover_heatset_hole = [5.0, 4.0];
 
 cover_port = [20, 20];
 cover_port_at = [-48, 48];
@@ -182,6 +180,10 @@ base_od = slot_od + 2*base_overhang + filter_recess;
 cover_extra = filter_count < 2 ? 0 : base_od - cover_od; // FIXME why not /2 like the others
 grill_extra = filter_count < 2 ? 0 : (base_od - grill_size)/2;
 slot_extra = filter_count < 2 ? 0 : (base_od - slot_od)/2;
+
+cover_hole = cover_heatset_hole[0] * cover_heatset_hole[1] > 0
+  ? cover_heatset_hole
+  : [struct_val(screw_info(grill_screw), "diameter") + 0.2, 8];
 
 // TODO pockets in the base for weights or battery bank
 
@@ -277,7 +279,7 @@ else if (mode == 20) {
 }
 
 else if (mode == 42) {
-  wallslot() {
+  cover_hole_test() {
     show_anchors();
     #cube($parent_size, center=true);
   }
@@ -300,7 +302,27 @@ else if (mode == 44) {
   wall_fit_test();
 }
 
+else if (mode == 45) {
+  cover_hole_test(orient=$preview ? UP : DOWN);
+}
+
 /// implementation
+
+module cover_hole_test(anchor = CENTER, spin = 0, orient = UP) {
+  attachable(size=[
+    cover_od/2 + cover_extra/2,
+    cover_od/2,
+    base_height
+  ], anchor = anchor, spin = spin, orient = orient) {
+    fwd(cover_od/4)
+    right((cover_od + cover_extra)/4)
+    back_half(s=base_od*2.1)
+    left_half(s=base_od*2.1)
+      cover();
+
+    children();
+  }
+}
 
 module wall_fit_test() {
   cut_size = 2.1*base_od;
@@ -478,8 +500,8 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
         tag("screw")
           grid_copies(spacing = fan_screw_spacing, n = [ 2, 2 ])
-          attach(TOP, BOTTOM, overlap=cover_screw_h)
-          cyl(h=cover_screw_h+$eps, d=cover_screw_d);
+          attach(TOP, BOTTOM, overlap=cover_hole[1])
+          cyl(h=cover_hole[1]+$eps, d=cover_hole[0]);
 
         if (filter_count > 1 && cover_clips > 0) {
           tag("socket")
