@@ -11,7 +11,9 @@ include <BOSL2/screws.scad>
 
 /* [Part Selection] */
 
-mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill, 10:Rabbit Clips, 11:Base Channel Plug, 12:Wall Section, 20:Spare Parts, 42:Dev, 43:Power Module Fit Test, 44:Wall Fit Test, 45:Cover Hole Test]
+mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill, 10:Rabbit Clips, 11:Base Channel Plug, 12:Wall Section, 20:Spare Parts, 42:Dev, 43:Power Module Fit Test, 44:Wall Fit Test, 45:Cover Hole Test, 46:Wall Dovetail Test]
+
+// TODO coalese mode 44 and 46: let "Wall fit test" serv for "Wall dovetail test" as well
 
 filter_count = 1; // [1, 2]
 // TODO filter_count = 3
@@ -289,7 +291,8 @@ else if (mode == 20) {
 }
 
 else if (mode == 42) {
-  cover_hole_test() {
+  echo(str("wall ", wall_section(), " x", wall_sections(), " sections"));
+  wrapwall_dovetail_test() {
     show_anchors();
     #cube($parent_size, center=true);
   }
@@ -316,7 +319,31 @@ else if (mode == 45) {
   cover_hole_test(orient=$preview ? UP : DOWN);
 }
 
+else if (mode == 46) {
+  wrapwall_dovetail_test();
+}
+
 /// implementation
+
+module wrapwall_dovetail_test(anchor = CENTER, spin = 0, orient = UP) {
+  keep = 2*wrapwall_dovetail.x + 1.5*wrapwall_dovetail_spacing;
+  wall_size = wall_section();
+
+  attachable(size=[
+    keep + wrapwall_dovetail.y,
+    keep,
+    wall_size.z
+  ], anchor = anchor, spin = spin, orient = orient) {
+
+    fwd(keep/2)
+    back_half(s=max(wall_size)*2.1)
+    back(keep)
+    fwd(wall_size.y/2)
+      wall_section(keep);
+
+    children();
+  }
+}
 
 module cover_hole_test(anchor = CENTER, spin = 0, orient = UP) {
   attachable(size=[
