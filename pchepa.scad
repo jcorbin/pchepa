@@ -28,6 +28,10 @@ wrapwall_slot_depth = 5;
 
 wrapwall_draft = 0.4;
 
+wrapwall_sections = 0;
+
+wrapwall_section_limit = 240;
+
 /* [PC Fan Metrics] */
 
 // <https://superuser.com/questions/225882/what-type-of-screws-are-used-for-computer-fans>
@@ -756,25 +760,28 @@ module wallslot(h=undef, anchor = CENTER, spin = 0, orient = UP) {
   }
 }
 
-function wall_section(w=undef) = let (
+function wall_perim() = let (
   wall_d = filter_od + 3*wrapwall_thickness,
-  wall_h = filter_height - 2*filter_recess + 2*wrapwall_slot_depth - 2*wrapwall_tolerance,
   wall_circ = PI * wall_d,
-  wall_leg = base_od/2,
-  wall_x = !is_undef(w) ? w
-    : filter_count == 1 ? wall_circ/2
-    : filter_count == 2 ? wall_circ/4 + wall_leg
-    : undef
-  ) [
-    wall_x,
-    wall_h - 2*wrapwall_thickness,
-    wrapwall_thickness - wrapwall_tolerance
-  ];
+  wall_leg = base_od/2
+) filter_count == 1 ? wall_circ
+: filter_count == 2 ? wall_circ + 4*wall_leg
+: undef;
+
+function wall_sections() = wrapwall_sections > 0
+  ? wrapwall_sections
+  : ceil(wall_perim() / wrapwall_section_limit);
+
+function wall_section(w=undef) = [
+  default(w, wall_perim() / wall_sections() - 2*wrapwall_tolerance),
+  filter_height - 2*filter_recess + 2*wrapwall_slot_depth - 2*wrapwall_thickness - 2*wrapwall_tolerance,
+  wrapwall_thickness - wrapwall_tolerance
+];
 
 module wall_section(w=undef, anchor = CENTER, spin = 0, orient = UP) {
-  size = wall_section(w);
-  attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
-    cube(size, center=true);
+  wall_size = wall_section(w);
+  attachable(size = wall_size, anchor = anchor, spin = spin, orient = orient) {
+    cube(wall_size, center=true);
     children();
   }
 }
