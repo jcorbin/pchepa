@@ -11,7 +11,17 @@ include <BOSL2/screws.scad>
 
 /* [Part Selection] */
 
-mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill, 10:Rabbit Clips, 11:Base Channel Plug, 12:Wall Section, 20:Spare Parts, 42:Dev, 43:Power Module Fit Test, 44:Wall Fit Test, 45:Cover Hole Test]
+//@make dual/parts.stl mode=1 filter_count=2
+//@make dual/base.stl mode=10 filter_count=2 base_with_usbc_port=false
+//@make dual/base_with_usbc_port.stl mode=10 filter_count=2 base_with_usbc_port=true
+//@make dual/cover.stl mode=20 filter_count=2
+//@make dual/grill_box.stl mode=30 filter_count=2
+//@make dual/wall_section.stl mode=92 filter_count=2
+//@make dual/test_fit_power_module.stl mode=101 filter_count=2
+//@make dual/test_fit_wall.stl mode=102 filter_count=2
+//@make dual/test_fit_cover_hole.stl mode=103 filter_count=2
+
+mode = 0; // [0:Full Assembly, 1:Small Part Kit, 10:Base, 20:Filter Cover/Fan Integration, 30:Fan Grill Box, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test]
 
 filter_count = 1; // [1, 2]
 // TODO filter_count = 3
@@ -197,6 +207,8 @@ cover_hole = cover_heatset_hole[0] * cover_heatset_hole[1] > 0
 
 // TODO pockets in the base for weights or battery bank
 
+/// mode[0-9] -- assemblies
+
 if (mode == 0) {
   // xcopies(spacing=base_od, n=2)
 
@@ -222,6 +234,17 @@ if (mode == 0) {
 }
 
 else if (mode == 1) {
+  ycopies(n=2, spacing=2*clip_length+1)
+  xcopies(n=4, spacing=clip_length+1)
+    clip(orient=BACK, anchor=BOTTOM);
+
+  right((clip_length+1)*2.5)
+    base_power_channel_plug(anchor=BOTTOM);
+}
+
+/// mode[10-19] -- bases
+
+else if (mode == 10) {
   base() {
     %attach(TOP, BOTTOM, overlap=filter_recess) hepa_filter();
   };
@@ -239,7 +262,9 @@ else if (mode == 1) {
   }
 }
 
-else if (mode == 2) {
+/// mode[20-29] -- tops (i.e. filter/fan integration cover)
+
+else if (mode == 20) {
   cover(orient=$preview ? UP : DOWN) {
     %attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
     %attach(TOP, BOTTOM) pc_fan();
@@ -258,7 +283,9 @@ else if (mode == 2) {
   }
 }
 
-else if (mode == 3) {
+/// mode[30-39] -- fan grills
+
+else if (mode == 30) {
   grill(orient=$preview ? UP : DOWN) {
     left(filter_count == 1 ? 0 : (base_od - grill_size)/4) {
       %attach(BOTTOM, TOP, overlap=fan_size[2]) pc_fan();
@@ -267,28 +294,25 @@ else if (mode == 3) {
   }
 }
 
-else if (mode == 10) {
+// TODO a flat grill plate (alternate to wraparound / foll coverage box
+
+/// mode[90-99] -- spare parts
+
+else if (mode == 90) {
   clip(orient=FWD);
 }
 
-else if (mode == 11) {
+else if (mode == 91) {
   base_power_channel_plug();
 }
 
-else if (mode == 12) {
+else if (mode == 92) {
   wall_section();
 }
 
-else if (mode == 20) {
-  ycopies(n=2, spacing=2*clip_length+1)
-  xcopies(n=4, spacing=clip_length+1)
-    clip(orient=BACK, anchor=BOTTOM);
+/// mode[100...] -- development aids and tests
 
-  right((clip_length+1)*2.5)
-    base_power_channel_plug(anchor=BOTTOM);
-}
-
-else if (mode == 42) {
+else if (mode == 100) {
   echo(str("wall ", wall_section(), " x", wall_sections(), " sections"));
   wall_section() {
     show_anchors();
@@ -296,7 +320,7 @@ else if (mode == 42) {
   }
 }
 
-else if (mode == 43) {
+else if (mode == 101) {
   power_module_fit_test() {
     if (!$preview) {
       fwd(power_channel_chamfer)
@@ -309,11 +333,11 @@ else if (mode == 43) {
   }
 }
 
-else if (mode == 44) {
+else if (mode == 102) {
   wall_fit_test();
 }
 
-else if (mode == 45) {
+else if (mode == 103) {
   cover_hole_test(orient=$preview ? UP : DOWN);
 }
 
