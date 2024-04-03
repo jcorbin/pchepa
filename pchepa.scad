@@ -11,9 +11,7 @@ include <BOSL2/screws.scad>
 
 /* [Part Selection] */
 
-mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill, 10:Rabbit Clips, 11:Base Channel Plug, 12:Wall Section, 20:Spare Parts, 42:Dev, 43:Power Module Fit Test, 44:Wall Fit Test, 45:Cover Hole Test, 46:Wall Dovetail Test]
-
-// TODO coalese mode 44 and 46: let "Wall fit test" serv for "Wall dovetail test" as well
+mode = 0; // [0:Full Assembly, 1:Base, 2:Cover, 3:Grill, 10:Rabbit Clips, 11:Base Channel Plug, 12:Wall Section, 20:Spare Parts, 42:Dev, 43:Power Module Fit Test, 44:Wall Fit Test, 45:Cover Hole Test]
 
 filter_count = 1; // [1, 2]
 // TODO filter_count = 3
@@ -292,7 +290,7 @@ else if (mode == 20) {
 
 else if (mode == 42) {
   echo(str("wall ", wall_section(), " x", wall_sections(), " sections"));
-  wrapwall_dovetail_test() {
+  wall_section() {
     show_anchors();
     #cube($parent_size, center=true);
   }
@@ -319,31 +317,7 @@ else if (mode == 45) {
   cover_hole_test(orient=$preview ? UP : DOWN);
 }
 
-else if (mode == 46) {
-  wrapwall_dovetail_test();
-}
-
 /// implementation
-
-module wrapwall_dovetail_test(w=1, h=1, anchor = CENTER, spin = 0, orient = UP) {
-  keep = 2*wrapwall_dovetail.x + 1.5*wrapwall_dovetail_spacing;
-  wall_size = wall_section();
-
-  attachable(size=[
-    w*keep + wrapwall_dovetail.y,
-    h*keep,
-    wall_size.z
-  ], anchor = anchor, spin = spin, orient = orient) {
-
-    fwd(h*keep/2)
-    back_half(s=max(wall_size)*2.1)
-    back(h*keep)
-    fwd(wall_size.y/2)
-      wall_section(w*keep);
-
-    children();
-  }
-}
 
 module cover_hole_test(anchor = CENTER, spin = 0, orient = UP) {
   attachable(size=[
@@ -375,7 +349,8 @@ module wall_fit_test() {
   ydistribute(sizes=[
     cover_size[1],
     base_size[1],
-    wall_size[0]
+    wall_size[0],
+    wall_size[0],
   ]) {
     back(cover_size[1]/2)
     back(cover_cut)
@@ -385,10 +360,9 @@ module wall_fit_test() {
     back(base_cut)
       front_half(s=cut_size, y=-base_cut) base();
 
-    zrot(90)
-      wall_section(base_od - filter_od);
+    zrot(90) wall_section(base_od - filter_od);
+    zrot(90) wall_section(base_od - filter_od);
   }
-
 }
 
 module power_module_fit_test(extra = 5, anchor = CENTER, spin = 0, orient = UP) {
