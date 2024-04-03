@@ -26,6 +26,8 @@ wrapwall_tolerance = 0.4;
 
 wrapwall_slot_depth = 5;
 
+wrapwall_draft = 0.4;
+
 /* [PC Fan Metrics] */
 
 // <https://superuser.com/questions/225882/what-type-of-screws-are-used-for-computer-fans>
@@ -615,7 +617,7 @@ module power_module(tolerance=0, profile=false, anchor = CENTER, spin = 0, orien
 }
 
 module base(anchor = CENTER, spin = 0, orient = UP) {
-  attachable(h = base_height, d = base_od, anchor = anchor, spin = spin, orient = orient) {
+  attachable(size = [base_od, base_od, base_height], anchor = anchor, spin = spin, orient = orient) {
     diff(remove="filter wallslot socket port", keep="grip")
       plate(h=base_height, d=base_od, chamfer2=base_overhang) {
         tag("filter")
@@ -624,7 +626,9 @@ module base(anchor = CENTER, spin = 0, orient = UP) {
 
         if (wrapwall_thickness > 0) {
           tag("wallslot")
-            attach(TOP, BOTTOM, overlap=wrapwall_slot_depth)
+            right(slot_extra/2 + $eps) // TODO why the rotational assymetry?
+            zrot(180)
+            attach(TOP, TOP, overlap=wrapwall_slot_depth)
             wallslot();
         }
 
@@ -720,11 +724,25 @@ module wallslot(h=undef, anchor = CENTER, spin = 0, orient = UP) {
     attachable(size = [slot_od + slot_extra + $eps, slot_od, slot_h], anchor = anchor, spin = spin, orient = orient) {
       left((slot_extra + $eps)/2) {
         left_half(s=2.01*slot_od)
-          diff() cyl(d = slot_od, h = slot_h)
-          tag("remove") cyl(d = slot_id, h = slot_h + 2*$eps);
+          diff() cyl(
+            d1 = slot_od + 2*wrapwall_draft,
+            d2 = slot_od,
+            h = slot_h)
+          tag("remove") cyl(
+            d1 = slot_id - 2*wrapwall_draft,
+            d2 = slot_id,
+            h = slot_h + 2*$eps);
         right_half(s=2.01*slot_od, x=-$eps)
-          diff() cube([base_od + 2*$eps, slot_od, slot_h], center=true)
-          tag("remove") cube([base_od + 4*$eps, slot_id, slot_h + 2*$eps], center=true);
+          diff() prismoid(
+            size1=[base_od + 2*$eps, slot_od + 2*wrapwall_draft],
+            size2=[base_od + 2*$eps, slot_od],
+            h=slot_h,
+            center=true)
+          tag("remove") prismoid(
+            size1=[base_od + 4*$eps, slot_id - 2*wrapwall_draft],
+            size2=[base_od + 4*$eps, slot_id],
+            h=slot_h + 2*$eps,
+            center=true);
       }
 
       children();
