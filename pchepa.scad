@@ -97,7 +97,7 @@ cover_clips = 4;
 filter_recess = 10;
 filter_tolerance = 0.1;
 
-cover_heatset_hole = [4.3, 5.3];
+cover_heatset_hole = [4.4, 5.3];
 
 cover_port = [20, 20];
 cover_port_at = [-48, 48];
