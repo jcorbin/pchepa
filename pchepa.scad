@@ -325,21 +325,21 @@ else if (mode == 46) {
 
 /// implementation
 
-module wrapwall_dovetail_test(anchor = CENTER, spin = 0, orient = UP) {
+module wrapwall_dovetail_test(w=1, h=1, anchor = CENTER, spin = 0, orient = UP) {
   keep = 2*wrapwall_dovetail.x + 1.5*wrapwall_dovetail_spacing;
   wall_size = wall_section();
 
   attachable(size=[
-    keep + wrapwall_dovetail.y,
-    keep,
+    w*keep + wrapwall_dovetail.y,
+    h*keep,
     wall_size.z
   ], anchor = anchor, spin = spin, orient = orient) {
 
-    fwd(keep/2)
+    fwd(h*keep/2)
     back_half(s=max(wall_size)*2.1)
-    back(keep)
+    back(h*keep)
     fwd(wall_size.y/2)
-      wall_section(keep);
+      wall_section(w*keep);
 
     children();
   }
