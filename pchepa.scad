@@ -779,7 +779,7 @@ function wall_sections() = wrapwall_sections > 0
 function wall_section(w=undef) = [
   default(w, wall_perim() / wall_sections() - 2*wrapwall_tolerance),
   filter_height - 2*filter_recess + 2*wrapwall_slot_depth - 2*wrapwall_thickness - 2*wrapwall_tolerance,
-  wrapwall_thickness - wrapwall_tolerance
+  wrapwall_thickness - 2*wrapwall_tolerance
 ];
 
 module wall_section(w=undef, anchor = CENTER, spin = 0, orient = UP) {
