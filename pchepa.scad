@@ -433,7 +433,8 @@ module clip(anchor = CENTER, spin = 0, orient = UP) {
     thickness=clip_thick,
     depth=clip_depth,
     compression=clip_compress,
-    anchor = anchor, spin = spin, orient = orient);
+    anchor = anchor, spin = spin, orient = orient)
+    children();
 }
 
 module clip_socket(anchor = CENTER, spin = 0, orient = UP) {
@@ -445,8 +446,9 @@ module clip_socket(anchor = CENTER, spin = 0, orient = UP) {
     thickness=clip_thick,
     depth=clip_depth,
     compression=clip_compress,
-    clearance = clip_tolerance,
-    anchor = anchor, spin = spin, orient = orient);
+    clearance=clip_tolerance,
+    anchor = anchor, spin = spin, orient = orient)
+    children();
 }
 
 module pc_fan(anchor = CENTER, spin = 0, orient = UP) {
