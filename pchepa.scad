@@ -32,6 +32,10 @@ wrapwall_sections = 0;
 
 wrapwall_section_limit = 240;
 
+wrapwall_dovetail = [5, 3]; // dovetail() w/h
+
+wrapwall_dovetail_spacing = 15;
+
 /* [PC Fan Metrics] */
 
 // <https://superuser.com/questions/225882/what-type-of-screws-are-used-for-computer-fans>
@@ -779,9 +783,35 @@ function wall_section(w=undef) = [
 ];
 
 module wall_section(w=undef, anchor = CENTER, spin = 0, orient = UP) {
+  dovetail_area = wrapwall_dovetail.x * wrapwall_dovetail.y;
+  extra = dovetail_area > 0
+    ? [wrapwall_dovetail.y, 0, 0]
+    : [0, 0, 0];
+
   wall_size = wall_section(w);
-  attachable(size = wall_size, anchor = anchor, spin = spin, orient = orient) {
-    cube(wall_size, center=true);
+  attachable(size = wall_size + extra, anchor = anchor, spin = spin, orient = orient) {
+    translate(-extra/2)
+    diff() cube(wall_size, center=true) {
+      if (dovetail_area > 0) {
+        tag("keep")
+        ycopies(l=wall_size.y - wrapwall_dovetail.x, spacing=wrapwall_dovetail_spacing)
+        attach(RIGHT, BOTTOM, overlap=$eps)
+          dovetail("male",
+            w=wrapwall_dovetail.x,
+            h=wrapwall_dovetail.y + $eps,
+            thickness=wall_size.z);
+
+        tag("remove")
+        ycopies(l=wall_size.y - wrapwall_dovetail.x, spacing=wrapwall_dovetail_spacing)
+        attach(LEFT, TOP, overlap=wrapwall_dovetail.y)
+          dovetail("female",
+            w=wrapwall_dovetail.x,
+            h=wrapwall_dovetail.y + $eps,
+            thickness=wall_size.z);
+
+      }
+    };
+
     children();
   }
 }
