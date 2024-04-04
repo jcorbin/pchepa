@@ -238,34 +238,39 @@ if (mode == 0) {
 else if (mode == 1) {
   build_plate() {
 
-    xdistribute(sizes=[
-      2*clip_length + 1,
-      power_channel_plug_size.x,
-      2*clip_length + 1,
-    ], spacing=1) {
-
-      xcopies(n=2, spacing=clip_length+1)
-      attach(TOP, BACK) clip();
-
-      ydistribute(sizes=[
-        2*clip_length,
-        power_channel_plug_size.y,
-        2*clip_length,
+    if (filter_count == 2 && base_with_usbc_port) {
+      xdistribute(sizes=[
+        2*clip_length + 1,
+        power_channel_plug_size.x,
+        2*clip_length + 1,
       ], spacing=1) {
+        xcopies(n=2, spacing=clip_length+1)
+        attach(TOP, BACK) clip();
 
-        xcopies(n=2, spacing=2*clip_length+1)
-        zrot(90) attach(TOP, BACK) clip();
+        ydistribute(sizes=[
+          2*clip_length,
+          power_channel_plug_size.y,
+          2*clip_length,
+        ], spacing=1) {
 
-        attach(TOP, BOTTOM) base_power_channel_plug();
+          xcopies(n=2, spacing=2*clip_length+1)
+          zrot(90) attach(TOP, BACK) clip();
 
-        xcopies(n=2, spacing=2*clip_length+1)
-        zrot(90) attach(TOP, BACK) clip();
+          attach(TOP, BOTTOM) base_power_channel_plug();
 
+          xcopies(n=2, spacing=2*clip_length+1)
+          zrot(90) attach(TOP, BACK) clip();
+        }
+
+        xcopies(n=2, spacing=clip_length+1)
+        attach(TOP, BACK) clip();
       }
+    }
 
-      xcopies(n=2, spacing=clip_length+1)
-      attach(TOP, BACK) clip();
-
+    else if (filter_count == 2) {
+      ycopies(n=2, spacing=2*clip_length+1)
+      xcopies(n=4, spacing=clip_length+1)
+        attach(TOP, BACK) clip();
     }
 
   }
