@@ -28,6 +28,8 @@ filter_count = 1; // [1, 2]
 
 buddy = true;
 
+build_plate_size = [250, 250];
+
 /* [Wraparound Wall Metrics] */
 
 wrapwall_thickness = 0.4 * 4;
@@ -40,7 +42,7 @@ wrapwall_draft = 0.4;
 
 wrapwall_sections = 0;
 
-wrapwall_section_limit = 240;
+wrapwall_section_limit = build_plate_size.x - 10;
 
 wrapwall_dovetail = [5, 3]; // dovetail() w/h
 
@@ -234,12 +236,39 @@ if (mode == 0) {
 }
 
 else if (mode == 1) {
-  ycopies(n=2, spacing=2*clip_length+1)
-  xcopies(n=4, spacing=clip_length+1)
-    clip(orient=BACK, anchor=BOTTOM);
+  build_plate() {
 
-  right((clip_length+1)*2.5)
-    base_power_channel_plug(anchor=BOTTOM);
+    xdistribute(sizes=[
+      2*clip_length + 1,
+      power_channel_plug_size.x,
+      2*clip_length + 1,
+    ], spacing=1) {
+
+      xcopies(n=2, spacing=clip_length+1)
+      attach(TOP, BACK) clip();
+
+      ydistribute(sizes=[
+        2*clip_length,
+        power_channel_plug_size.y,
+        2*clip_length,
+      ], spacing=1) {
+
+        xcopies(n=2, spacing=2*clip_length+1)
+        zrot(90) attach(TOP, BACK) clip();
+
+        attach(TOP, BOTTOM) base_power_channel_plug();
+
+        xcopies(n=2, spacing=2*clip_length+1)
+        zrot(90) attach(TOP, BACK) clip();
+
+      }
+
+      xcopies(n=2, spacing=clip_length+1)
+      attach(TOP, BACK) clip();
+
+    }
+
+  }
 }
 
 /// mode[10-19] -- bases
@@ -342,6 +371,15 @@ else if (mode == 103) {
 }
 
 /// implementation
+
+module build_plate(size=build_plate_size) {
+  size = scalar_vec3(size, 1);
+  down(size.z)
+  attachable(size=size) {
+    %cube(size=size, center=true);
+    children();
+  }
+}
 
 module cover_hole_test(anchor = CENTER, spin = 0, orient = UP) {
   attachable(size=[
