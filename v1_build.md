@@ -1,7 +1,15 @@
 # Build v1
 
 - 28h14m total print time over 12 prints
-- $113.08 total material cost
+- $113.18 total material cost
+- tools
+  - 3d printer: bambu x1c
+  - soldering iron: weller wlc100
+  - soldering iron heatset tips
+  - wire stripper
+  - side snips
+  - spudger <https://www.printables.com/model/656983>
+  - mallet <https://www.printables.com/model/85382>
 
 ## BOM
 
@@ -25,7 +33,7 @@ USBC 12v PD Trigger
 - $12.99 x 1/6
 - <https://www.amazon.com/gp/product/B0953G14Q2>
 
-M3x4x5
+M3x4x5 heatset inserts
 - $7.99 x 8/100
 - <https://www.amazon.com/Printing-M3x4x5mm-Threaded-Embedment-Automotive/dp/B0BTYF2MMD>
 
@@ -38,6 +46,11 @@ JST ZH 1.5mm connector / 28awg wire kit
 - 2/173 connectors
 - 4/110 wires
 - <https://www.amazon.com/gp/product/B0C6WY7DZM>
+
+PE Foam Tape
+- $12.99
+- 40mm / 4998.72mm
+- <https://www.amazon.com/Double-16-4ft-Mounting-Picture-Hanging/dp/B0CPSF8PML>
 
 Sunlu PLA Green
 - $14.99
@@ -92,3 +105,8 @@ Noctua NA-SYC1
 
 Or just do the fan wiring directly from raw wires and JST connectors;
 would also cut down on internal wiring bulk by using tiny JST ZH connectors.
+
+Improve mesh wall section integration:
+- thicken the wall so that it has more grip surface
+- maybe make the dovetails a little wider and deeper
+- taper the dovetails so that they resist coming apart around curves
