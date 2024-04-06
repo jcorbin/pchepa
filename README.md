@@ -1,4 +1,4 @@
-# PCHEPA -- PC Fan driven open source HEPA filter
+# PC Fan driven open source HEPA filter -- [PCHEPA](https://github.com/jcorbin/pchepa)
 
 OpenSCAD parametric model to integrate commodity PC Fans and cylindrical HEPA
 filter cartridges to create personal and readily portable air filters..
