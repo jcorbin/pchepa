@@ -1,6 +1,6 @@
 SCAD=pchepa.scad
 
-MODELS=$(shell grep -E -o '//@make +[^ ]+' $(SCAD) | sed -e 's/^[^ ]* *//')
+MODELS=$(shell grep '//@make ' $(SCAD) | grep -E -o -- ' -o +[^ ]+' | sed -e 's/^ -o //')
 
 all: $(MODELS)
 
@@ -9,4 +9,4 @@ clean:
 
 $(MODELS): $(SCAD)
 	test -d $(dir $@) || mkdir -p $(dir $@)
-	openscad $< -o $@ $(shell grep '//@make $@' $< | sed -r -e 's/^\/\/@make +[^ ]+//' -e 's/ / -D /g')
+	openscad $< $(shell grep '//@make ' $< | grep -- ' -o $@' | sed -r -e 's/^\/\/@make //')

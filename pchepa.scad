@@ -11,15 +11,15 @@ include <BOSL2/screws.scad>
 
 /* [Part Selection] */
 
-//@make dual/parts.stl mode=1 filter_count=2
-//@make dual/base.stl mode=10 filter_count=2 base_with_usbc_port=false
-//@make dual/base_with_usbc_port.stl mode=10 filter_count=2 base_with_usbc_port=true
-//@make dual/cover.stl mode=20 filter_count=2
-//@make dual/grill_box.stl mode=30 filter_count=2
-//@make dual/wall_section.stl mode=92 filter_count=2
-//@make dual/test_fit_power_module.stl mode=101 filter_count=2
-//@make dual/test_fit_wall.stl mode=102 filter_count=2
-//@make dual/test_fit_cover_hole.stl mode=103 filter_count=2
+//@make -o dual/parts.stl -D mode=1 -D filter_count=2
+//@make -o dual/base.stl -D mode=10 -D filter_count=2 -D base_with_usbc_port=false
+//@make -o dual/base_with_usbc_port.stl -D mode=10 -D filter_count=2 -D base_with_usbc_port=true
+//@make -o dual/cover.stl -D mode=20 -D filter_count=2
+//@make -o dual/grill_box.stl -D mode=30 -D filter_count=2
+//@make -o dual/wall_section.stl -D mode=92 -D filter_count=2
+//@make -o dual/test_fit_power_module.stl -D mode=101 -D filter_count=2
+//@make -o dual/test_fit_wall.stl -D mode=102 -D filter_count=2
+//@make -o dual/test_fit_cover_hole.stl -D mode=103 -D filter_count=2
 
 mode = 0; // [0:Full Assembly, 1:Small Part Kit, 10:Base, 20:Filter Cover/Fan Integration, 30:Fan Grill Box, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test]
 
