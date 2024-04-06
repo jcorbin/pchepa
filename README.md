@@ -29,6 +29,27 @@ After cloning this repository, run `git submoule update --init` to ensure the ne
 [bosl2]: https://github.com/BelfrySCAD/BOSL2
 [openscad]: https://openscad.org/
 
+## Printing
+
+First generate STL models by running `make all` ( maybe add `-j4` or more to speed up the build ).
+
+All models are already oriented as intended to print.
+
+General recommended slicer settings:
+- layer height: 0.2
+- 4 walls
+- sparse infill: 15% tri-hexagon
+- 4 top/bottom layers
+- concentric top surface pattern
+- no support material
+
+The flexible mesh wall section should instead be printed with:
+- 0 top/bottom layers
+- sparse infill: 60% tri-hexagon
+- infill direction: 90°
+
+The usb channel plug (U shaped tower in the parts collection) probably needs to be printed with a brim.
+
 ## License
 
 © 2024 by Joshua T Corbin is licensed under [CC BY-SA 4.0][ccbysa4]
