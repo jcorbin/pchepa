@@ -225,7 +225,7 @@ if (mode == 0) {
   else if (filter_count == 2) {
     xcopies(spacing=base_od, n=2) zrot(180 * $idx)
       filter_fan() {
-        attach(BOTTOM, TOP, overlap=filter_recess) base();
+        attach(BOTTOM, TOP, overlap=filter_recess) base(with_usbc_port=$idx == 0 ? base_with_usbc_port : false);
         right((base_od - grill_size)/4)
         attach(TOP, BOTTOM, overlap=fan_size[2]) grill();
       };
@@ -286,7 +286,7 @@ else if (mode == 10) {
 
   if (filter_count > 1 && buddy) {
     right(base_od) zrot(180)
-      %render() base();
+      %render() base(with_usbc_port=false);
 
     up(1.5 * clip_depth)
     down(base_height/2)
@@ -695,7 +695,10 @@ module power_module(tolerance=0, profile=false, anchor = CENTER, spin = 0, orien
   }
 }
 
-module base(anchor = CENTER, spin = 0, orient = UP) {
+module base(
+  with_usbc_port=base_with_usbc_port,
+  anchor = CENTER, spin = 0, orient = UP
+) {
   attachable(size = [base_od, base_od, base_height], anchor = anchor, spin = spin, orient = orient) {
     diff(remove="filter wallslot socket port", keep="grip")
       plate(h=base_height, d=base_od, chamfer2=base_overhang) {
@@ -734,7 +737,7 @@ module base(anchor = CENTER, spin = 0, orient = UP) {
         }
 
         // USB C port and wire channel
-        if (base_with_usbc_port) {
+        if (with_usbc_port) {
           tag("port")
             up(power_module_size[2])
             down(base_height/2)
