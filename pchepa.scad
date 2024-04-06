@@ -11,7 +11,7 @@ include <BOSL2/screws.scad>
 
 /* [Part Selection] */
 
-//@make -o dual_example.png --render --viewall --autocenter --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2
+//@make -o dual_example.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 --camera=-2.56,-4.16,-8.15,55.00,0.00,25.00,1151.54
 //@make -o dual/parts.stl -D mode=1 -D filter_count=2
 //@make -o dual/base.stl -D mode=10 -D filter_count=2 -D base_with_usbc_port=false
 //@make -o dual/base_with_usbc_port.stl -D mode=10 -D filter_count=2 -D base_with_usbc_port=true
