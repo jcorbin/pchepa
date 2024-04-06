@@ -3,6 +3,8 @@
 OpenSCAD parametric model to integrate commodity PC Fans and cylindrical HEPA
 filter cartridges to create personal and readily portable air filters..
 
+![Dual Filter Example Assembly](dual_example.png)
+
 ## Status
 
 - [x] v1 build of a dual-filter/fan model done and works well
