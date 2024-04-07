@@ -22,12 +22,9 @@ filter cartridges to create personal and readily portable air filters..
 
 ## Setup
 
-These models are implemented as [OpenSCAD][openscad] scripts using the [BOSL2][bosl2] library.
+This model is implemented in [OpenSCAD][openscad] using the [BOSL2][bosl2] library.
 
 After cloning this repository, run `git submoule update --init` to ensure the needed copy of BOSL2 is setup.
-
-[bosl2]: https://github.com/BelfrySCAD/BOSL2
-[openscad]: https://openscad.org/
 
 ## Printing
 
@@ -54,4 +51,6 @@ The usb channel plug (U shaped tower in the parts collection) probably needs to 
 
 © 2024 by Joshua T Corbin is licensed under [CC BY-SA 4.0][ccbysa4]
 
+[bosl2]: https://github.com/BelfrySCAD/BOSL2
 [ccbysa4]: http://creativecommons.org/licenses/by-sa/4.0
+[openscad]: https://openscad.org/
