@@ -28,7 +28,9 @@ After cloning this repository, run `git submoule update --init` to ensure the ne
 
 ## Printing
 
-First generate STL models by running `make all` ( maybe add `-j4` or more to speed up the build ).
+To generate STL models either:
+- run `make all` to use default ( to go faster, run something like `make -j4 all` to build models in parallel, e.g. 4 at a time )
+- or interactively export models from OpenSCAD by paging through each `mode` value under the `Part Selection` customizer tab
 
 All models are already oriented as intended to print.
 
