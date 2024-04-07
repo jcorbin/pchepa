@@ -47,6 +47,27 @@ The flexible mesh wall section should instead be printed with:
 
 The usb channel plug (U shaped tower in the parts collection) probably needs to be printed with a brim.
 
+### Fit Testing
+
+There are several cut-down fit test models that can be used to verify assembly fitment.
+Adjust model tolerance parameters, part metrics, and print slicer settings as needed to get a good fit before printing the full parts.
+
+Power Module Fit Test
+: makefile creates `dual/test_fit_power_module.stl`
+: a cut-down section of the primary base plate, focusing on just the power module socket, and its fixating channel plug
+
+Wall Fit Test
+: makefile creates `dual/test_fit_wall.stl`
+: a cut-down section of the base and cover plates, plus 2 reduced-length mesh wall sections
+: useful to check plate-filter grip and mesh wall height
+: may also be used to check power module fit, since it an instance of the power module socket
+
+Cover Hole Test
+: makefile creates `dual/test_fit_cover_hole.stl`
+: a cut-down section of the cover plate with 1 fan mounting hole
+: primarily useful to verify heatset insert tolerance or direct threading of M3 screws
+: may also be used to evaluate side handle affordance and filter-top grip
+
 ## License
 
 © 2024 by Joshua T Corbin is licensed under [CC BY-SA 4.0][ccbysa4]
