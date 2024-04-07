@@ -62,21 +62,26 @@ filter_tolerance = 0.1;
 
 /* [Wraparound Wall Metrics] */
 
-wrapwall_thickness = 0.4 * 4;
+// Thickness of the mesh wrap wall, radially away from filter center; set to zero to disable mesh wall.
+wrapwall_thickness = 1.6;
 
-wrapwall_tolerance = 0.4;
-
+// Mesh wrap wall slot depth cut into the base/cover plates.
 wrapwall_slot_depth = 5;
 
+// Mesh wrap wall slot fit tolerance for the channel cut into the base/cover plates.
+wrapwall_tolerance = 0.4;
+
+// Additional tolerance at the open end of the base/cover plate mesh wall slot.
 wrapwall_draft = 0.4;
 
-wrapwall_sections = 0;
-
+// Auotmatic determination of mesh wall section length, by dividing the total perimeter evenly.
 wrapwall_section_limit = build_plate_size.x - 10;
 
-wrapwall_dovetail = [5, 3]; // dovetail() w/h
+// Manual setting for how many sections the mesh wrap wall will be split into; overrides wrapwall_section_limit perimeter division.
+wrapwall_sections = 0;
 
-wrapwall_dovetail_spacing = 15;
+// Mesh wrap wall sections will use dovetail joiners of this dimension; [w, h, spacing] vector, set either w or h to 0 to disable dovetails.
+wrapwall_dovetail = [5, 3, 15];
 
 /* [PC Fan Metrics] */
 
@@ -875,7 +880,7 @@ module wall_section(w=undef, anchor = CENTER, spin = 0, orient = UP) {
     diff() cube(wall_size, center=true) {
       if (dovetail_area > 0) {
         tag("keep")
-        ycopies(l=wall_size.y - wrapwall_dovetail.x, spacing=wrapwall_dovetail_spacing)
+        ycopies(l=wall_size.y - wrapwall_dovetail.x, spacing=wrapwall_dovetail.z)
         attach(RIGHT, BOTTOM, overlap=$eps)
           dovetail("male",
             w=wrapwall_dovetail.x,
@@ -883,7 +888,7 @@ module wall_section(w=undef, anchor = CENTER, spin = 0, orient = UP) {
             thickness=wall_size.z);
 
         tag("remove")
-        ycopies(l=wall_size.y - wrapwall_dovetail.x, spacing=wrapwall_dovetail_spacing)
+        ycopies(l=wall_size.y - wrapwall_dovetail.x, spacing=wrapwall_dovetail.z)
         attach(LEFT, TOP, overlap=wrapwall_dovetail.y)
           dovetail("female",
             w=wrapwall_dovetail.x,
