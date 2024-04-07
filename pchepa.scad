@@ -22,13 +22,16 @@ include <BOSL2/screws.scad>
 //@make -o dual/test_fit_wall.stl -D mode=102 -D filter_count=2
 //@make -o dual/test_fit_cover_hole.stl -D mode=103 -D filter_count=2
 
+// Which part to model: base / cover / grill / wall / etc...
 mode = 0; // [0:Full Assembly, 1:Small Part Kit, 10:Base, 20:Filter Cover/Fan Integration, 30:Fan Grill Box, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test]
 
-filter_count = 1; // [1, 2]
-// TODO filter_count = 3
+// How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
+filter_count = 2; // [1, 2]
 
+// Enbables display of meeting-part ghosts ; e.g. adjoining base/cover plate counterpart.
 buddy = true;
 
+// How big is your printer's printable area?
 build_plate_size = [250, 250];
 
 /* [Wraparound Wall Metrics] */
