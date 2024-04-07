@@ -9,6 +9,14 @@ include <BOSL2/screws.scad>
 
 /// user/customizer parameters
 
+/* [Global] */
+
+// Enbables display of meeting-part ghosts ; e.g. adjoining base/cover plate counterpart.
+buddy = true;
+
+// How big is your printer's printable area?
+build_plate_size = [250, 250];
+
 /* [Part Selection] */
 
 //@make -o dual_example.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 --camera=-2.56,-4.16,-8.15,55.00,0.00,25.00,1151.54
@@ -27,12 +35,6 @@ mode = 0; // [0:Full Assembly, 1:Small Part Kit, 10:Base, 20:Filter Cover/Fan In
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
-
-// Enbables display of meeting-part ghosts ; e.g. adjoining base/cover plate counterpart.
-buddy = true;
-
-// How big is your printer's printable area?
-build_plate_size = [250, 250];
 
 /* [Wraparound Wall Metrics] */
 
