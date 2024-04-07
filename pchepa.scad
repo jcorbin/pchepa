@@ -36,6 +36,30 @@ mode = 0; // [0:Full Assembly, 1:Small Part Kit, 10:Base, 20:Filter Cover/Fan In
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
 
+/* [HEPA Filter Metrics] */
+
+// Height of the HEPA filter cylinder.
+filter_height = 5.9 * 25.4;
+
+// Outer diameter of the HEPA filter cylinder.
+filter_od = 180;
+// Nyemo supposedly has a 7inch spec, so 177.8 = 7*25.4, but in reality it measured more like 180mm.
+
+// Inner diameter of the HEPA filter cylinder cavity.
+filter_id = 149;
+
+// Thickness of the teardrop grips that hold the filter inside the base and cover plates. You could set this to zero to disable, but then vertical integrity of the assembly is lost, as no other part is currently designed to hold everything together, instead relying on gripping the filter's plastic ledge.
+filter_grip = 1;
+
+// Additional space to leave radially between the filter and mesh wrap wall.
+filter_extra_space = 0;
+
+// How far the filter will be recessed into the cover and base plates. TODO back out a filter_lip measured parameter.
+filter_recess = 10;
+
+// Additional fit tolerance for the cover/base plate filter recess.
+filter_tolerance = 0.1;
+
 /* [Wraparound Wall Metrics] */
 
 wrapwall_thickness = 0.4 * 4;
@@ -96,32 +120,12 @@ grill_screw_head = "flat";
 
 grill_window = [ 24, 46 ];
 
-/* [HEPA Filter Metrics] */
-
-// filter_od = 7 * 25.4; // 7 inch spec...
-filter_od = 180; // ... but actually need another couple mm
-
-filter_thickness = 31;
-
-filter_id = filter_od - filter_thickness;
-
-filter_grip = 1;
-
-filter_height = 5.9 * 25.4;
-
-filter_spacing = 1 * 25.4;
-
-filter_extra_space = 0;
-
 /* [Filter Cover Parameters] */
 
 cover_height = 20;
 cover_overhang = 2 + 2;
 cover_underhang = 0.8;
 cover_clips = 4;
-
-filter_recess = 10;
-filter_tolerance = 0.1;
 
 cover_heatset_hole = [4.4, 5.3];
 
