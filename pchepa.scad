@@ -1035,7 +1035,7 @@ module grill(anchor = CENTER, spin = 0, orient = UP) {
 
         }
 
-        if (grill_window[0] * grill_window[1] > 0) {
+        if (filter_count > 1 && grill_window[0] * grill_window[1] > 0) {
           window_size = [
             grill_window[0] + 2 * grill_thickness,
             grill_window[1] + 2 * grill_thickness, 4 *
