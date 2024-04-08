@@ -193,16 +193,31 @@ clip_tolerance = 0.6;
 
 // Tune for a particular USB-C 12v power trigger module
 
+// Measured size of the USB-C power module PCB.
 power_pcb_size = [10.8, 16.25, 1.5];
+
+// Measured size of the power module USB-C female socket itself.
 power_socket_size = [9, 6.8, 3.2];
-power_socket_overhang = 1.6;
+
+// Edge rounding of the power module USB-C female socket.
 power_socket_rounding = 1;
-power_module_cut = 4;
+
+// How far the USB-C socket hangs out past the power module PCB edge.
+power_socket_overhang = 1.6;
+
+// How much of solder pad / wiring "porch" to allow at the back of the USB-C power module.
 power_module_porch = 14;
+
+// Diagonal cutting factor behind the USB-C power module to allow easy installation.
+power_module_cut = 4;
+
+// Fit tolerance for the USB-C power module.
 power_module_tolerance = 0.2;
 
+// Edge chamfering for the power module wiring channel.
 power_channel_chamfer = 1;
 
+// Fit tolerance for the fixation plug that will fill the power module wiring channel after installation.
 power_channel_plug_tolerance = 0.2;
 
 /// dispatch / integration
