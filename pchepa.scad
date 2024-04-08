@@ -183,17 +183,6 @@ power_channel_chamfer = 1;
 
 power_channel_plug_tolerance = 0.2;
 
-/* [Geometry Detail] */
-
-// Fragment minimum angle
-$fa = 4; // 1
-
-// Fragment minimum size
-$fs = 0.2; // 0.05
-
-// Epsilon adjustement value for cutouts
-$eps = 0.01;
-
 /// dispatch / integration
 
 module __customizer_limit__() {}
@@ -233,6 +222,17 @@ power_channel_plug_size = [
   power_channel_size[1] - 4*power_module_tolerance,
   base_height - power_module_size[2]/2,
 ];
+
+/* [Geometry Detail] */
+
+// Fragment minimum angle.
+$fa = 4; // 1
+
+// Fragment minimum size.
+$fs = 0.2; // 0.05
+
+// Nudging value used when cutting out (differencing) solids, to avoid coincident face flicker.
+$eps = 0.01;
 
 // TODO pockets in the base for weights or battery bank
 
