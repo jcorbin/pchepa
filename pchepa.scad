@@ -653,9 +653,9 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
             );
         }
 
-        if (cover_port[0] * cover_port[1] > 0) {
+        if (cover_port.x * cover_port.y > 0) {
           port_chamfer = min(cover_port/4);
-          port_size = [cover_port[0], cover_port[1], cover_height];
+          port_size = [cover_port.x, cover_port.y, cover_height];
 
           tag("port")
             ycopies(cover_port_at)
