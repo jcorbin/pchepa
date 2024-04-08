@@ -21,8 +21,8 @@ build_plate_size = [250, 250];
 
 //@make -o dual_example.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 --camera=-2.56,-4.16,-8.15,55.00,0.00,25.00,1151.54
 //@make -o dual/parts.stl -D mode=1 -D filter_count=2
-//@make -o dual/base.stl -D mode=10 -D filter_count=2 -D base_with_usbc_port=false
-//@make -o dual/base_with_usbc_port.stl -D mode=10 -D filter_count=2 -D base_with_usbc_port=true
+//@make -o dual/base.stl -D mode=10 -D filter_count=2 -D base_with_power_port=false
+//@make -o dual/base_with_usbc_port.stl -D mode=10 -D filter_count=2 -D base_with_power_port=true
 //@make -o dual/cover.stl -D mode=20 -D filter_count=2
 //@make -o dual/grill_box.stl -D mode=30 -D filter_count=2
 //@make -o dual/wall_section.stl -D mode=92 -D filter_count=2
@@ -160,13 +160,17 @@ cover_port_at = [-48, 48];
 
 /* [Filter Base Parameters] */
 
+// Overall Z thickness of the base plate under the filter.
 base_height = 20;
 
+// Chamfer size of the base plate, additional radial space as needed.
 base_overhang = 10;
 
+// How many joiner clips to use in the base plate.
 base_clips = 4;
 
-base_with_usbc_port = true;
+// Enable a cut out and insertion/wire channel in the base plate for a USB-C power module.
+base_with_power_port = true;
 
 /* [Joiner Clip Parameters] */
 
@@ -262,7 +266,7 @@ if (mode == 0) {
   else if (filter_count == 2) {
     xcopies(spacing=base_od, n=2) zrot(180 * $idx)
       filter_fan() {
-        attach(BOTTOM, TOP, overlap=filter_recess) base(with_usbc_port=$idx == 0 ? base_with_usbc_port : false);
+        attach(BOTTOM, TOP, overlap=filter_recess) base(with_power_port=$idx == 0 ? base_with_power_port : false);
         right((base_od - grill_size)/4)
         attach(TOP, BOTTOM, overlap=fan_size[2]) grill();
       };
@@ -276,7 +280,7 @@ if (mode == 0) {
 else if (mode == 1) {
   build_plate() {
 
-    if (filter_count == 2 && base_with_usbc_port) {
+    if (filter_count == 2 && base_with_power_port) {
       xdistribute(sizes=[
         2*clip_length + 1,
         power_channel_plug_size.x,
@@ -323,7 +327,7 @@ else if (mode == 10) {
 
   if (filter_count > 1 && buddy) {
     right(base_od) zrot(180)
-      %render() base(with_usbc_port=false);
+      %render() base(with_power_port=false);
 
     up(1.5 * clip_depth)
     down(base_height/2)
@@ -711,7 +715,7 @@ module power_module(tolerance=0, profile=false, anchor = CENTER, spin = 0, orien
 }
 
 module base(
-  with_usbc_port=base_with_usbc_port,
+  with_power_port=base_with_power_port,
   anchor = CENTER, spin = 0, orient = UP
 ) {
   attachable(size = [base_od, base_od, base_height], anchor = anchor, spin = spin, orient = orient) {
@@ -752,7 +756,7 @@ module base(
         }
 
         // USB C port and wire channel
-        if (with_usbc_port) {
+        if (with_power_port) {
           tag("port")
             up(power_module_size[2])
             down(base_height/2)
