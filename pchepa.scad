@@ -179,27 +179,7 @@ power_module_cut = 4;
 power_module_porch = 14;
 power_module_tolerance = 0.2;
 
-power_module_size = [
-  max(power_pcb_size[0], power_socket_size[0]),
-  power_pcb_size[1] + power_socket_overhang,
-  power_pcb_size[2] + power_socket_size[2],
-];
-
 power_channel_chamfer = 1;
-
-power_channel_size = [
-  power_pcb_size[0] + 2*power_channel_chamfer,
-  sqrt(power_pcb_size[1]^2/2) +
-  sqrt(power_pcb_size[2]^2/2) +
-  2*power_channel_chamfer,
-  100,
-];
-
-power_channel_plug_size = [
-  power_channel_size[0],
-  power_channel_size[1] - 4*power_module_tolerance,
-  base_height - power_module_size[2]/2,
-];
 
 power_channel_plug_tolerance = 0.2;
 
@@ -233,6 +213,26 @@ slot_extra = filter_count < 2 ? 0 : (base_od - slot_od)/2;
 cover_hole = cover_heatset_hole[0] * cover_heatset_hole[1] > 0
   ? cover_heatset_hole
   : [struct_val(screw_info(grill_screw), "diameter") + 0.2, 8];
+
+power_module_size = [
+  max(power_pcb_size[0], power_socket_size[0]),
+  power_pcb_size[1] + power_socket_overhang,
+  power_pcb_size[2] + power_socket_size[2],
+];
+
+power_channel_size = [
+  power_pcb_size[0] + 2*power_channel_chamfer,
+  sqrt(power_pcb_size[1]^2/2) +
+  sqrt(power_pcb_size[2]^2/2) +
+  2*power_channel_chamfer,
+  100,
+];
+
+power_channel_plug_size = [
+  power_channel_size[0],
+  power_channel_size[1] - 4*power_module_tolerance,
+  base_height - power_module_size[2]/2,
+];
 
 // TODO pockets in the base for weights or battery bank
 
