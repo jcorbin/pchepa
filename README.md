@@ -8,13 +8,13 @@ filter cartridges to create personal and readily portable air filters..
 ## Design
 
 The design is based around integrating readily available PC case fans and cylindrical HEPA filter cartridges.
-So the build breaks down mainly involves 6 parts:
-- purchased cylindrical HEPA filter cartridge
-- purchased PC case fan
+So the build mainly involves 6 parts:
+- purchased cylindrical HEPA filter cartridges
+- purchased PC case fans
 - purchased PWM fan control module
-- printed base plate under the filter
-- printed cover plate between the filter and fan
-- printed grill enclosure over/around the fan
+- printed base plates under the filters
+- printed cover plates between the filters and fans
+- printed grill enclosure over/around the fans
 
 Secondarily there can be a flexible mesh wall wrapped around the HEPA filter to
 protect it from impact. This wall can be printed in sections, or a suitable
@@ -49,13 +49,13 @@ such as an Arduino with additionally added air quality sensor and display.
 ## Status
 
 - [x] v1 build of a dual-filter/fan model done and works well
+- [ ] WIP add code level documentation, especially to customizer parameters
 - [ ] TODO write step by step build guide based on [v1_build.md](v1_build.md)
 - [ ] TODO address v1 build pain points, especially rabbit clip tolerance
-- [ ] TODO publish models set somewhere (probably thangs)
-- [ ] TODO add code level documentation, especially to customizer parameters
+- [ ] TODO publish dual-filter models somewhere (probably thangs)
 - [ ] TODO evolve parameters, with presets for various fan/filter models
 - [ ] TODO complete and build a single filter variant
-- [ ] TODO support integrating a battery back or USB power bank
+- [ ] TODO support integrating a battery or USB power bank
 - [ ] TODO support arduino based electronics package, including an [air quality sensor wing][aq_wing]
 - [ ] TODO a carrying handle part, or option integrated with the grill top
 - [ ] TODO power socket clearance: wallslot depth vs diagonal interior cut, wall thickness between wallslot and channel
@@ -97,24 +97,24 @@ There are several cut-down fit test models that can be used to verify assembly f
 Adjust model tolerance parameters, part metrics, and print slicer settings as needed to get a good fit before printing the full parts.
 
 Power Module Fit Test
-: makefile creates `dual/test_fit_power_module.stl`
-: a cut-down section of the primary base plate, focusing on just the power module socket, and its fixating channel plug
+- a cut-down section of the primary base plate, focusing on just the power module socket, and its fixating channel plug
+- makefile creates `dual/test_fit_power_module.stl`
 
 Wall Fit Test
-: makefile creates `dual/test_fit_wall.stl`
-: a cut-down section of the base and cover plates, plus 2 reduced-length mesh wall sections
-: useful to check plate-filter grip and mesh wall height
-: may also be used to check power module fit, since it an instance of the power module socket
+- a cut-down section of the base and cover plates, plus 2 reduced-length mesh wall sections
+- useful to check plate-filter grip and mesh wall height
+- may also be used to check power module fit, since it an instance of the power module socket
+- makefile creates `dual/test_fit_wall.stl`
 
 Cover Hole Test
-: makefile creates `dual/test_fit_cover_hole.stl`
-: a cut-down section of the cover plate with 1 fan mounting hole
-: primarily useful to verify heatset insert tolerance or direct threading of M3 screws
-: may also be used to evaluate side handle affordance and filter-top grip
+- a cut-down section of the cover plate with 1 fan mounting hole
+- primarily useful to verify heatset insert tolerance or direct threading of M3 screws
+- may also be used to evaluate side handle affordance and filter-top grip
+- makefile creates `dual/test_fit_cover_hole.stl`
 
 ## License
 
-© 2024 by Joshua T Corbin is licensed under [CC BY-SA 4.0][ccbysa4]
+© 2024 by Joshua T Corbin licensed under [CC BY-SA 4.0][ccbysa4]
 
 [bosl2]: https://github.com/BelfrySCAD/BOSL2
 [exhalaron]: https://www.cleanairkits.com/products/exhalaron
