@@ -51,8 +51,8 @@ such as an Arduino with additionally added air quality sensor and display.
 ## Status
 
 - [x] v1 build of a dual-filter/fan model done and works well
-- [ ] WIP add code level documentation, especially to customizer parameters
-- [ ] TODO write step by step build guide based on [v1_build.md](v1_build.md)
+- [x] cleaned up and documented code/parameters a bit
+- [ ] WIP iterate [v1 build notes](v1_build.md) into a basic build guide
 - [ ] TODO address v1 build pain points, especially rabbit clip tolerance
 - [ ] TODO publish dual-filter models somewhere (probably thangs)
 - [ ] TODO evolve parameters, with presets for various fan/filter models
