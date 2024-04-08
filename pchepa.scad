@@ -108,20 +108,31 @@ fan_screw_spacing = 105;
 
 /* [Fan Grill Metrics] */
 
-grill_size = 136;
+// Amount of padding to add around each side of the fan within the grill box; should be at least enough to allow routing of fan cables.
+grill_padding = 5;
 
+// Thickness of grill box walls.
 grill_thickness = 3;
 
+// Corner and edge chamfering of the grill box.
 grill_chamfer = 5;
 
+// Grill perforation hole size.
 grill_hole_size = 4;
 
+// Grill perforation hole spacing.
 grill_hole_spacing = 1;
 
+// Grill perforation hole polygon degree (default: hexagon).
+grill_hole_degree = 6;
+
+// Grill box mounting screw size, need to be compatible with the fan_screw size; will bolt through grill, fan, and into cover plate.
 grill_screw = "M3";
 
+// Head type for the grill box mounting screw, default is flush/countersunk heads.
 grill_screw_head = "flat";
 
+// Cutout window size in the extra space area of the grill box between filters; used to allow access to the control module. Set either dimension to 0 to disable.
 grill_window = [ 24, 46 ];
 
 /* [Filter Cover Parameters] */
@@ -212,6 +223,8 @@ slot_od = slot_id + 2*wrapwall_thickness + 2*wrapwall_tolerance;
 
 cover_od = slot_od + 2*cover_overhang;
 base_od = slot_od + 2*base_overhang + filter_recess;
+
+grill_size = fan_size.y + 2*( grill_padding + grill_thickness );
 
 cover_extra = filter_count < 2 ? 0 : base_od - cover_od; // FIXME why not /2 like the others
 grill_extra = filter_count < 2 ? 0 : (base_od - grill_size)/2;
@@ -996,7 +1009,7 @@ module grill(anchor = CENTER, spin = 0, orient = UP) {
               inside=circle(d=fan_id)
             )
               zrot(30)
-              cyl(h=size[2] + 2*$eps, d=grill_hole_size, $fn=6);
+              cyl(h=size[2] + 2*$eps, d=grill_hole_size, $fn=grill_hole_degree);
 
         }
 
