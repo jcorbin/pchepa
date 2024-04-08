@@ -174,12 +174,19 @@ base_with_power_port = true;
 
 /* [Joiner Clip Parameters] */
 
-clip_length = 2 * 7;
-clip_width = 2 * 7;
-clip_depth = 3;
+// Size of the joiner BOSL2 rabbit clips used to join base and cover plate pairs: [width, length, depth]
+clip_size = [14, 14, 3];
+
+// The snap parameter gives the depth of the clip sides, which controls how easy the clip is to insert and remove.  
 clip_snap = 0.75;
+
+// Thickness of the curved line that forms the clip.  
 clip_thick = 1.6;
+
+// The clip "ears" are made over-wide by the compression value. A nonzero compression helps make the clip secure in its socket.
 clip_compress = 0.2;
+
+// Extra space in the socket for easier insertion.
 clip_tolerance = 0.6;
 
 /* [Power Module] */
@@ -282,36 +289,36 @@ else if (mode == 1) {
 
     if (filter_count == 2 && base_with_power_port) {
       xdistribute(sizes=[
-        2*clip_length + 1,
+        2*clip_size.y + 1,
         power_channel_plug_size.x,
-        2*clip_length + 1,
+        2*clip_size.y + 1,
       ], spacing=1) {
-        xcopies(n=2, spacing=clip_length+1)
+        xcopies(n=2, spacing=clip_size.y+1)
         attach(TOP, BACK) clip();
 
         ydistribute(sizes=[
-          2*clip_length,
+          2*clip_size.y,
           power_channel_plug_size.y,
-          2*clip_length,
+          2*clip_size.y,
         ], spacing=1) {
 
-          xcopies(n=2, spacing=2*clip_length+1)
+          xcopies(n=2, spacing=2*clip_size.y+1)
           zrot(90) attach(TOP, BACK) clip();
 
           attach(TOP, BOTTOM) base_power_channel_plug();
 
-          xcopies(n=2, spacing=2*clip_length+1)
+          xcopies(n=2, spacing=2*clip_size.y+1)
           zrot(90) attach(TOP, BACK) clip();
         }
 
-        xcopies(n=2, spacing=clip_length+1)
+        xcopies(n=2, spacing=clip_size.y+1)
         attach(TOP, BACK) clip();
       }
     }
 
     else if (filter_count == 2) {
-      ycopies(n=2, spacing=2*clip_length+1)
-      xcopies(n=4, spacing=clip_length+1)
+      ycopies(n=2, spacing=2*clip_size.y+1)
+      xcopies(n=4, spacing=clip_size.y+1)
         attach(TOP, BACK) clip();
     }
 
@@ -329,12 +336,12 @@ else if (mode == 10) {
     right(base_od) zrot(180)
       %render() base(with_power_port=false);
 
-    up(1.5 * clip_depth)
+    up(1.5 * clip_size.z)
     down(base_height/2)
-    fwd(2*clip_width)
+    fwd(2*clip_size.x)
     fwd(base_od/2)
     right(base_od/2)
-      %render() xcopies(n=base_clips, spacing=clip_length * 2.5) clip(orient=RIGHT, spin = 90);
+      %render() xcopies(n=base_clips, spacing=clip_size.y * 2.5) clip(orient=RIGHT, spin = 90);
   }
 }
 
@@ -350,12 +357,12 @@ else if (mode == 20) {
     right(base_od) zrot(180)
       %render() cover();
 
-    down(1.5 * clip_depth)
+    down(1.5 * clip_size.z)
     up(cover_height/2)
-    fwd(2*clip_width)
+    fwd(2*clip_size.x)
     fwd(cover_od/2)
     right(base_od/2)
-      %render() xcopies(n=cover_clips, spacing=clip_length * 2.5) clip(orient=RIGHT, spin = 90);
+      %render() xcopies(n=cover_clips, spacing=clip_size.y * 2.5) clip(orient=RIGHT, spin = 90);
   }
 }
 
@@ -446,7 +453,7 @@ module cover_hole_test(anchor = CENTER, spin = 0, orient = UP) {
 
 module wall_fit_test() {
   cut_size = 2.1*base_od;
-  extra = wrapwall_thickness*8 + clip_length;
+  extra = wrapwall_thickness*8 + clip_size.y;
 
   cover_cut = cover_od/2 - cover_overhang - extra;
   base_cut = base_od/2 - base_overhang - extra;
@@ -475,7 +482,7 @@ module wall_fit_test() {
 }
 
 module power_module_fit_test(extra = 5, anchor = CENTER, spin = 0, orient = UP) {
-  left_cut = base_od - clip_length - (
+  left_cut = base_od - clip_size.y - (
     $preview
       ? (1.5 * power_module_size[0]/8*7) // tunnel cutaway when previewing
       : (1.5 * power_module_size[0] + extra));
@@ -545,11 +552,11 @@ module base_power_channel_plug(
 module clip(anchor = CENTER, spin = 0, orient = UP) {
   rabbit_clip(
     type="double",
-    length=clip_length,
-    width=clip_width,
+    length=clip_size.y,
+    width=clip_size.x,
     snap=clip_snap,
     thickness=clip_thick,
-    depth=clip_depth,
+    depth=clip_size.z,
     compression=clip_compress,
     anchor = anchor, spin = spin, orient = orient)
     children();
@@ -558,11 +565,11 @@ module clip(anchor = CENTER, spin = 0, orient = UP) {
 module clip_socket(anchor = CENTER, spin = 0, orient = UP) {
   rabbit_clip(
     type="socket",
-    length=clip_length + $eps,
-    width=clip_width,
+    length=clip_size.y + $eps,
+    width=clip_size.x,
     snap=clip_snap,
     thickness=clip_thick,
-    depth=clip_depth,
+    depth=clip_size.z,
     compression=clip_compress,
     clearance=clip_tolerance,
     anchor = anchor, spin = spin, orient = orient)
@@ -627,10 +634,10 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
         if (filter_count > 1 && cover_clips > 0) {
           tag("socket")
-            down(clip_depth * 1.5)
+            down(clip_size.z * 1.5)
             up(cover_height / 2)
-            ycopies(l=(cover_od - 2*cover_overhang - 1.5 * clip_width), n=cover_clips)
-            attach(RIGHT, TOP, overlap=clip_length)
+            ycopies(l=(cover_od - 2*cover_overhang - 1.5 * clip_size.x), n=cover_clips)
+            attach(RIGHT, TOP, overlap=clip_size.y)
             clip_socket();
         }
 
@@ -735,10 +742,10 @@ module base(
 
         if (filter_count > 1 && base_clips > 0) {
           tag("socket")
-            up(clip_depth * 1.5)
+            up(clip_size.z * 1.5)
             down(base_height / 2)
-            ycopies(l=(base_od - 2*base_overhang - 1.5 * clip_width), n=base_clips)
-            attach(RIGHT, TOP, overlap=clip_length)
+            ycopies(l=(base_od - 2*base_overhang - 1.5 * clip_size.x), n=base_clips)
+            attach(RIGHT, TOP, overlap=clip_size.y)
             clip_socket();
         }
 
@@ -762,7 +769,7 @@ module base(
             down(base_height/2)
             back(power_module_size[1]) fwd($eps)
             left(power_module_size[0])
-            left(clip_length)
+            left(clip_size.y)
             attach(FRONT+RIGHT, BACK)
             yrot(-45)
             power_module(profile=true, tolerance=power_module_tolerance) {
