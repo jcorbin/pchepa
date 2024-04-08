@@ -5,6 +5,9 @@ filter cartridges to create personal and readily portable air filters..
 
 ![Dual Filter Example Assembly](dual_example.png)
 
+Primary inspiration is the [Exhalaron][exhalaron] by cleanairkits.com, but there's also a strong similarity to other
+"integrate a commodity HEPA filter and PC fan" makes before such as by [bigclive][bigclive_diy_hepa] and [greymanx][greymanx_diy_hepa].
+
 ## Design
 
 The design is based around integrating readily available PC case fans and cylindrical HEPA filter cartridges.
@@ -27,8 +30,7 @@ Additionally there are various small supporting parts:
 - printed rabbit clips to join base/cover plate pairs
 - printed channel plug to fix the USB-C power module in place
 
-Currently the design only supports a 2-filter 2-fan layout inspired by the [Exhalaron][exhalaron],
-and uses the same Nyemo H12 / TT-AP006 replacement filters as the exhalaron kit.
+Currently the design only supports a 2-filter 2-fan layout and uses the same Nyemo H12 / TT-AP006 replacement filters as the exhalaron kit.
 However the most readily changed model parameters should be the filter specifics if alternate an alternate filter needs to be sourced.
 
 Any 120mm PC Fan may be used, and the model can easily adapt for larger 140mm PC fans
@@ -116,7 +118,10 @@ Cover Hole Test
 
 © 2024 by Joshua T Corbin licensed under [CC BY-SA 4.0][ccbysa4]
 
-[bosl2]: https://github.com/BelfrySCAD/BOSL2
+[bigclive_diy_hepa]: https://www.youtube.com/watch?v=6Vmh2Ip2Vxg
 [exhalaron]: https://www.cleanairkits.com/products/exhalaron
+[greymanx_diy_hepa]: https://www.printables.com/model/386124
+
+[bosl2]: https://github.com/BelfrySCAD/BOSL2
 [ccbysa4]: http://creativecommons.org/licenses/by-sa/4.0
 [openscad]: https://openscad.org/
