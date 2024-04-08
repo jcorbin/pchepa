@@ -106,10 +106,6 @@ fan_screw = "#4";
 // Spacing between fan screw hole centers.
 fan_screw_spacing = 105;
 
-fan_wire_channel = 0;
-fan_wire_channel_chamfer = 3;
-fan_wire_inset = 30;
-
 /* [Fan Grill Metrics] */
 
 grill_size = 136;
@@ -608,28 +604,6 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
             ycopies(l=(cover_od - 2*cover_overhang - 1.5 * clip_width), n=cover_clips)
             attach(RIGHT, TOP, overlap=clip_length)
             clip_socket();
-        }
-
-        if (fan_wire_channel > 0) {
-          channel_length = (base_od - fan_size[0])/2 + fan_wire_inset + fan_wire_channel / 2;
-
-          tag("channel")
-            ycopies(n=2, spacing=fan_size[1] - 2*fan_wire_channel)
-            up($eps)
-            left(channel_length)
-            attach(RIGHT + TOP, LEFT + TOP)
-            xrot(90)
-            cuboid(
-              size=[
-                channel_length + $eps,
-                fan_wire_channel,
-                fan_wire_channel + $eps,
-              ],
-              chamfer=fan_wire_channel_chamfer, edges=[
-                [1, 1, 0, 0], // yz -- +- -+ ++
-                [1, 0, 0, 0], // xz
-                [1, 0, 1, 0], // xy
-              ]);
         }
 
         if (filter_grip > 0) {
