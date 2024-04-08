@@ -31,7 +31,7 @@ build_plate_size = [250, 250];
 //@make -o dual/test_fit_cover_hole.stl -D mode=103 -D filter_count=2
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Small Part Kit, 10:Base, 20:Filter Cover/Fan Integration, 30:Fan Grill Box, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test]
+mode = 0; // [0:Full Assembly, 1:Small Part Kit, 10:Base Plate, 20:Cover Plate, 30:Fan Grill Box, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -637,7 +637,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
         if (wrapwall_thickness > 0) {
           tag("wallslot")
-            right((base_od - slot_od)/4 + $eps)
+            right(filter_count > 1 ? (base_od - slot_od)/4 + $eps : 0)
             attach(BOTTOM, TOP, overlap=wrapwall_slot_depth)
             wallslot();
         }
@@ -834,13 +834,11 @@ module base(
 }
 
 module wallslot(h=undef, anchor = CENTER, spin = 0, orient = UP) {
-  slot_h = !is_undef(h) ? h : wrapwall_slot_depth + $eps;
+  slot_h = default(h, wrapwall_slot_depth + $eps);
 
   if (filter_count == 1) {
-    attachable(h = slot_h, d = slot_od, anchor = anchor, spin = spin, orient = orient) {
-      ring(h = slot_h, id = slot_id, od = slot_od);
+    tube(h = slot_h, id = slot_id, od = slot_od, anchor = anchor, spin = spin, orient = orient)
       children();
-    }
   }
 
   else if (filter_count == 2) {
