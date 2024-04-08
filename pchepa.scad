@@ -85,23 +85,26 @@ wrapwall_dovetail = [5, 3, 15];
 
 /* [PC Fan Metrics] */
 
+// Basic dimensions of the fan, default is for a standard 120mm fan.
+fan_size = [ 120, 120, 25 ];
+
+// Corner rounding of the fan, cosmetically used for the development ghost, has no effect on produced geometry.
+fan_rounding = 7;
+
+// Inner diameter of the fan housing, used to size the cover bore hole, and the grill perforation area.
+fan_id = 116.4;
+
+// Screw size of the fan itself, cosmetically used for the development ghost, has no effect on produced geometry.
+fan_screw = "#4";
+
 // <https://superuser.com/questions/225882/what-type-of-screws-are-used-for-computer-fans>
 // Apparently they're 7/32" /5.5mm self tapping screws, though some places say
 // they're 3/8". I'd note given their design, you should have some leeway since
 // the screws cut into the plastic, to use different threads or slightly larger
 // screws.
 
-fan_screw = "#4";
-
-fan_size = [ 120, 120, 25 ];
-
-fan_spacing = 5;
-
-fan_id = 120 - 2*1.8;
-
+// Spacing between fan screw hole centers.
 fan_screw_spacing = 105;
-
-fan_rounding = 7;
 
 fan_wire_channel = 0;
 fan_wire_channel_chamfer = 3;
