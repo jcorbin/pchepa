@@ -11,7 +11,7 @@ include <BOSL2/screws.scad>
 
 /* [Global] */
 
-// Enbables display of meeting-part ghosts ; e.g. adjoining base/cover plate counterpart.
+// Enables display of meeting-part ghosts ; e.g. adjoining base/cover plate counterpart.
 buddy = true;
 
 // How big is your printer's printable area?
