@@ -225,7 +225,7 @@ power_channel_plug_tolerance = 0.2;
 module __customizer_limit__() {}
 
 slot_id = filter_od + filter_extra_space + 2*wrapwall_thickness;
-slot_od = slot_id + 2*wrapwall_thickness + 2*wrapwall_tolerance;
+slot_od = slot_id + (wrapwall_thickness > 0 ? 2*wrapwall_thickness + 2*wrapwall_tolerance : 0);
 
 cover_od = slot_od + 2*max(cover_overhang, cover_underhang);
 base_od = slot_od + 2*base_overhang + filter_recess;
