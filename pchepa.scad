@@ -137,14 +137,25 @@ grill_window = [ 24, 46 ];
 
 /* [Filter Cover Parameters] */
 
+// Overall Z thickness of the cover plate between the filter and fan.
 cover_height = 20;
-cover_overhang = 2 + 2;
+
+// Upper chamfer size of the cover plate, additional radial space as needed.
+cover_overhang = 4;
+
+// Lower chamfer size of the cover plate, additional radial space as needed.
 cover_underhang = 0.8;
+
+// How many joiner clips to use in the cover plate.
 cover_clips = 4;
 
+// Size of the cover heatset inserts in [diameter, height]; set either to zero to instead use a screw-into-plastic hole.
 cover_heatset_hole = [4.4, 5.3];
 
+// Size of wiring pass through hole(s) in the cover plate; set either dimension to zero to disable.
 cover_port = [20, 20];
+
+// Placement, along the Y axis of the inner cover plate edge, of any wire pass through holes
 cover_port_at = [-48, 48];
 
 /* [Filter Base Parameters] */
@@ -190,7 +201,7 @@ module __customizer_limit__() {}
 slot_id = filter_od + filter_extra_space + 2*wrapwall_thickness;
 slot_od = slot_id + 2*wrapwall_thickness + 2*wrapwall_tolerance;
 
-cover_od = slot_od + 2*cover_overhang;
+cover_od = slot_od + 2*max(cover_overhang, cover_underhang);
 base_od = slot_od + 2*base_overhang + filter_recess;
 
 grill_size = fan_size.y + 2*( grill_padding + grill_thickness );
@@ -199,7 +210,7 @@ cover_extra = filter_count < 2 ? 0 : base_od - cover_od; // FIXME why not /2 lik
 grill_extra = filter_count < 2 ? 0 : (base_od - grill_size)/2;
 slot_extra = filter_count < 2 ? 0 : (base_od - slot_od)/2;
 
-cover_hole = cover_heatset_hole[0] * cover_heatset_hole[1] > 0
+cover_hole = cover_heatset_hole.x * cover_heatset_hole.y > 0
   ? cover_heatset_hole
   : [struct_val(screw_info(grill_screw), "diameter") + 0.2, 8];
 
