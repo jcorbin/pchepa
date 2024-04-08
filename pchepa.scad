@@ -266,7 +266,7 @@ if (mode == 0) {
   if (filter_count == 1) {
     filter_fan() {
       attach(BOTTOM, TOP, overlap=filter_recess) base();
-      attach(TOP, BOTTOM, overlap=fan_size[2]) grill();
+      attach(TOP, BOTTOM, overlap=fan_size.z) grill();
     };
   }
 
@@ -275,7 +275,7 @@ if (mode == 0) {
       filter_fan() {
         attach(BOTTOM, TOP, overlap=filter_recess) base(with_power_port=$idx == 0 ? base_with_power_port : false);
         right((base_od - grill_size)/4)
-        attach(TOP, BOTTOM, overlap=fan_size[2]) grill();
+        attach(TOP, BOTTOM, overlap=fan_size.z) grill();
       };
   }
 
@@ -371,7 +371,7 @@ else if (mode == 20) {
 else if (mode == 30) {
   grill(orient=$preview ? UP : DOWN) {
     left(filter_count == 1 ? 0 : (base_od - grill_size)/4) {
-      %attach(BOTTOM, TOP, overlap=fan_size[2]) pc_fan();
+      %attach(BOTTOM, TOP, overlap=fan_size.z) pc_fan();
       %attach(BOTTOM, TOP) render() cover();
     }
   }
@@ -580,12 +580,12 @@ module pc_fan(anchor = CENTER, spin = 0, orient = UP) {
   attachable(size = fan_size, anchor = anchor, spin = spin, orient = orient) {
     diff(remove = "bore screw")
         cuboid(size = fan_size, rounding = fan_rounding, edges = "Z") {
-      tag("bore") attach(TOP, TOP, fan_size[2] + $eps)
-          cyl(h = fan_size[2] + 2 * $eps, d = fan_id);
-      tag("screw") attach(TOP, BOTTOM, overlap = fan_size[2] + $eps)
+      tag("bore") attach(TOP, TOP, fan_size.z + $eps)
+          cyl(h = fan_size.z + 2 * $eps, d = fan_id);
+      tag("screw") attach(TOP, BOTTOM, overlap = fan_size.z + $eps)
           grid_copies(spacing = fan_screw_spacing, n = [ 2, 2 ])
               screw_hole(spec = fan_screw, head = "none", thread = false,
-                         length = fan_size[2] + 2 * $eps);
+                         length = fan_size.z + 2 * $eps);
     };
     children();
   }
@@ -968,11 +968,11 @@ module plate(h, d, extra=0, chamfer1=0, chamfer2=0, anchor=CENTER, spin=0, orien
 }
 
 module filter_fan(anchor = CENTER, spin = 0, orient = UP) {
-  height = fan_size[2] + cover_height - filter_recess + filter_height;
+  height = fan_size.z + cover_height - filter_recess + filter_height;
   attachable(h = height, d = base_od, anchor = anchor, spin = spin, orient = orient) {
 
     up(height/2)
-    down(fan_size[2])
+    down(fan_size.z)
     down(cover_height/2)
       cover() {
         %attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
@@ -987,10 +987,10 @@ module grill(anchor = CENTER, spin = 0, orient = UP) {
   size = [
     grill_size + grill_extra,
     grill_size,
-    fan_size[2] + grill_thickness
+    fan_size.z + grill_thickness
   ];
 
-  screw_length = fan_size[2] + grill_thickness;
+  screw_length = fan_size.z + grill_thickness;
 
   attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
 
@@ -1003,11 +1003,11 @@ module grill(anchor = CENTER, spin = 0, orient = UP) {
 
         tag("hollow")
           right(grill_extra ? grill_thickness + $eps : 0)
-          attach(BOTTOM, TOP, overlap=fan_size[2])
+          attach(BOTTOM, TOP, overlap=fan_size.z)
           cuboid(size=[
             grill_size + grill_extra - 2 * grill_thickness + (grill_extra > 0 ? grill_thickness + $eps : 0),
             grill_size - 2 * grill_thickness,
-            fan_size[2] + $eps,
+            fan_size.z + $eps,
           ], chamfer = grill_thickness, edges = [
             [0, 0, 1, 1], // yz -- +- -+ ++
             [0, 0, 0, 0], // xz
