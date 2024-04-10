@@ -20,16 +20,21 @@ build_plate_size = [250, 250];
 /* [Part Selection] */
 
 //@make -o dual_example.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 --camera=-2.56,-4.16,-8.15,55.00,0.00,25.00,1151.54
-//@make -o dual/parts.stl -D mode=1 -D filter_count=2
-//@make -o dual/base.stl -D mode=10 -D filter_count=2 -D base_with_power_port=false
-//@make -o dual/base_with_usbc_port.stl -D mode=10 -D filter_count=2 -D base_with_power_port=true
-//@make -o dual/cover.stl -D mode=20 -D filter_count=2
-//@make -o dual/grill_box.stl -D mode=30 -D filter_count=2
-//@make -o dual/wall_section.stl -D mode=92 -D filter_count=2
-//@make -o dual/test_fit_power_module.stl -D mode=101 -D filter_count=2
-//@make -o dual/test_fit_wall.stl -D mode=102 -D filter_count=2
-//@make -o dual/test_fit_cover_hole.stl -D mode=103 -D filter_count=2
-//@make -o dual/test_fit_joiner_clip.stl -D mode=104 -D filter_count=2
+
+//@make -o duo/base.stl -D mode=10 -D filter_count=2 -D base_with_power_port=false
+//@make -o duo/base_with_usbc_port.stl -D mode=10 -D filter_count=2 -D base_with_power_port=true
+//@make -o duo/cover.stl -D mode=20 -D filter_count=2
+//@make -o duo/grill_box.stl -D mode=30 -D filter_count=2
+//@make -o duo/wall_section.stl -D mode=92 -D filter_count=2
+
+//@make -o test/fit_power_module.stl -D mode=101 -D filter_count=2
+//@make -o test/fit_wall.stl -D mode=102 -D filter_count=1
+//@make -o test/fit_cover_hole.stl -D mode=103 -D filter_count=1
+//@make -o test/fit_joiner_clip.stl -D mode=104
+
+//@make -o parts/duo_kit.stl -D mode=1 -D filter_count=2
+//@make -o parts/clip.stl -D mode=90
+//@make -o parts/power_channel_plug.stl -D mode=91
 
 // Which part to model: base / cover / grill / wall / etc...
 mode = 0; // [0:Full Assembly, 1:Small Part Kit, 10:Base Plate, 20:Cover Plate, 30:Fan Grill Box, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test]
