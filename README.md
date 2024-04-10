@@ -53,10 +53,7 @@ such as an Arduino with additionally added air quality sensor and display.
 - [x] v1 build of a dual-filter/fan model done and works well
 - [x] cleaned up and documented code/parameters a bit
 - [x] iterate [v1 build notes](v1_build.md) into a basic build guide
-- [ ] WIP address v1 build pain points
-    - [x] especially rabbit clip tolerance
-    - [ ] power socket clearance: wallslot depth vs diagonal interior cut
-    - [ ] power socket clearance: wall thickness between wallslot and channel
+- [x] address v1 build pain points: clip tolerance and power socket clearance
 - [ ] TODO publish dual-filter models somewhere (probably thangs)
 - [ ] TODO evolve parameters, with presets for various fan/filter models
 - [ ] TODO complete and build a single filter variant
