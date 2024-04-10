@@ -188,10 +188,10 @@ clip_thick = 1.6;
 clip_compress = 0.2;
 
 // Extra space in the socket for easier insertion.
-clip_tolerance = 0.4;
+clip_tolerance = 0.5;
 
-// Clip fit test tolerance factor range: [start, step, end]
-clip_fit_test = [1, 0.25, 2];
+// Clip fit test tolerance range: [start, step, end]
+clip_fit_test = [0.4, 0.1, 0.8];
 
 /* [Power Module] */
 
@@ -447,7 +447,7 @@ else if (mode == 103) {
 else if (mode == 104) {
   zrot($preview ? 0 : 180)
   preview_cut(FRONT) clip_socket_tolerance_test(
-    tolerances=[ for (factor = [ clip_fit_test.x : clip_fit_test.y : clip_fit_test.z ]) clip_tolerance*factor ],
+    tolerances=[ for (tol = [ clip_fit_test.x : clip_fit_test.y : clip_fit_test.z ]) tol ],
     orient=$preview ? UP : BACK);
 }
 
