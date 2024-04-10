@@ -367,8 +367,7 @@ else if (mode == 10) {
 /// mode[20-29] -- tops (i.e. filter/fan integration cover)
 
 else if (mode == 20) {
-  prod_orient(DOWN)
-  cover() {
+  cover(orient=$preview ? UP : DOWN) {
     %attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
     %attach(TOP, BOTTOM) pc_fan();
   };
@@ -389,8 +388,7 @@ else if (mode == 20) {
 /// mode[30-39] -- fan grills
 
 else if (mode == 30) {
-  prod_orient(DOWN)
-  grill() {
+  grill(orient=$preview ? UP : DOWN) {
     left(filter_count == 1 ? 0 : (base_od - grill_size)/4) {
       %attach(BOTTOM, TOP, overlap=fan_size.z) pc_fan();
       %attach(BOTTOM, TOP) render() cover();
@@ -447,9 +445,9 @@ else if (mode == 103) {
 }
 
 else if (mode == 104) {
-  prod_orient(BACK, UP*block_size.y/2)
-  preview_cut(FRONT)
-    clip_socket_tolerance_test([ for (factor = [ clip_fit_test.x : clip_fit_test.y : clip_fit_test.z ]) clip_tolerance*factor ]);
+  preview_cut(FRONT) clip_socket_tolerance_test(
+    tolerances=[ for (factor = [ clip_fit_test.x : clip_fit_test.y : clip_fit_test.z ]) clip_tolerance*factor ],
+    orient=$preview ? UP : BACK);
 }
 
 /// implementation
@@ -460,17 +458,6 @@ module build_plate(size=build_plate_size) {
   attachable(size=size) {
     %cube(size=size, center=true);
     children();
-  }
-}
-
-// Applies final orientiation (rotation/translation) for production (when not in $preview mode)
-module prod_orient(to=undef, tocp=undef, trans=undef) {
-  if ($preview) {
-    children();
-  } else {
-    tilt(to, cp=tocp)
-    translate(scalar_vec3(default(trans, 0)))
-      children();
   }
 }
 
@@ -632,7 +619,10 @@ module clip_socket(
     children();
 }
 
-module clip_socket_tolerance_test(tolerances, chamfer=1) {
+module clip_socket_tolerance_test(
+  tolerances, chamfer=1,
+  anchor = CENTER, spin = 0, orient = UP
+) {
   text_size = clip_size.y/3;
   text_depth = clip_size.z/4;
   block_size = [
@@ -640,33 +630,42 @@ module clip_socket_tolerance_test(tolerances, chamfer=1) {
     clip_size.z + 4*chamfer,
     clip_size.y + 3*chamfer,
   ];
+  spacing = block_size.x + 2;
 
-  xcopies(spacing=block_size.x*2, n=len(tolerances)) {
-    let (tol = tolerances[$idx])  {
-      diff(remove="socket label", keep="clip")
-      cuboid(block_size, chamfer=chamfer, edges=[
-        [1, 1, 0, 0], // yz -- +- -+ ++
-        [1, 1, 0, 0], // xz
-        [1, 1, 1, 1], // xy
-      ]) {
+  attachable(size = [
+    spacing*len(tolerances),
+    block_size.y,
+    block_size.z,
+  ], anchor = anchor, spin = spin, orient = orient) {
+    xcopies(spacing = spacing, n = len(tolerances)) {
+      let (tol = tolerances[$idx])  {
+        diff(remove="socket label", keep="clip")
+        cuboid(block_size, chamfer=chamfer, edges=[
+          [1, 1, 0, 0], // yz -- +- -+ ++
+          [1, 1, 0, 0], // xz
+          [1, 1, 1, 1], // xy
+        ]) {
 
-        tag("socket")
-        attach(BOTTOM, TOP, overlap=clip_size.y)
-          clip_socket(clearance=tol);
-
-        tag("label")
-        attach(FRONT, BOTTOM, overlap=text_depth)
-          text3d(str(tol),
-            h=text_depth+$eps, size=text_size,
-            font="Helvetica:Bold",
-            anchor=CENTER, atype="ycenter");
-
-        tag("clip")
+          tag("socket")
           attach(BOTTOM, TOP, overlap=clip_size.y)
-          %clip();
+            clip_socket(clearance=tol);
 
+          tag("label")
+          attach(FRONT, BOTTOM, overlap=text_depth)
+            text3d(str(tol),
+              h=text_depth+$eps, size=text_size,
+              font="Helvetica:Bold",
+              anchor=CENTER, atype="ycenter");
+
+          tag("clip")
+            attach(BOTTOM, TOP, overlap=clip_size.y)
+            %clip();
+
+        }
       }
     }
+
+    children();
   }
 }
 
