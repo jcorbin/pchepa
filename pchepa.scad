@@ -586,29 +586,38 @@ module base_power_channel_plug(
   }
 }
 
-module clip(anchor = CENTER, spin = 0, orient = UP) {
-  rabbit_clip(
-    type="double",
-    length=clip_size.y,
-    width=clip_size.x,
-    snap=clip_snap,
-    thickness=clip_thick,
-    depth=clip_size.z,
-    compression=clip_compress,
+module clip(
+  thickness = clip_thick,
+  snap = clip_snap,
+  compression = clip_compress,
+  anchor = CENTER, spin = 0, orient = UP
+) {
+  rabbit_clip(type="double",
+    length = clip_size.y,
+    width = clip_size.x,
+    depth = clip_size.z,
+    thickness = thickness,
+    snap = snap,
+    compression = compression,
     anchor = anchor, spin = spin, orient = orient)
     children();
 }
 
-module clip_socket(anchor = CENTER, spin = 0, orient = UP) {
-  rabbit_clip(
-    type="socket",
-    length=clip_size.y + $eps,
-    width=clip_size.x,
-    snap=clip_snap,
-    thickness=clip_thick,
-    depth=clip_size.z,
-    compression=clip_compress,
-    clearance=clip_tolerance,
+module clip_socket(
+  thickness = clip_thick,
+  snap = clip_snap,
+  compression = clip_compress,
+  clearance = clip_tolerance,
+  anchor = CENTER, spin = 0, orient = UP
+) {
+  rabbit_clip(type="socket",
+    length = clip_size.y + $eps,
+    width = clip_size.x,
+    depth = clip_size.z,
+    thickness = thickness,
+    snap = snap,
+    compression = compression,
+    clearance = clearance,
     anchor = anchor, spin = spin, orient = orient)
     children();
 }
