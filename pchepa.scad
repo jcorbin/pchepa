@@ -29,9 +29,10 @@ build_plate_size = [250, 250];
 //@make -o dual/test_fit_power_module.stl -D mode=101 -D filter_count=2
 //@make -o dual/test_fit_wall.stl -D mode=102 -D filter_count=2
 //@make -o dual/test_fit_cover_hole.stl -D mode=103 -D filter_count=2
+//@make -o dual/test_fit_joiner_clip.stl -D mode=104 -D filter_count=2
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Small Part Kit, 10:Base Plate, 20:Cover Plate, 30:Fan Grill Box, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test]
+mode = 0; // [0:Full Assembly, 1:Small Part Kit, 10:Base Plate, 20:Cover Plate, 30:Fan Grill Box, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -188,6 +189,9 @@ clip_compress = 0.2;
 
 // Extra space in the socket for easier insertion.
 clip_tolerance = 0.6;
+
+// Clip fit test tolerance factor range: [start, step, end]
+clip_fit_test = [1, 0.25, 2];
 
 /* [Power Module] */
 
@@ -442,6 +446,12 @@ else if (mode == 103) {
   cover_hole_test(orient=$preview ? UP : DOWN);
 }
 
+else if (mode == 104) {
+  prod_orient(BACK, UP*block_size.y/2)
+  preview_cut(FRONT)
+    clip_socket_tolerance_test([ for (factor = [ clip_fit_test.x : clip_fit_test.y : clip_fit_test.z ]) clip_tolerance*factor ]);
+}
+
 /// implementation
 
 module build_plate(size=build_plate_size) {
@@ -620,6 +630,44 @@ module clip_socket(
     clearance = clearance,
     anchor = anchor, spin = spin, orient = orient)
     children();
+}
+
+module clip_socket_tolerance_test(tolerances, chamfer=1) {
+  text_size = clip_size.y/3;
+  text_depth = clip_size.z/4;
+  block_size = [
+    clip_size.x + 2*(clip_compress + max(tolerances)*clip_tolerance) + 4*chamfer,
+    clip_size.z + 4*chamfer,
+    clip_size.y + 3*chamfer,
+  ];
+
+  xcopies(spacing=block_size.x*2, n=len(tolerances)) {
+    let (tol = tolerances[$idx])  {
+      diff(remove="socket label", keep="clip")
+      cuboid(block_size, chamfer=chamfer, edges=[
+        [1, 1, 0, 0], // yz -- +- -+ ++
+        [1, 1, 0, 0], // xz
+        [1, 1, 1, 1], // xy
+      ]) {
+
+        tag("socket")
+        attach(BOTTOM, TOP, overlap=clip_size.y)
+          clip_socket(clearance=tol);
+
+        tag("label")
+        attach(FRONT, BOTTOM, overlap=text_depth)
+          text3d(str(tol),
+            h=text_depth+$eps, size=text_size,
+            font="Helvetica:Bold",
+            anchor=CENTER, atype="ycenter");
+
+        tag("clip")
+          attach(BOTTOM, TOP, overlap=clip_size.y)
+          %clip();
+
+      }
+    }
+  }
 }
 
 module pc_fan(anchor = CENTER, spin = 0, orient = UP) {

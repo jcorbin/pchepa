@@ -114,6 +114,12 @@ Cover Hole Test
 - may also be used to evaluate side handle affordance and filter-top grip
 - makefile creates `dual/test_fit_cover_hole.stl`
 
+Joiner Clip Tolerance Test
+- clip sockets of varying tolerance size, set into minimal cubes with a label stamped into their top
+- primarily useful to verify socket tolerance vs printer accuracy
+- secondarily may also check printer ability to bridge, since these are meant to be printed without support
+- makefile creates `dual/test_fit_joiner_clip.stl`
+
 ## License
 
 © 2024 by Joshua T Corbin licensed under [CC BY-SA 4.0][ccbysa4]
