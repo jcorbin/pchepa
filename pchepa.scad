@@ -363,7 +363,8 @@ else if (mode == 10) {
 /// mode[20-29] -- tops (i.e. filter/fan integration cover)
 
 else if (mode == 20) {
-  cover(orient=$preview ? UP : DOWN) {
+  prod_orient(DOWN)
+  cover() {
     %attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
     %attach(TOP, BOTTOM) pc_fan();
   };
@@ -384,7 +385,8 @@ else if (mode == 20) {
 /// mode[30-39] -- fan grills
 
 else if (mode == 30) {
-  grill(orient=$preview ? UP : DOWN) {
+  prod_orient(DOWN)
+  grill() {
     left(filter_count == 1 ? 0 : (base_od - grill_size)/4) {
       %attach(BOTTOM, TOP, overlap=fan_size.z) pc_fan();
       %attach(BOTTOM, TOP) render() cover();
@@ -448,6 +450,17 @@ module build_plate(size=build_plate_size) {
   attachable(size=size) {
     %cube(size=size, center=true);
     children();
+  }
+}
+
+// Applies final orientiation (rotation/translation) for production (when not in $preview mode)
+module prod_orient(to=undef, tocp=undef, trans=undef) {
+  if ($preview) {
+    children();
+  } else {
+    tilt(to, cp=tocp)
+    translate(scalar_vec3(default(trans, 0)))
+      children();
   }
 }
 
