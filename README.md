@@ -52,8 +52,8 @@ such as an Arduino with additionally added air quality sensor and display.
 
 - [x] v1 build of a dual-filter/fan model done and works well
 - [x] cleaned up and documented code/parameters a bit
-- [ ] WIP iterate [v1 build notes](v1_build.md) into a basic build guide
-- [ ] TODO address v1 build pain points, especially rabbit clip tolerance
+- [x] iterate [v1 build notes](v1_build.md) into a basic build guide
+- [ ] WIP address v1 build pain points, especially rabbit clip tolerance
 - [ ] TODO publish dual-filter models somewhere (probably thangs)
 - [ ] TODO evolve parameters, with presets for various fan/filter models
 - [ ] TODO complete and build a single filter variant
