@@ -188,7 +188,7 @@ clip_thick = 1.6;
 clip_compress = 0.2;
 
 // Extra space in the socket for easier insertion.
-clip_tolerance = 0.6;
+clip_tolerance = 0.4;
 
 // Clip fit test tolerance factor range: [start, step, end]
 clip_fit_test = [1, 0.25, 2];
@@ -611,7 +611,7 @@ module clip_socket(
   rabbit_clip(type="socket",
     length = clip_size.y + $eps,
     width = clip_size.x,
-    depth = clip_size.z,
+    depth = clip_size.z + clearance,
     thickness = thickness,
     snap = snap,
     compression = compression,
@@ -624,11 +624,12 @@ module clip_socket_tolerance_test(
   tolerances, chamfer=1,
   anchor = CENTER, spin = 0, orient = UP
 ) {
+  max_tol = max(tolerances)*clip_tolerance;
   text_size = clip_size.y/3;
   text_depth = clip_size.z/4;
   block_size = [
-    clip_size.x + 2*(clip_compress + max(tolerances)*clip_tolerance) + 4*chamfer,
-    clip_size.z + 4*chamfer,
+    clip_size.x + 2*(clip_compress + max_tol) + 4*chamfer,
+    clip_size.z + max_tol + 4*chamfer,
     clip_size.y + 3*chamfer,
   ];
   spacing = block_size.x + 2;
