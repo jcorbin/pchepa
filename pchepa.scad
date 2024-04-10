@@ -419,6 +419,7 @@ else if (mode == 100) {
 }
 
 else if (mode == 101) {
+  preview_cut(RIGHT, t=power_channel_size.x*7/8)
   power_module_fit_test() {
     if (!$preview) {
       fwd(power_channel_chamfer)
@@ -446,6 +447,17 @@ module build_plate(size=build_plate_size) {
   down(size.z)
   attachable(size=size) {
     %cube(size=size, center=true);
+    children();
+  }
+}
+
+// Development cutaway aid
+module preview_cut(v=UP, s=max(build_plate_size), t=0) {
+  if ($preview) {
+    half_of(v, s=s)
+    translate(scalar_vec3(t))
+      children();
+  } else {
     children();
   }
 }
@@ -497,11 +509,8 @@ module wall_fit_test() {
 }
 
 module power_module_fit_test(extra = 5, anchor = CENTER, spin = 0, orient = UP) {
-  left_cut = base_od - clip_size.y - (
-    $preview
-      ? (1.5 * power_module_size[0]/8*7) // tunnel cutaway when previewing
-      : (1.5 * power_module_size[0] + extra));
-  back_cut = base_od - power_module_size[1] - power_channel_size[1] - extra;
+  left_cut = base_od - clip_size.y - (1.5 * power_module_size.x + extra);
+  back_cut = base_od - power_module_size.y - power_channel_size.y - extra;
 
   test_size = [
     base_od - left_cut,
