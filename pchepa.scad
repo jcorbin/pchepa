@@ -222,7 +222,10 @@ power_module_tolerance = 0.2;
 power_channel_chamfer = 1;
 
 // Fit tolerance for the fixation plug that will fill the power module wiring channel after installation.
-power_channel_plug_tolerance = 0.2;
+power_channel_plug_tolerance = 0.1;
+
+// Offset power channel from back of power module PCB; this helps the channel to miss the wrap wall channel, but needs to be low enough to still keep the USB-C socket pressed forward vs insertion.
+power_channel_backset = 0.4;
 
 /// dispatch / integration
 
@@ -869,7 +872,7 @@ module base(
             yrot(-45)
             power_module(profile=true, tolerance=power_module_tolerance) {
 
-              back(1)
+              back(power_channel_backset)
               attach(BACK+BOTTOM, FRONT+BOTTOM) xrot(-90)
                 cuboid(power_channel_size, chamfer=power_channel_chamfer, edges="Z")
                 back(power_module_size.y/4)
@@ -884,30 +887,22 @@ module base(
               cut_size = [
                 power_module_size.x + 2*power_module_tolerance,
                 1.5*power_module_cut + 2*power_module_tolerance,
-                3*power_module_cut + 2*power_module_tolerance,
+                4*power_module_cut + 2*power_module_tolerance,
               ];
+              csdg = sqrt(cut_size.y^2 + (cut_size.z - power_module_cut)^2)/2;
+              nudge = power_module_cut/2 - 2*power_module_tolerance;
 
-              fwd(sqrt(cut_size[1]^2 + cut_size[2]^2)/2)
-              fwd(power_channel_chamfer)
-              up(2*power_module_tolerance)
-              fwd(power_module_tolerance)
-              attach(BACK+TOP, FRONT+BOTTOM)
-                xrot(45)
-                cube(cut_size)
-                  back(power_socket_size[2])
-                  up($eps)
-                  attach(BOTTOM+FRONT, FRONT+BOTTOM)
-                  cube([
-                    cut_size[0],
-                    power_socket_size[2] + $eps,
-                    power_socket_size[2]
-                  ]);
+              fwd(csdg + nudge)
+              up(csdg - nudge)
+              position(BACK+BOTTOM)
+                left(cut_size.x/2)
+                xrot(-45) cube(cut_size);
 
               back(2*power_module_tolerance)
               %attach(CENTER, CENTER)
                 yrot(180)
                 power_module()
-                  back(1)
+                  back(power_channel_backset)
                   back(power_module_tolerance)
                   attach(BACK+BOTTOM, FRONT+BOTTOM) 
                   xrot(-90)
