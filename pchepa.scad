@@ -213,7 +213,7 @@ power_socket_overhang = 1.6;
 power_module_porch = 14;
 
 // Diagonal cutting factor behind the USB-C power module to allow easy installation.
-power_module_cut = 4;
+power_module_cut = 3;
 
 // Fit tolerance for the USB-C power module.
 power_module_tolerance = 0.2;
@@ -860,21 +860,29 @@ module base(
         // USB C port and wire channel
         if (with_power_port) {
           tag("port")
-            up(power_module_size[2])
+            up(power_module_size.z)
             down(base_height/2)
-            back(power_module_size[1]) fwd($eps)
-            left(power_module_size[0])
+            back(power_module_size.y) fwd($eps)
+            left(power_module_size.x)
             left(clip_size.y)
             attach(FRONT+RIGHT, BACK)
             yrot(-45)
             power_module(profile=true, tolerance=power_module_tolerance) {
 
-              fwd($eps)
+              back(1)
               attach(BACK+BOTTOM, FRONT+BOTTOM) xrot(-90)
-                cuboid(power_channel_size, chamfer=power_channel_chamfer, edges="Z");
+                cuboid(power_channel_size, chamfer=power_channel_chamfer, edges="Z")
+                back(power_module_size.y/4)
+                attach(FRONT+BOTTOM, BACK+BOTTOM)
+                xrot(-90)
+                cube([
+                  power_module_size.x + 2*power_module_tolerance,
+                  power_module_size.y/2,
+                  power_module_size.z*1.5,
+                ]);
 
               cut_size = [
-                power_module_size[0] + 2*power_module_tolerance,
+                power_module_size.x + 2*power_module_tolerance,
                 1.5*power_module_cut + 2*power_module_tolerance,
                 3*power_module_cut + 2*power_module_tolerance,
               ];
@@ -899,6 +907,7 @@ module base(
               %attach(CENTER, CENTER)
                 yrot(180)
                 power_module()
+                  back(1)
                   back(power_module_tolerance)
                   attach(BACK+BOTTOM, FRONT+BOTTOM) 
                   xrot(-90)
