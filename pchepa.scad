@@ -445,6 +445,7 @@ else if (mode == 103) {
 }
 
 else if (mode == 104) {
+  zrot($preview ? 0 : 180)
   preview_cut(FRONT) clip_socket_tolerance_test(
     tolerances=[ for (factor = [ clip_fit_test.x : clip_fit_test.y : clip_fit_test.z ]) clip_tolerance*factor ],
     orient=$preview ? UP : BACK);
@@ -655,7 +656,7 @@ module clip_socket_tolerance_test(
             text3d(str(tol),
               h=text_depth+$eps, size=text_size,
               font="Helvetica:Bold",
-              anchor=CENTER, atype="ycenter");
+              anchor=CENTER, atype="ycenter", spin=$preview ? 0 : 180);
 
           tag("clip")
             attach(BOTTOM, TOP, overlap=clip_size.y)
