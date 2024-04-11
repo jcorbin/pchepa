@@ -983,9 +983,12 @@ function wall_perim() = let (
 : filter_count == 2 ? wall_circ + 4*wall_leg
 : undef;
 
+function even_ceil(n) = 2*ceil(n/2);
+
+// NOTE: rounding wall_sections up to an even number avoids placing a dovetail joint at the greastest point of bend
 function wall_sections() = wrapwall_sections > 0
   ? wrapwall_sections
-  : ceil(wall_perim() / wrapwall_section_limit);
+  : even_ceil(ceil(wall_perim() / wrapwall_section_limit));
 
 function wall_section(w=undef) = [
   default(w, wall_perim() / wall_sections() - 2*wrapwall_tolerance),
