@@ -558,34 +558,42 @@ module base_power_channel_plug(
   anchor = CENTER, spin = 0, orient = UP
 ) {
   size = power_channel_plug_size - [2*tolerance, 2*tolerance, 0];
+  channel_size = [
+    size.x/2,
+    size.y - size.x/4,
+    size.z
+  ];
+  notch_size = [
+    size.x/3,
+    power_channel_chamfer,
+    size.z
+  ];
 
   attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
-    diff(remove="channel notch")
-    cuboid(size, chamfer=power_channel_chamfer - tolerance, edges="Z") {
-        tag("channel")
-        attach(FRONT, BACK, overlap=size[1] - size[0]/4)
-          cuboid([
-            size[0]/2,
-            size[1] - size[0]/4 + $eps,
-            size[2] + 2*$eps
-          ], chamfer=power_channel_chamfer - tolerance, edges=[
-            [0, 0, 0, 0], // yz -- +- -+ ++
-            [0, 0, 0, 0], // xz
-            [0, 0, 1, 1], // xy
-          ]);
+    diff(remove="channel notch") cuboid(
+      size,
+      chamfer=power_channel_chamfer - tolerance,
+      edges="Z")
+    {
+      tag("channel")
+      attach(FRONT, BACK, overlap=channel_size.y) cuboid(
+        channel_size + [0, $eps, 2*$eps],
+        chamfer=power_channel_chamfer - tolerance,
+        edges=[
+          [0, 0, 0, 0], // yz -- +- -+ ++
+          [0, 0, 0, 0], // xz
+          [0, 0, 1, 1], // xy
+        ]);
 
-        tag("notch")
-        attach(BACK, FRONT, overlap=power_channel_chamfer)
-          cuboid([
-            size[0]/3,
-            power_channel_chamfer + $eps,
-            size[2] + 2*$eps
-          ], chamfer=power_channel_chamfer - tolerance, edges=[
-            [0, 0, 0, 0], // yz -- +- -+ ++
-            [0, 0, 0, 0], // xz
-            [1, 1, 0, 0], // xy
-          ]);
-
+      tag("notch")
+      attach(BACK, FRONT, overlap=notch_size.y) cuboid(
+        notch_size + [0, $eps, 2*$eps],
+        chamfer=power_channel_chamfer - tolerance,
+        edges=[
+          [0, 0, 0, 0], // yz -- +- -+ ++
+          [0, 0, 0, 0], // xz
+          [1, 1, 0, 0], // xy
+        ]);
     }
 
     children();
