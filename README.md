@@ -3,7 +3,7 @@
 OpenSCAD parametric model to integrate commodity PC Fans and cylindrical HEPA
 filter cartridges to create personal and readily portable air filters..
 
-![Dual Filter Example Assembly](dual_example.png)
+![Dual Filter Example Assembly](duo/render.png)
 
 Primary inspiration is the [Exhalaron][exhalaron] by cleanairkits.com, but there's also a strong similarity to other
 "integrate a commodity HEPA filter and PC fan" makes before such as by [bigclive][bigclive_diy_hepa] and [greymanx][greymanx_diy_hepa].

@@ -19,8 +19,7 @@ build_plate_size = [250, 250];
 
 /* [Part Selection] */
 
-//@make -o dual_example.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 --camera=-2.56,-4.16,-8.15,55.00,0.00,25.00,1151.54
-
+//@make -o duo/render.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 --camera=-2.56,-4.16,-8.15,55.00,0.00,25.00,1151.54
 //@make -o duo/base.stl -D mode=10 -D filter_count=2 -D base_with_power_port=false
 //@make -o duo/base_with_usbc_port.stl -D mode=10 -D filter_count=2 -D base_with_power_port=true
 //@make -o duo/cover.stl -D mode=20 -D filter_count=2
