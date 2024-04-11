@@ -232,6 +232,17 @@ power_channel_plug_tolerance = 0.15;
 // Offset power channel from back of power module PCB; this helps the channel to miss the wrap wall channel, but needs to be low enough to still keep the USB-C socket pressed forward vs insertion.
 power_channel_backset = 0.4;
 
+/* [Geometry Detail] */
+
+// Fragment minimum angle.
+$fa = 4; // 1
+
+// Fragment minimum size.
+$fs = 0.2; // 0.05
+
+// Nudging value used when cutting out (differencing) solids, to avoid coincident face flicker.
+$eps = 0.01;
+
 /// dispatch / integration
 
 module __customizer_limit__() {}
@@ -271,17 +282,6 @@ power_channel_plug_size = [
   power_channel_size[1] - 4*power_module_tolerance,
   base_height - power_module_size[2]/2,
 ];
-
-/* [Geometry Detail] */
-
-// Fragment minimum angle.
-$fa = 4; // 1
-
-// Fragment minimum size.
-$fs = 0.2; // 0.05
-
-// Nudging value used when cutting out (differencing) solids, to avoid coincident face flicker.
-$eps = 0.01;
 
 // TODO pockets in the base for weights or battery bank
 
