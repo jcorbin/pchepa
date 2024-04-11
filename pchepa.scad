@@ -227,7 +227,7 @@ power_module_tolerance = 0.2;
 power_channel_chamfer = 1;
 
 // Fit tolerance for the fixation plug that will fill the power module wiring channel after installation.
-power_channel_plug_tolerance = 0.1;
+power_channel_plug_tolerance = 0.15;
 
 // Offset power channel from back of power module PCB; this helps the channel to miss the wrap wall channel, but needs to be low enough to still keep the USB-C socket pressed forward vs insertion.
 power_channel_backset = 0.4;
