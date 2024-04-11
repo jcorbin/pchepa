@@ -99,25 +99,25 @@ Adjust model tolerance parameters, part metrics, and print slicer settings as ne
 
 Power Module Fit Test
 - a cut-down section of the primary base plate, focusing on just the power module socket, and its fixating channel plug
-- makefile creates `dual/test_fit_power_module.stl`
+- makefile creates `test/power_module.stl`
 
 Wall Fit Test
 - a cut-down section of the base and cover plates, plus 2 reduced-length mesh wall sections
 - useful to check plate-filter grip and mesh wall height
 - may also be used to check power module fit, since it an instance of the power module socket
-- makefile creates `dual/test_fit_wall.stl`
+- makefile creates `test/wall.stl`
 
 Cover Hole Test
 - a cut-down section of the cover plate with 1 fan mounting hole
 - primarily useful to verify heatset insert tolerance or direct threading of M3 screws
 - may also be used to evaluate side handle affordance and filter-top grip
-- makefile creates `dual/test_fit_cover_hole.stl`
+- makefile creates `test/cover_hole.stl`
 
 Joiner Clip Tolerance Test
 - clip sockets of varying tolerance size, set into minimal cubes with a label stamped into their top
 - primarily useful to verify socket tolerance vs printer accuracy
 - secondarily may also check printer ability to bridge, since these are meant to be printed without support
-- makefile creates `dual/test_fit_joiner_clip.stl`
+- makefile creates `test/joiner_clip.stl`
 
 ## License
 
