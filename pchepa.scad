@@ -227,10 +227,13 @@ power_module_tolerance = 0.2;
 power_channel_chamfer = 1;
 
 // Fit tolerance for the fixation plug that will fill the power module wiring channel after installation.
-power_channel_plug_tolerance = 0.15;
+power_channel_plug_tolerance = 0.1;
 
 // Offset power channel from back of power module PCB; this helps the channel to miss the wrap wall channel, but needs to be low enough to still keep the USB-C socket pressed forward vs insertion.
 power_channel_backset = 0.4;
+
+// Notch in the back of the channel plug, allowing it to flex and be removed by a tool (like pliers).
+channel_plug_notch_size = [ 5, 3 ];
 
 /* [Geometry Detail] */
 
@@ -558,14 +561,15 @@ module base_power_channel_plug(
   anchor = CENTER, spin = 0, orient = UP
 ) {
   size = power_channel_plug_size - [2*tolerance, 2*tolerance, 0];
+  notch_wall = 2*power_channel_chamfer;
   channel_size = [
     size.x/2,
-    size.y - size.x/4,
+    size.y - channel_plug_notch_size.y - notch_wall,
     size.z
   ];
   notch_size = [
-    size.x/3,
-    power_channel_chamfer,
+    channel_plug_notch_size.x,
+    channel_plug_notch_size.y,
     size.z
   ];
 

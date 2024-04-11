@@ -62,6 +62,7 @@ Here's a rough step list made in retrospect:
   - verify that the power module pcb can be inserted easily
   - verify that the power module pcb can be removed again if needed
   - verify that the channel plug fits well and holds the pcb in place
+    - **do not** insert the channel plug all the way yet, or it may be very difficult to remove
   - maybe also attach wires to the pcb, and verify that they can easily pass thru the plugged channel
   - optional: also print out a joiner clip
     - verify the clip socket included in the power module test object
@@ -99,6 +100,7 @@ Here's a rough step list made in retrospect:
     - if you have a test wall section on hand, verify its height fit one last time
   - wire up and install the power module into its socket 
     - if using JST connectors, modify a fan cable into a corresponding JST wire pair
+  - once the power module and its wires are installed, insert the channel plug into the wiring channel
 
 6. print out a wall section
   - should slide into the channels of the base and cover plates without easily falling out
