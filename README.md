@@ -1,12 +1,14 @@
-# PC Fan driven open source HEPA filter -- [PCHEPA](https://github.com/jcorbin/pchepa)
+# PC fan driven HEPA filter -- [PCHEPA](https://github.com/jcorbin/pchepa)
 
-OpenSCAD parametric model to integrate commodity PC Fans and cylindrical HEPA
-filter cartridges to create personal and readily portable air filters..
+[Build Guide](v1_build.md) / [STLs on Thangs][duo_thangs]
 
-![Dual Filter Example Assembly](duo/render.png)
+![Duo Assembled With Top Open](duo/topdown_open.jpg)
 
 Primary inspiration is the [Exhalaron][exhalaron] by cleanairkits.com, but there's also a strong similarity to other
 "integrate a commodity HEPA filter and PC fan" makes before such as by [bigclive][bigclive_diy_hepa] and [greymanx][greymanx_diy_hepa].
+
+- Follow the [v1 build notes](v1_build.md) to make your own
+- Download [STL models on Thangs][duo_thangs]
 
 ## Design
 
@@ -54,7 +56,8 @@ such as an Arduino with additionally added air quality sensor and display.
 - [x] cleaned up and documented code/parameters a bit
 - [x] iterate [v1 build notes](v1_build.md) into a basic build guide
 - [x] address v1 build pain points: clip tolerance and power socket clearance
-- [ ] WIP publish dual-filter models somewhere (probably thangs)
+- [x] publish dual-filter models somewhere
+- [ ] TODO publish to makerworld with bambu ready slicer project
 - [ ] TODO support integrating a battery bank: either into a thicker base plate, or between the duo filters
 - [ ] TODO evolve parameters, with presets for various fan/filter models
 - [ ] TODO complete and build a single filter variant
@@ -123,6 +126,8 @@ Joiner Clip Tolerance Test
 ## License
 
 © 2024 by Joshua T Corbin licensed under [CC BY-SA 4.0][ccbysa4]
+
+[duo_thangs]: https://than.gs/m/1050549
 
 [bigclive_diy_hepa]: https://www.youtube.com/watch?v=6Vmh2Ip2Vxg
 [exhalaron]: https://www.cleanairkits.com/products/exhalaron
