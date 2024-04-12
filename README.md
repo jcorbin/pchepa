@@ -1,6 +1,6 @@
 # PC fan driven HEPA filter -- [PCHEPA](https://github.com/jcorbin/pchepa)
 
-[Build Guide](v1_build.md) / [STLs on Thangs][duo_thangs]
+[Build Guide](v1_build.md) / [STLs on Thangs][duo_thangs] / [Bambu 3mf on MakerWorld][duo_makerworld]
 
 ![Duo Assembled With Top Open](duo/topdown_open.jpg)
 
@@ -127,6 +127,7 @@ Joiner Clip Tolerance Test
 
 © 2024 by Joshua T Corbin licensed under [CC BY-SA 4.0][ccbysa4]
 
+[duo_makerworld]: https://makerworld.com/en/models/424917
 [duo_thangs]: https://than.gs/m/1050549
 
 [bigclive_diy_hepa]: https://www.youtube.com/watch?v=6Vmh2Ip2Vxg
