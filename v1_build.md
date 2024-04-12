@@ -50,88 +50,101 @@
 
 Here's a rough step list made in retrospect:
 
-1. print Cover Hole Test
-  - verify heatset insert (or plastic threading if you're customizing for that)
-  - verify filter lip grip:
-    - the pre-fab plastic rim of the filter should fit above the few teardrop bumps
-    - without being compressed by them
-    - but also with a minimal amount of slop/rattle
-  - verify that the diameter fit of the cover piece to the filter od looks reasonable
+### 1. print Cover Hole Test
 
-2. print Power Module Fit Test
-  - verify that the power module pcb can be inserted easily
-  - verify that the power module pcb can be removed again if needed
-  - verify that the channel plug fits well and holds the pcb in place
-    - **do not** insert the channel plug all the way yet, or it may be very difficult to remove
-  - maybe also attach wires to the pcb, and verify that they can easily pass thru the plugged channel
-  - optional: also print out a joiner clip
-    - verify the clip socket included in the power module test object
-    - if this goes well, you can skip the more involved joiner clip test
+- verify heatset insert (or plastic threading if you're customizing for that)
+- verify filter lip grip:
+  - the pre-fab plastic rim of the filter should fit above the few teardrop bumps
+  - without being compressed by them
+  - but also with a minimal amount of slop/rattle
+- verify that the diameter fit of the cover piece to the filter od looks reasonable
 
-3. print Joiner Clip Tolerance Test
-  - skip this step if the power module clip socket tested well
-  - will need to have at least one clip on hand for testing
-    - maybe add one to this fit test print
-    - maybe print a batch of them out ahead of time
-    - maybe have some on hand from the previous step
-  - verify that the joiner clip can be inserted into the socket without too much drama
-  - but it should still hold firmly, and may even be difficult to remove non-destructively
+### 2. print Power Module Fit Test
 
-4. print Wall Fit Test
-  - only really necessary if customizing for a different / novel filter
-  - verify that both pieces grip the top/bottom of the filter well
-    - remember that the filter itself is **the key vertical structural support**, so if the lip grip is insufficient, the assembly may fall apart when picked up
-  - verify that the wall segment(s) are sufficient tall to cover the filter, while resting in the base and cover plate channels
-  - verify that the wall segment dovetails mesh well
+- verify that the power module pcb can be inserted easily
+- verify that the power module pcb can be removed again if needed
+- verify that the channel plug fits well and holds the pcb in place
+  - **do not** insert the channel plug all the way yet, or it may be very difficult to remove
+- maybe also attach wires to the pcb, and verify that they can easily pass thru the plugged channel
+- optional: also print out a joiner clip
+  - verify the clip socket included in the power module test object
+  - if this goes well, you can skip the more involved joiner clip test
 
-4. print a cover plate
-  - the cover plate uses slightly less material than the base, so start with it as a first part / final fit test
-  - add 4 heatset inserts after printing (if using them)
-  - verify that filter can be inserted and holds well:
-    - this **should require** flexing filter's plastic ring, so that it snaps firmly into place
-    - it should not be possible to remove the filter without flexing it's plastic ring a little
-    - some kind of plastic prying tool (like a spudger) may be useful here
-  - mount a fan to verify spacing, but without a grill cover, may have extra bolt length leftover at this point
-  - check clip insertion into clip socket, printing out more clips as needed
+### 3. print Joiner Clip Tolerance Test
 
-5. print the main base plate (the one with the power module socket)
-  - verify filter insertion as above for the cover plate
-  - snap the cover plate onto the filter still in the base plate
-    - if you have a test wall section on hand, verify its height fit one last time
-  - wire up and install the power module into its socket 
-    - if using JST connectors, modify a fan cable into a corresponding JST wire pair
-  - once the power module and its wires are installed, insert the channel plug into the wiring channel
+- skip this step if the power module clip socket tested well
+- will need to have at least one clip on hand for testing
+  - maybe add one to this fit test print
+  - maybe print a batch of them out ahead of time
+  - maybe have some on hand from the previous step
+- verify that the joiner clip can be inserted into the socket without too much drama
+- but it should still hold firmly, and may even be difficult to remove non-destructively
 
-6. print out a wall section
-  - should slide into the channels of the base and cover plates without easily falling out
-  - alternatively, may install by inserting into one of the plates, then flexing the wall to snap into the other plate
+### 4. print Wall Fit Test
 
-7. print out a fan grill box
-  - install it over the fan
-  - if not using heatset inserts, maybe wait until this step to avoid rethreading into plastic too much
+- only really necessary if customizing for a different / novel filter
+- verify that both pieces grip the top/bottom of the filter well
+  - remember that the filter itself is **the key vertical structural support**, so if the lip grip is insufficient, the assembly may fall apart when picked up
+- verify that the wall segment(s) are sufficient tall to cover the filter, while resting in the base and cover plate channels
+- verify that the wall segment dovetails mesh well
 
-8. disassemble and insert joiner clips
-  - print out joiner clips as needed
-  - various clip patterns may be useful: all in one plate vs half in each plate of a meeting pair
-  - having a plastic mallet is very useful for this and especially for later final join
+### 5. print a cover plate
 
-9. print 2nd cover plate, 2nd grill box, and other base plate
-  - using the alternate base plate model that does not include a power module socket
+- the cover plate uses slightly less material than the base, so start with it as a first part / final fit test
+- add 4 heatset inserts after printing (if using them)
+- verify that filter can be inserted and holds well:
+  - this **should require** flexing filter's plastic ring, so that it snaps firmly into place
+  - it should not be possible to remove the filter without flexing it's plastic ring a little
+  - some kind of plastic prying tool (like a spudger) may be useful here
+- mount a fan to verify spacing, but without a grill cover, may have extra bolt length leftover at this point
+- check clip insertion into clip socket, printing out more clips as needed
 
-10. do final joinery of the 2 base plates and 2 cover plates
-  - may be useful to place on a smooth flat surface to keep alignment
-  - may need to use some sort of a mallet and/or block to aid with impact persuasion
+### 6. print the main base plate (the one with the power module socket)
 
-11. wire everything up
-  - if fan cabling came with a lot of bulky extra insulation / sheathing, may end up needing to strip it off to reduce internal wiring bulk
-  - once the cover plate pair is joined, mounting the control module is possible
-  - apply a strip of PE foam tape to the back of the control module
-  - use a grill box (or both) to inform control module placement: accessible through the grill box window
-  - now start managing wires: from the fans, to/from the y-splitter, to the control module, from the power module
-    - the wire pass through ports in the joined cover plate can be used to stuff spare wire down into interior space
+- verify filter insertion as above for the cover plate
+- snap the cover plate onto the filter still in the base plate
+  - if you have a test wall section on hand, verify its height fit one last time
+- wire up and install the power module into its socket 
+  - if using JST connectors, modify a fan cable into a corresponding JST wire pair
+- once the power module and its wires are installed, insert the channel plug into the wiring channel
 
-12. print final wall section, and install them
-  - the dovetail joints can be quite tricky, especially around the curved ends
+### 7. print out a wall section
+
+- should slide into the channels of the base and cover plates without easily falling out
+- alternatively, may install by inserting into one of the plates, then flexing the wall to snap into the other plate
+
+### 8. print out a fan grill box
+
+- install it over the fan
+- if not using heatset inserts, maybe wait until this step to avoid rethreading into plastic too much
+
+### 9. disassemble and insert joiner clips
+
+- print out joiner clips as needed
+- various clip patterns may be useful: all in one plate vs half in each plate of a meeting pair
+- having a plastic mallet is very useful for this and especially for later final join
+
+### 10. print 2nd cover plate, 2nd grill box, and other base plate
+
+- using the alternate base plate model that does not include a power module socket
+
+### 11. do final joinery of the 2 base plates and 2 cover plates
+
+- may be useful to place on a smooth flat surface to keep alignment
+- may need to use some sort of a mallet and/or block to aid with impact persuasion
+
+### 12. wire everything up
+
+- if fan cabling came with a lot of bulky extra insulation / sheathing, may end up needing to strip it off to reduce internal wiring bulk
+- once the cover plate pair is joined, mounting the control module is possible
+- apply a strip of PE foam tape to the back of the control module
+- use a grill box (or both) to inform control module placement: accessible through the grill box window
+- now start managing wires: from the fans, to/from the y-splitter, to the control module, from the power module
+  - the wire pass through ports in the joined cover plate can be used to stuff spare wire down into interior space
+
+### 13. print final wall section, and install them
+
+- the dovetail joints can be quite tricky, especially around the curved ends
 
 ## Better Next Time
 
