@@ -57,11 +57,13 @@ such as an Arduino with additionally added air quality sensor and display.
 - [x] iterate [v1 build notes](v1_build.md) into a basic build guide
 - [x] address v1 build pain points: clip tolerance and power socket clearance
 - [x] publish dual-filter models somewhere
-- [ ] TODO publish to makerworld with bambu ready slicer project
-- [ ] TODO support integrating a battery bank: either into a thicker base plate, or between the duo filters
-- [ ] TODO evolve parameters, with presets for various fan/filter models
-- [ ] TODO complete and build a single filter variant
+- [x] publish to makerworld with bambu ready slicer project
 - [ ] TODO support integrating a battery or USB power bank
+- [ ] TODO thicker base variant, where the base can act as an electronics enclosure
+- [ ] TODO inter-filter structure for duo to support additional electronics inside the mesh wall
+- [ ] TODO support a carrying shoulder strap attached to the duo cover or grilil
+- [ ] TODO complete and build a single filter variant
+- [ ] TODO evolve parameters, with presets for various fan/filter models
 - [ ] TODO support arduino based electronics package, including an [air quality sensor wing][aq_wing]
 - [ ] TODO a carrying handle part, or option integrated with the grill top
 
