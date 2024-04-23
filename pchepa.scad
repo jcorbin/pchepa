@@ -220,6 +220,12 @@ cover_heatset_hole = [4.4, 5.3];
 // Size of wiring pass through hole(s) in the cover plate; set either dimension to zero to disable.
 cover_port = [20, 20];
 
+// Access notch cutout on the underside of cover, aides mesh wall and filter removal; will be positioned on the bottom surface of cover, centered at the aapex of filter od.
+cover_notch = [20, 20, 20];
+
+// Rounding radius for any cover notch cutout.
+cover_notch_rounding = 5;
+
 // Placement, along the Y axis of the inner cover plate edge, of any wire pass through holes
 cover_port_at = [-48, 48];
 
@@ -1383,7 +1389,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
   ) {
 
     plate_mirror_idx(cover_i)
-    diff(remove="flow filter wallslot screw socket channel port", keep="grip support")
+    diff(remove="flow filter wallslot screw socket channel port notch", keep="grip support")
       plate(
         h=cover_height, d=cover_od, extra=cover_extra,
         chamfer1=cover_underhang, chamfer2=cover_overhang) {
@@ -1418,6 +1424,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
         if (filter_grip > 0) {
           tag("grip")
+          zrot(360/16)
           zrot_copies(n = 8)
           up(filter_grip)
           left(filter_od/2)
@@ -1428,7 +1435,6 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
         if (cover_port.x * cover_port.y > 0) {
           port_chamfer = min(cover_port/4);
           port_size = [cover_port.x, cover_port.y, cover_height];
-
           tag("port")
             ycopies(cover_port_at)
             left(port_size[0] / 2)
@@ -1438,6 +1444,17 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
               cuboid(port_size + [0, 0, 2*$eps], chamfer=port_chamfer, edges="Z");
         }
 
+        if (cover_notch.x * cover_notch.y * cover_notch.z > 0) {
+          tag("notch")
+            down(cover_notch.z/2)
+            left(slot_od/2)
+              cuboid(cover_notch,
+                rounding=cover_notch_rounding, edges=[
+                  [1, 1, 1, 1], // yz -- +- -+ ++
+                  [1, 0, 1, 0], // xz
+                  [1, 0, 1, 0], // xy
+                ]);
+        }
 
       }
 
