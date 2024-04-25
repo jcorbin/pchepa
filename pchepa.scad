@@ -36,7 +36,7 @@ build_plate_size = [250, 250];
 //@make -o parts/power_channel_plug.stl -D mode=91
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Small Part Kit, 10:Base Plate, 20:Cover Plate, 30:Fan Grill Box, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test]
+mode = 0; // [0:Full Assembly, 1:Small Part Kit, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate, 30:Fan Grill Box, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -255,34 +255,18 @@ slot_od = slot_id + (wrapwall_thickness > 0 ? 2*wrapwall_thickness + 2*wrapwall_
 cover_od = slot_od + 2*max(cover_overhang, cover_underhang);
 base_od = slot_od + 2*base_overhang + filter_recess;
 
-grill_size = fan_size.y + 2*( grill_padding + grill_thickness );
-
 cover_extra = filter_count < 2 ? 0 : base_od - cover_od; // FIXME why not /2 like the others
-grill_extra = filter_count < 2 ? 0 : (base_od - grill_size)/2;
 slot_extra = filter_count < 2 ? 0 : (base_od - slot_od)/2;
 
 cover_hole = cover_heatset_hole.x * cover_heatset_hole.y > 0
   ? cover_heatset_hole
   : [struct_val(screw_info(grill_screw), "diameter") + 0.2, 8];
 
-power_module_size = [
-  max(power_pcb_size[0], power_socket_size[0]),
-  power_pcb_size[1] + power_socket_overhang,
-  power_pcb_size[2] + power_socket_size[2],
-];
-
 power_channel_size = [
   power_pcb_size[0] + 2*power_channel_chamfer,
   sqrt(power_pcb_size[1]^2/2) +
   sqrt(power_pcb_size[2]^2/2) +
   2*power_channel_chamfer,
-  100,
-];
-
-power_channel_plug_size = [
-  power_channel_size[0],
-  power_channel_size[1] - 4*power_module_tolerance,
-  base_height - power_module_size[2]/2,
 ];
 
 // TODO pockets in the base for weights or battery bank
@@ -290,22 +274,14 @@ power_channel_plug_size = [
 /// mode[0-9] -- assemblies
 
 if (mode == 0) {
-  // xcopies(spacing=base_od, n=2)
-
   if (filter_count == 1) {
-    filter_fan() {
-      attach(BOTTOM, TOP, overlap=filter_recess) base();
-      attach(TOP, BOTTOM, overlap=fan_size.z) grill();
-    };
+    assembly();
   }
 
   else if (filter_count == 2) {
-    xcopies(spacing=base_od, n=2) zrot(180 * $idx)
-      filter_fan() {
-        attach(BOTTOM, TOP, overlap=filter_recess) base(with_power_port=$idx == 0 ? base_with_power_port : false);
-        right((base_od - grill_size)/4)
-        attach(TOP, BOTTOM, overlap=fan_size.z) grill();
-      };
+    left(base_od/2)
+    assembly($idx = 0)
+    attach(RIGHT, LEFT) assembly($idx = 1);
   }
 
   else {
@@ -317,6 +293,7 @@ else if (mode == 1) {
   build_plate() {
 
     if (filter_count == 2 && base_with_power_port) {
+      power_channel_plug_size = channel_plug_size();
       xdistribute(sizes=[
         2*clip_size.y + 1,
         power_channel_plug_size.x,
@@ -334,7 +311,7 @@ else if (mode == 1) {
           xcopies(n=2, spacing=2*clip_size.y+1)
           zrot(90) attach(TOP, BACK) clip();
 
-          attach(TOP, BOTTOM) base_power_channel_plug();
+          attach(TOP, BOTTOM) channel_plug();
 
           xcopies(n=2, spacing=2*clip_size.y+1)
           zrot(90) attach(TOP, BACK) clip();
@@ -356,42 +333,52 @@ else if (mode == 1) {
 
 /// mode[10-19] -- bases
 
-else if (mode == 10) {
-  base() {
-    %attach(TOP, BOTTOM, overlap=filter_recess) hepa_filter();
-  };
+else if (mode >= 10 && mode < 20) {
+  base_i = mode - 10;
+  by = base_i % 2 == 0 ? RIGHT : LEFT;
+  bb = base_i % 2 == 0 ? LEFT : RIGHT;
 
-  if (filter_count > 1 && buddy) {
-    right(base_od) zrot(180)
-      %render() base(with_power_port=false);
+  translate($preview ? bb*base_od/2 : [0, 0, 0])
+  preview_cutaway(dir=by)
+  base($idx = base_i, buddies = buddy) {
+    %if (buddy) {
+      attach(TOP, BOTTOM, overlap=filter_recess) hepa_filter();
+      if (filter_count > 1) {
 
-    up(1.5 * clip_size.z)
-    down(base_height/2)
-    fwd(2*clip_size.x)
-    fwd(base_od/2)
-    right(base_od/2)
-      %render() xcopies(n=base_clips, spacing=clip_size.y * 2.5) clip(orient=RIGHT, spin = 90);
+        render() attach(by, bb) base($idx = (base_i+1)%filter_count, buddies = false);
+
+        clip_rows = base_size().z > base_height ? 2 : 1;
+        ycopies(n=clip_rows, spacing=clip_size.x*1.5)
+        xcopies(n=base_clips, spacing=clip_size.y * 2.5)
+        up(clip_size.z/2)
+        fwd(clip_rows*clip_size.x)
+          render() position(FRONT+by+BOTTOM) clip(orient=by, spin=90);
+
+      }
+
+    }
   }
 }
 
 /// mode[20-29] -- tops (i.e. filter/fan integration cover)
 
 else if (mode == 20) {
+  preview_cutaway(r=[0, 0, 22.5])
   cover(orient=$preview ? UP : DOWN) {
-    %attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
-    %attach(TOP, BOTTOM) pc_fan();
-  };
+    %if (buddy) {
+      attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
+      attach(TOP, BOTTOM) pc_fan();
 
-  if (filter_count > 1 && buddy) {
-    right(base_od) zrot(180)
-      %render() cover();
+      if (filter_count > 1) {
+        render() attach(RIGHT, RIGHT) cover();
 
-    down(1.5 * clip_size.z)
-    up(cover_height/2)
-    fwd(2*clip_size.x)
-    fwd(cover_od/2)
-    right(base_od/2)
-      %render() xcopies(n=cover_clips, spacing=clip_size.y * 2.5) clip(orient=RIGHT, spin = 90);
+        up(clip_size.z/2)
+        fwd(clip_size.x)
+        xcopies(n=cover_clips, spacing=clip_size.y * 2.5)
+          render() position(FRONT+RIGHT+BOTTOM) clip(orient=RIGHT, spin=90);
+      }
+
+    }
   }
 }
 
@@ -399,7 +386,7 @@ else if (mode == 20) {
 
 else if (mode == 30) {
   grill(orient=$preview ? UP : DOWN) {
-    left(filter_count == 1 ? 0 : (base_od - grill_size)/4) {
+    left(filter_count == 1 ? 0 : (base_od - grill_size().y)/4) {
       %attach(BOTTOM, TOP, overlap=fan_size.z) pc_fan();
       %attach(BOTTOM, TOP) render() cover();
     }
@@ -415,7 +402,7 @@ else if (mode == 90) {
 }
 
 else if (mode == 91) {
-  base_power_channel_plug();
+  channel_plug();
 }
 
 else if (mode == 92) {
@@ -437,11 +424,11 @@ else if (mode == 101) {
   power_module_fit_test() {
     if (!$preview) {
       fwd(power_channel_chamfer)
-      back(power_channel_size[1] / 2)
-      left(power_channel_size[0])
-      up(power_channel_plug_size[2])
+      back(power_channel_size.y / 2)
+      left(power_channel_size.x)
+      up(base_size().z - power_module_size().z/2)
       attach(LEFT+BOTTOM, RIGHT+TOP)
-        base_power_channel_plug();
+        channel_plug();
     }
   }
 }
@@ -463,10 +450,10 @@ else if (mode == 104) {
 
 /// implementation
 
-module build_plate(size=build_plate_size) {
+module build_plate(size=build_plate_size, anchor = CENTER, spin = 0, orient = UP) {
   size = scalar_vec3(size, 1);
   down(size.z)
-  attachable(size=size) {
+  attachable(anchor, spin, orient, size=size) {
     %cube(size=size, center=true);
     children();
   }
@@ -483,12 +470,40 @@ module preview_cut(v=UP, s=max(build_plate_size), t=0) {
   }
 }
 
+module assembly(anchor = CENTER, spin = 0, orient = UP) {
+  // TODO should cover and/or grill also be built $idx-mirrored?
+  i = $idx;
+
+  b = base_size();
+  g = grill_size();
+  over = cover_height - filter_recess + g.z;
+  under = b.z - filter_recess;
+  h = filter_height + under + over;
+
+  attachable(anchor, spin, orient, size=[b.x, b.y, h]) {
+    up((under - over)/2)
+    zrot(i * 180)
+    hepa_filter() {
+      attach(TOP, BOTTOM, overlap=filter_recess) cover() {
+        %attach(TOP, BOTTOM) pc_fan();
+        right((base_od - grill_size().y)/4)
+          attach(TOP, BOTTOM) grill();
+      }
+      attach(BOTTOM, TOP, overlap=filter_recess)
+        zrot(i * 180)
+        base(buddies=i == 0, $idx=i);
+    }
+
+    children();
+  }
+}
+
 module cover_hole_test(anchor = CENTER, spin = 0, orient = UP) {
-  attachable(size=[
-    cover_od/2 + cover_extra/2,
+  attachable(anchor, spin, orient, size=[
+    (cover_od + cover_extra)/2,
     cover_od/2,
-    base_height
-  ], anchor = anchor, spin = spin, orient = orient) {
+    base_size().z
+  ]) {
     fwd(cover_od/4)
     right((cover_od + cover_extra)/4)
     back_half(s=base_od*2.1)
@@ -506,23 +521,23 @@ module wall_fit_test() {
   cover_cut = cover_od/2 - cover_overhang - extra;
   base_cut = base_od/2 - base_overhang - extra;
 
-  cover_size = [base_od, cover_od/2 - cover_cut, cover_height];
-  base_size = [base_od, base_od/2 - base_cut, base_height];
-  wall_size = wall_section(base_od - filter_od);
+  cover_size = cover_od/2 - cover_cut;
+  base_size = base_od/2 - base_cut;
+  wall_size = wall_section(base_od - filter_od).x;
 
   ydistribute(sizes=[
-    cover_size[1],
-    base_size[1],
-    wall_size[0],
-    wall_size[0],
+    cover_size,
+    base_size,
+    wall_size,
+    wall_size,
   ]) {
-    back(cover_size[1]/2)
+    back(cover_size/2)
     back(cover_cut)
       front_half(s=cut_size, y=-cover_cut) cover(orient=DOWN);
 
     back((base_od/2 - base_cut)/2)
     back(base_cut)
-      front_half(s=cut_size, y=-base_cut) base();
+      front_half(s=cut_size, y=-base_cut) base_plate();
 
     zrot(90) wall_section(base_od - filter_od);
     zrot(90) wall_section(base_od - filter_od);
@@ -530,36 +545,52 @@ module wall_fit_test() {
 }
 
 module power_module_fit_test(extra = 5, anchor = CENTER, spin = 0, orient = UP) {
-  left_cut = base_od - clip_size.y - (1.5 * power_module_size.x + extra);
-  back_cut = base_od - power_module_size.y - power_channel_size.y - extra;
+  left_cut = base_od - clip_size.y - (1.5 * power_module_size().x + extra);
+  back_cut = base_od - power_module_size().y - power_channel_size.y - extra;
 
   test_size = [
     base_od - left_cut,
     base_od - back_cut,
-    base_height
+    base_size().z
   ];
 
-  attachable(size = test_size, anchor = anchor, spin = spin, orient = orient) {
+  attachable(anchor, spin, orient, size = test_size) {
     back(back_cut/2)
     left(left_cut/2)
-    diff(remove="cut") base() {
+    diff(remove="port cut") base_plate() {
+      tag("port")
+      left(1.5*clip_size.y)
+      up(power_module_size().z/2)
+      fwd($eps)
+      position(FRONT+RIGHT+BOTTOM)
+        base_power_port(anchor=FRONT+RIGHT+BOTTOM) {
+          %position("module") tag("buddy") power_module();
+          %position("channel") tag("buddy") channel_plug(anchor=BOTTOM);
+        }
+
       tag("cut")
         attach(LEFT, RIGHT, overlap=left_cut)
-        cube([left_cut + $eps, base_od + 2*$eps, base_height + 2*$eps]);
+        cube([left_cut + $eps, base_od + 2*$eps, test_size.z + 2*$eps]);
       tag("cut")
         attach(BACK, FRONT, overlap=back_cut)
-        cube([base_od + 2*$eps, back_cut + $eps, base_height + 2*$eps]);
+        cube([base_od + 2*$eps, back_cut + $eps, test_size.z + 2*$eps]);
     }
 
     children();
   }
 }
 
-module base_power_channel_plug(
+function channel_plug_size(tolerance = power_channel_plug_tolerance) = [
+  power_channel_size.x - 2*tolerance,
+  power_channel_size.y - 4*power_module_tolerance - 2*tolerance,
+];
+
+module channel_plug(
+  h = base_size().z - power_module_size().z/2,
   tolerance = power_channel_plug_tolerance,
   anchor = CENTER, spin = 0, orient = UP
 ) {
-  size = power_channel_plug_size - [2*tolerance, 2*tolerance, 0];
+  size = point3d(channel_plug_size(), h);
   notch_wall = 2*power_channel_chamfer;
   channel_size = [
     size.x/2,
@@ -572,7 +603,7 @@ module base_power_channel_plug(
     size.z
   ];
 
-  attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
+  attachable(anchor, spin, orient, size = size) {
     diff(remove="channel notch") cuboid(
       size,
       chamfer=power_channel_chamfer - tolerance,
@@ -643,7 +674,7 @@ module clip_socket_tolerance_test(
   tolerances, chamfer=1,
   anchor = CENTER, spin = 0, orient = UP
 ) {
-  max_tol = max(tolerances)*clip_tolerance;
+  max_tol = max(tolerances);
   text_size = clip_size.y/3;
   text_depth = clip_size.z/4;
   block_size = [
@@ -653,11 +684,11 @@ module clip_socket_tolerance_test(
   ];
   spacing = block_size.x + 2;
 
-  attachable(size = [
+  attachable(anchor, spin, orient, size = [
     spacing*len(tolerances),
     block_size.y,
     block_size.z,
-  ], anchor = anchor, spin = spin, orient = orient) {
+  ]) {
     xcopies(spacing = spacing, n = len(tolerances)) {
       let (tol = tolerances[$idx])  {
         diff(remove="socket label", keep="clip")
@@ -691,7 +722,7 @@ module clip_socket_tolerance_test(
 }
 
 module pc_fan(anchor = CENTER, spin = 0, orient = UP) {
-  attachable(size = fan_size, anchor = anchor, spin = spin, orient = orient) {
+  attachable(anchor, spin, orient, size = fan_size) {
     diff(remove = "bore screw")
         cuboid(size = fan_size, rounding = fan_rounding, edges = "Z") {
       tag("bore") attach(TOP, TOP, fan_size.z + $eps)
@@ -706,8 +737,7 @@ module pc_fan(anchor = CENTER, spin = 0, orient = UP) {
 }
 
 module hepa_filter(anchor = CENTER, spin = 0, orient = UP) {
-  attachable(h = filter_height, d = filter_od, anchor = anchor, spin = spin,
-             orient = orient) {
+  attachable(anchor, spin, orient, d = filter_od, h = filter_height) {
     diff() cyl(h = filter_height, d = filter_od) {
       attach(TOP, TOP, overlap = filter_height + $eps) tag("remove")
           cyl(h = filter_height + 2 * $eps, d = filter_id);
@@ -719,7 +749,7 @@ module hepa_filter(anchor = CENTER, spin = 0, orient = UP) {
 module cover(anchor = CENTER, spin = 0, orient = UP) {
   size = [cover_od + cover_extra, cover_od, cover_height];
 
-  attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
+  attachable(anchor, spin, orient, size = size) {
 
     diff(remove="flow filter wallslot screw socket channel port", keep="grip")
       plate(
@@ -747,12 +777,12 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
           cyl(h=cover_hole[1]+$eps, d=cover_hole[0]);
 
         if (filter_count > 1 && cover_clips > 0) {
-          tag("socket")
             down(clip_size.z * 1.5)
             up(cover_height / 2)
             ycopies(l=(cover_od - 2*cover_overhang - 1.5 * clip_size.x), n=cover_clips)
-            attach(RIGHT, TOP, overlap=clip_size.y)
-            clip_socket();
+              tag("socket")
+              attach(RIGHT, TOP, overlap=clip_size.y)
+              clip_socket();
         }
 
         if (filter_grip > 0) {
@@ -761,10 +791,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
           up(filter_grip)
           left(filter_od/2)
           down(cover_height/2)
-            teardrop(
-              h = 2*filter_grip,
-              r = filter_grip
-            );
+            teardrop(h = 2*filter_grip, r = filter_grip);
         }
 
         if (cover_port.x * cover_port.y > 0) {
@@ -787,46 +814,48 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
   }
 }
 
+function power_module_size(tolerance=0) = [
+  max(power_pcb_size.x, power_socket_size.x) + 2*tolerance,
+  power_pcb_size.y + 2*tolerance + power_socket_overhang + 2*tolerance,
+  power_pcb_size.z + 2*tolerance + power_socket_size.z + 2*tolerance
+];
+
 module power_module(tolerance=0, profile=false, anchor = CENTER, spin = 0, orient = UP) {
-  socket_length = (profile ? power_pcb_size[1] + power_socket_overhang : power_socket_size[1]);
+  socket_length = (profile ? power_pcb_size.y + power_socket_overhang : power_socket_size.y);
   socket_overlap = socket_length - power_socket_overhang;
   pcb_height = profile
-    ? power_pcb_size[2] + power_socket_size[2]/2
-    : power_pcb_size[2];
+    ? power_pcb_size.z + power_socket_size.z/2
+    : power_pcb_size.z;
 
-  vtol = [tolerance, tolerance, tolerance];
+  pcb_size = [power_pcb_size.x, power_pcb_size.y, pcb_height] + scalar_vec3(2*tolerance);
 
-  attachable(size = power_module_size + 2*vtol, anchor = anchor, spin = spin, orient = orient) {
+  socket_size = [power_socket_size.x, socket_length, power_socket_size.z] + scalar_vec3(2*tolerance);
 
-    down(power_module_size[2]/2)
+  size = power_module_size(tolerance);
+
+  attachable(anchor, spin, orient, size = size) {
+
+    down(size.z/2 - tolerance)
     up(pcb_height/2)
     back(power_socket_overhang/2 + tolerance)
-    cuboid([
-      power_pcb_size[0],
-      power_pcb_size[1],
-      pcb_height
-    ] + 2*vtol) {
+    cuboid(pcb_size) {
 
       down($eps)
       back(socket_overlap)
-      down(profile ? power_socket_size[2]/2 : 0)
-      attach(FRONT+TOP, BACK+BOTTOM)
-      cuboid([
-        power_socket_size[0],
-        socket_length,
-        power_socket_size[2] + $eps,
-      ] + 2*vtol,
+      down(profile ? power_socket_size.z/2 : 0)
+      position(FRONT+TOP)
+      cuboid(socket_size + [0, 0, $eps],
+        anchor=BACK+BOTTOM,
         rounding=power_socket_rounding + tolerance, edges="Y");
 
       if (profile && power_module_porch > 0) {
         fwd(power_module_porch + 2*tolerance)
-        up(power_module_size[2] + 2*tolerance)
-        attach(BACK+BOTTOM, FRONT+TOP)
+        position(BACK+BOTTOM)
           cube([
-            power_pcb_size[0],
-            power_module_porch,
-            power_module_size[2],
-          ] + 2*vtol);
+            power_pcb_size.x + 2*tolerance,
+            power_module_porch + 2*tolerance,
+            size.z
+          ], anchor=FRONT+BOTTOM);
       }
 
     }
@@ -835,13 +864,22 @@ module power_module(tolerance=0, profile=false, anchor = CENTER, spin = 0, orien
   }
 }
 
-module base(
-  with_power_port=base_with_power_port,
+function base_size(h=undef) = [
+  base_od,
+  base_od,
+  default(h, base_height)
+];
+
+module base_plate(
+  h = base_size().z,
+  overhang = base_overhang,
+  num_clips = base_clips,
   anchor = CENTER, spin = 0, orient = UP
 ) {
-  attachable(size = [base_od, base_od, base_height], anchor = anchor, spin = spin, orient = orient) {
-    diff(remove="filter wallslot socket port", keep="grip")
-      plate(h=base_height, d=base_od, chamfer2=base_overhang) {
+  size = base_size(h);
+  attachable(anchor, spin, orient, size = size) {
+    diff(remove="filter wallslot socket", keep="grip")
+      plate(h=size.z, d=size.x, chamfer2=overhang) {
         tag("filter")
           attach(TOP, BOTTOM, overlap=filter_recess)
           cyl(h=filter_recess+$eps, d=filter_od + 2*filter_tolerance);
@@ -854,80 +892,130 @@ module base(
             wallslot();
         }
 
-        if (filter_count > 1 && base_clips > 0) {
-          tag("socket")
-            up(clip_size.z * 1.5)
-            down(base_height / 2)
-            ycopies(l=(base_od - 2*base_overhang - 1.5 * clip_size.x), n=base_clips)
-            attach(RIGHT, TOP, overlap=clip_size.y)
-            clip_socket();
+        if (filter_count > 1 && num_clips > 0) {
+          zcopies(spacing=[0 - size.z/2])
+          ycopies(l=(size.y - 2*overhang - 1.5 * clip_size.x), n=num_clips)
+            tag("socket")
+            left(clip_size.y/2)
+            position(RIGHT+TOP)
+            clip_socket(orient=LEFT, spin=90);
         }
 
         if (filter_grip > 0) {
           tag("grip")
           zrot_copies(n = 8)
           down(filter_grip)
-          up(base_height/2)
+          up(size.z/2)
           left(filter_od/2)
           xrot(180)
-            teardrop(
-              h = 2*filter_grip,
-              r = filter_grip
-            );
+            teardrop(h = 2*filter_grip, r = filter_grip);
         }
-
-        // USB C port and wire channel
-        if (with_power_port) {
-          tag("port")
-            up(power_module_size.z)
-            down(base_height/2)
-            back(power_module_size.y) fwd($eps)
-            left(power_module_size.x)
-            left(clip_size.y)
-            attach(FRONT+RIGHT, BACK)
-            yrot(-45)
-            power_module(profile=true, tolerance=power_module_tolerance) {
-
-              back(power_channel_backset)
-              attach(BACK+BOTTOM, FRONT+BOTTOM) xrot(-90)
-                cuboid(power_channel_size, chamfer=power_channel_chamfer, edges="Z")
-                back(power_module_size.y/4)
-                attach(FRONT+BOTTOM, BACK+BOTTOM)
-                xrot(-90)
-                cube([
-                  power_module_size.x + 2*power_module_tolerance,
-                  power_module_size.y/2,
-                  power_module_size.z*1.5,
-                ]);
-
-              cut_size = [
-                power_module_size.x + 2*power_module_tolerance,
-                1.5*power_module_cut + 2*power_module_tolerance,
-                4*power_module_cut + 2*power_module_tolerance,
-              ];
-              csdg = sqrt(cut_size.y^2 + (cut_size.z - power_module_cut)^2)/2;
-              nudge = power_module_cut/2 - 2*power_module_tolerance;
-
-              fwd(csdg + nudge)
-              up(csdg - nudge)
-              position(BACK+BOTTOM)
-                left(cut_size.x/2)
-                xrot(-45) cube(cut_size);
-
-              back(2*power_module_tolerance)
-              %attach(CENTER, CENTER)
-                yrot(180)
-                power_module()
-                  back(power_channel_backset)
-                  back(power_module_tolerance)
-                  attach(BACK+BOTTOM, FRONT+BOTTOM) 
-                  xrot(-90)
-                  base_power_channel_plug();
-
-            }
-        }
-
       };
+
+    children();
+  }
+}
+
+module plate_mirror_idx(i=$idx) {
+  if (i % 2 == 1) {
+    xflip() children();
+  } else {
+    children();
+  }
+}
+
+module base(buddies = true, anchor = CENTER, spin = 0, orient = UP) {
+  base_i = $idx;
+  sz = base_size();
+  attachable(anchor, spin, orient, size=sz) {
+    plate_mirror_idx(base_i)
+    diff(remove="port") base_plate() {
+
+      // USB C port and wire channel
+      if (base_i == 0 && base_with_power_port) {
+        tag("port")
+        up(power_module_size(power_module_tolerance).z/2)
+        left(1.5*clip_size.y)
+          position(FRONT+RIGHT+BOTTOM)
+          base_power_port(anchor=FRONT+RIGHT+BOTTOM) {
+            if (buddies) {
+              %position("module") tag("buddy") power_module();
+              %position("channel") tag("buddy") channel_plug(anchor=BOTTOM);
+            }
+          }
+      }
+
+    }
+
+    children();
+  }
+}
+
+module base_power_port(
+  channel_h = base_size().z,
+  tolerance = power_module_tolerance,
+  gap = power_channel_backset,
+  anchor = CENTER, spin = 0, orient = UP
+) {
+  mod_size = power_module_size(tolerance);
+  chan_size = point3d(power_channel_size, channel_h);
+  cut_size = [
+    mod_size.x,
+    1.5*power_module_cut + 2*tolerance,
+    4*power_module_cut + 2*tolerance
+  ];
+
+  fill_size = [
+    mod_size.x,
+    gap + power_channel_chamfer + 2*$eps,
+    mod_size.z
+  ];
+
+  size = [
+    chan_size.x,
+    mod_size.y + gap + chan_size.y,
+    channel_h
+  ];
+
+  mod_offset = [
+    0,
+    (size.y - mod_size.y)/2 - gap - chan_size.y,
+    (mod_size.z - size.z)/2
+  ];
+
+  attachable(anchor, spin, orient, size=size,
+    anchors=[
+      named_anchor("channel", [
+        0,
+        size.y/2 - chan_size.y/2,
+        -size.z/2 + tolerance,
+      ]),
+      named_anchor("module", mod_offset),
+    ]) {
+
+    translate(mod_offset)
+    power_module(profile=true, tolerance=tolerance) {
+
+      // channel -- vertical shaft, plug goes here
+      back(gap)
+      position(BACK+BOTTOM)
+        cuboid(chan_size, anchor=FRONT+BOTTOM, chamfer=power_channel_chamfer, edges="Z");
+
+      // backfill -- between the channel and back of power module (over any backset)
+      position(BACK+BOTTOM)
+      fwd($eps)
+      cube(fill_size, anchor=FRONT+BOTTOM);
+
+      // diagonal cut -- allows pcb entry and wire egress from rear of pcb
+      csdg = sqrt(cut_size.y^2 + (cut_size.z - power_module_cut)^2)/2;
+      nudge = power_module_cut/2 - 2*tolerance;
+      fwd(csdg + nudge)
+      up(csdg - nudge)
+      position(BACK+BOTTOM)
+        left(cut_size.x/2)
+        xrot(-45) cube(cut_size);
+
+    }
 
     children();
   }
@@ -942,7 +1030,7 @@ module wallslot(h=undef, anchor = CENTER, spin = 0, orient = UP) {
   }
 
   else if (filter_count == 2) {
-    attachable(size = [slot_od + slot_extra + $eps, slot_od, slot_h], anchor = anchor, spin = spin, orient = orient) {
+    attachable(anchor, spin, orient, size = [slot_od + slot_extra + $eps, slot_od, slot_h]) {
       left((slot_extra + $eps)/2) {
         left_half(s=2.01*slot_od)
           diff() cyl(
@@ -1003,7 +1091,7 @@ module wall_section(w=undef, anchor = CENTER, spin = 0, orient = UP) {
     : [0, 0, 0];
 
   wall_size = wall_section(w);
-  attachable(size = wall_size + extra, anchor = anchor, spin = spin, orient = orient) {
+  attachable(anchor, spin, orient, size = wall_size + extra) {
     translate(-extra/2)
     diff() cube(wall_size, center=true) {
       if (dovetail_area > 0) {
@@ -1034,45 +1122,33 @@ module plate(h, d, extra=0, chamfer1=0, chamfer2=0, anchor=CENTER, spin=0, orien
   r = d/2 - 1/1024;
 
   if (filter_count == 1) {
-    attachable(h = h, d = d, anchor = anchor, spin = spin, orient = orient) {
-      cyl(h=h, r=r, chamfer1=chamfer1, chamfer2=chamfer2);
+    cyl(h=h, r=r, chamfer1=chamfer1, chamfer2=chamfer2, anchor = anchor, spin = spin, orient = orient)
       children();
-    }
   }
 
   else if (filter_count == 2) {
-    size = [d + extra, d, h];
-    attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
-      left(extra/2) {
+    outline = turtle([
+      "left", 180,
+      "move", r + extra,
+      "arcright", r, 180,
+      "move", r + extra,
+    ], state=[r + extra/2, -r]);
 
-        left_half(s=2.1*size[0])
-          cyl(h=h, r=r, chamfer1=chamfer1, chamfer2=chamfer2);
+    profile = turtle([
+      "right", 45,
+      "move", sqrt(2)*chamfer2,
+      "right", 45,
+      "move", h - chamfer1 - chamfer2,
+      "right", 45,
+      "move", sqrt(2)*chamfer1,
+    ], state=[
+      [[-chamfer2, h/2]],
+      [1, 0],
+      90, 0
+    ]);
 
-        right((d/2 + extra)/2)
-          if (chamfer1 > 0) {
-            upper = max(h/2, chamfer2);
-            lower = h - upper;
-            up(upper/2)
-              cuboid(size=[d/2 + extra + $eps, d, upper], chamfer=chamfer2, edges=[
-                [0, 0, 1, 1], // yz -- +- -+ ++
-                [0, 0, 0, 0], // xz
-                [0, 0, 0, 0], // xy
-              ]);
-            down(lower/2)
-              cuboid(size=[d/2 + extra + $eps, d, lower], chamfer=chamfer1, edges=[
-                [1, 1, 0, 0], // yz -- +- -+ ++
-                [0, 0, 0, 0], // xz
-                [0, 0, 0, 0], // xy
-              ]);
-          } else {
-            cuboid(size=[d/2 + extra + $eps, d, h], chamfer=chamfer2, edges=[
-              [0, 0, 1, 1], // yz -- +- -+ ++
-              [0, 0, 0, 0], // xz
-              [0, 0, 0, 0], // xy
-            ]);
-          }
-
-      }
+    attachable(anchor, spin, orient, size = [d + extra, d, h]) {
+      hull() path_sweep(profile, outline);
 
       children();
     }
@@ -1083,54 +1159,43 @@ module plate(h, d, extra=0, chamfer1=0, chamfer2=0, anchor=CENTER, spin=0, orien
   }
 }
 
-module filter_fan(anchor = CENTER, spin = 0, orient = UP) {
-  height = fan_size.z + cover_height - filter_recess + filter_height;
-  attachable(h = height, d = base_od, anchor = anchor, spin = spin, orient = orient) {
-
-    up(height/2)
-    down(fan_size.z)
-    down(cover_height/2)
-      cover() {
-        %attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
-        %attach(TOP, BOTTOM) pc_fan();
-      };
-
-    children();
-  }
-}
+function grill_size() = let (
+  d = fan_size.y + 2*grill_padding + 2*grill_thickness,
+  extra = filter_count < 2 ? 0 : (base_od - d)/2
+) [
+  d + extra,
+  d,
+  fan_size.z + grill_thickness
+];
 
 module grill(anchor = CENTER, spin = 0, orient = UP) {
-  size = [
-    grill_size + grill_extra,
-    grill_size,
-    fan_size.z + grill_thickness
-  ];
-
   screw_length = fan_size.z + grill_thickness;
+  size = grill_size();
 
-  attachable(size = size, anchor = anchor, spin = spin, orient = orient) {
+  attachable(anchor, spin, orient, size=size) {
+    extra = size.x - size.y;
 
     diff(remove="screw hollow holes window")
       cuboid(size=size, chamfer=grill_chamfer, edges=[
         [0, 0, 1, 1], // yz -- +- -+ ++
-        [0, 0, 1, grill_extra > 0 ? 0 : 1], // xz
-        [1, grill_extra > 0 ? 0 : 1, 1, grill_extra > 0 ? 0 : 1], // xy
+        [0, 0, 1, extra > 0 ? 0 : 1], // xz
+        [1, extra > 0 ? 0 : 1, 1, extra > 0 ? 0 : 1], // xy
       ]) {
 
         tag("hollow")
-          right(grill_extra ? grill_thickness + $eps : 0)
+          right(extra ? grill_thickness + $eps : 0)
           attach(BOTTOM, TOP, overlap=fan_size.z)
           cuboid(size=[
-            grill_size + grill_extra - 2 * grill_thickness + (grill_extra > 0 ? grill_thickness + $eps : 0),
-            grill_size - 2 * grill_thickness,
+            size.x - 2 * grill_thickness + (extra > 0 ? grill_thickness + $eps : 0),
+            size.y - 2 * grill_thickness,
             fan_size.z + $eps,
           ], chamfer = grill_thickness, edges = [
             [0, 0, 1, 1], // yz -- +- -+ ++
             [0, 0, 0, 0], // xz
-            [1, grill_extra > 0 ? 0 : 1, 1, grill_extra > 0 ? 0 : 1], // xy
+            [1, extra > 0 ? 0 : 1, 1, extra > 0 ? 0 : 1], // xy
           ]);
 
-        left(grill_extra/2) {
+        left(extra/2) {
 
           tag("screw")
             attach(TOP, BOTTOM, overlap = screw_length + $eps)
@@ -1142,7 +1207,7 @@ module grill(anchor = CENTER, spin = 0, orient = UP) {
             attach(TOP, BOTTOM, overlap=size[2] + $eps)
             grid_copies(
               spacing=grill_hole_size + grill_hole_spacing,
-              size=grill_size,
+              size=size.y,
               stagger=true,
               inside=circle(d=fan_id)
             )
@@ -1168,6 +1233,19 @@ module grill(anchor = CENTER, spin = 0, orient = UP) {
 
       };
 
+    children();
+  }
+}
+
+module preview_cutaway(dir=BACK, at=0, r=[0, 0, 0], s=max(base_od, filter_height)*2.1) {
+  if ($preview) {
+    difference() {
+      rotate(r)
+      children();
+      translate(dir*(at - s/2))
+        cube(s, center=true);
+    }
+  } else {
     children();
   }
 }

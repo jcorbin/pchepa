@@ -1,7 +1,11 @@
 # Errata
 
 - not yet happy with the mesh wall integrity under bend/strain, experimenting with different joinery for next
-- the plate geometry gets is a little wonky where the half-circle becomes a straight edge, will likely remake that shape slightly in a next version
+
+# v1.0.x
+
+- improved duo plate geometry, especially where half-circle transitions to a straight line;
+  this should reduce facet-seam artifacts in the printed parts
 
 # v1.0.1
 
