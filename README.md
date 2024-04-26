@@ -66,7 +66,9 @@ To generate STL models either:
 - run `make all` to use default ( to go faster, run something like `make -j4 all` to build models in parallel, e.g. 4 at a time )
 - or interactively export models from OpenSCAD by paging through each `mode` value under the `Part Selection` customizer tab
 
-All models are already oriented as intended to print.
+All models are already oriented as intended to print, and should require no additional/generated supports.
+
+Any models that require support have it designed in, like the power bank base and clips sockets.
 
 General recommended slicer settings:
 - layer height: 0.2
@@ -107,6 +109,11 @@ Joiner Clip Tolerance Test
 - primarily useful to verify socket tolerance vs printer accuracy
 - secondarily may also check printer ability to bridge, since these are meant to be printed without support
 - makefile creates `test/joiner_clip.stl`
+
+Power Bank Fit Test
+- cut down sections of the base plate pair, used to validate power bank fit
+- also useful to verify clip socket and power bank access tunnel support quality
+- makefile creates `test/power_bank_a.stl` and `test/power_bank_b.stl`
 
 ## License
 
