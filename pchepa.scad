@@ -26,11 +26,13 @@ build_plate_size = [250, 250];
 
 /* [Part Selection] */
 
-//@make -o duo/render.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 --imgsize=1024,768 --camera=-48.4318,49.2886,16.9119,81.6,0,39.2,1279.49
-//@make -o duo/as_explode.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 --imgsize=1024,768 --animate=40 -D explode='50*$t' --camera=-48.4318,49.2886,16.9119,81.6,0,39.2,1279.49
+//@make -o duo/render.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 -D base_embed_power_bank=true --imgsize=1024,768 --camera=-48.4318,49.2886,16.9119,81.6,0,39.2,1279.49
+//@make -o duo/as_explode.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 -D base_embed_power_bank=true --imgsize=1024,768 --animate=40 -D explode='50*$t' --camera=-48.4318,49.2886,16.9119,81.6,0,39.2,1279.49
 
 //@make -o duo/base_a.stl -D mode=10 -D filter_count=2
 //@make -o duo/base_b.stl -D mode=11 -D filter_count=2
+//@make -o duo/base_bank_a.stl -D mode=10 -D filter_count=2 -D base_embed_power_bank=true
+//@make -o duo/base_bank_b.stl -D mode=11 -D filter_count=2 -D base_embed_power_bank=true
 
 //@make -o duo/cover_a.stl -D mode=20 -D filter_count=2
 //@make -o duo/cover_b.stl -D mode=21 -D filter_count=2
@@ -44,12 +46,14 @@ build_plate_size = [250, 250];
 //@make -o test/wall.stl -D mode=102 -D filter_count=2
 //@make -o test/cover_hole.stl -D mode=103 -D filter_count=2
 //@make -o test/joiner_clip.stl -D mode=104
+//@make -o test/power_bank_tunnel.stl -D mode=105 -D base_embed_power_bank=true
 
 //@make -o parts/clip.stl -D mode=90
 //@make -o parts/base_channel_plug.stl -D mode=91
+//@make -o parts/base_bank_channel_plug.stl -D mode=91 -D base_embed_power_bank=true
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test]
+mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 106:Power Bank]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -228,6 +232,18 @@ base_overhang = 10;
 // How many joiner clips to use in the base plate.
 base_clips = 4;
 
+// Enable a cavity and access tunnel for a power bank inside/between a pair of base plates.
+base_embed_power_bank = false;
+
+// Height under the power bank from base plate bottom; needs to be able to accomodate a row of joiner clips.
+base_power_bank_lift = 12;
+
+// Tunnel shrink radius in front of the power bank main cavity.
+base_power_bank_tunnel_inset = 1;
+
+// Corner and mouth flare chamfering on the power bank access tunnel.
+base_power_bank_tunnel_chamfer = 4;
+
 /* [Joiner Clip Parameters] */
 
 // Preview color for joiner clips.
@@ -290,6 +306,50 @@ power_channel_backset = 0.4;
 
 // Notch in the back of the channel plug, allowing it to flex and be removed by a tool (like pliers).
 channel_plug_notch_size = [ 5, 3 ];
+
+/* [Power Bank] */
+
+power_bank_color = "#333333";
+power_bank_size = [ 62, 90.2, 22.5 ];
+power_bank_rounding = 9;
+power_bank_rounding_edges = "Y";
+power_bank_sockets = [
+
+  struct_set(socket_spec("usb-c"), [
+    "name", "USB-C",
+    "offset", [15.5, 0]
+  ]),
+
+  struct_set(socket_spec("usb-a-micro"), [
+    "name", "Micro USB-A",
+    "offset", [0, 0]
+  ]),
+
+  struct_set(socket_spec("usb-a"), [
+    "name", "USB-A",
+    "offset", [-15.5, 0, 2]
+  ]),
+
+  // led window
+  [
+    ["name", "LED Indicator"],
+    ["size", [11, 1.5, 1]],
+    ["offset", [0, 0, -2.8]]
+  ],
+
+  // button window
+  [
+    ["size", [10, 5, 1]],
+    ["rounding", 1],
+
+    ["anchor", LEFT+FRONT],
+    ["attach", BOTTOM],
+    ["rotate", [0, -45, 0]],
+    ["offset", [0, 10, 0]]
+
+  ]
+
+];
 
 /* [Geometry Detail] */
 
@@ -393,6 +453,12 @@ else if (mode >= 10 && mode < 20) {
           recolor(base_color) channel_plug(anchor=BOTTOM);
       }
 
+      if (base_embed_power_bank) {
+        translate(by * explode)
+        position("power_bank")
+          recolor(power_bank_color) power_bank();
+      }
+
       up(explode)
       attach(TOP, BOTTOM, overlap=filter_recess)
         hepa_filter();
@@ -479,10 +545,30 @@ else if (mode == 92) {
 /// mode[100...] -- development aids and tests
 
 else if (mode == 100) {
-  xdistribute(spacing=clip_size.x*1.5) {
-    clip(compression = 2.0, orient=BACK);
-    clip(compression = 2.4, orient=BACK);
-    clip(compression = 2.8, orient=BACK);
+  left_half(s=200)
+  diff(keep="support")
+  cube([power_bank_size.x + 20, 110, power_bank_size.z + 40], center=true) {
+
+    tag("remove")
+      attach(FRONT, BOTTOM, overlap=100)
+      base_power_bank_tunnel(100 + $eps, inset=3, chamfer=4) {
+
+        ts = [power_bank_size.x, 100, power_bank_size.z] - [2*3, 4, 2*3];
+        sw = ts.x/2 - 4;
+
+        left(sw/2)
+        attach(BOTTOM, BACK, overlap=ts.y)
+          support_walls([ sw, ts.y, ts.z ], gap = [
+            [0, support_gap],
+            [support_every/2, 0],
+            support_gap,
+          ]);
+
+      }
+
+    // show_anchors();
+    // #cube($parent_size, center=true);
+
   }
 }
 
@@ -515,7 +601,43 @@ else if (mode == 104) {
     orient=$preview ? UP : BACK);
 }
 
+else if (mode == 105) {
+  pad = 5;
+  x_cut = base_od/2 - power_bank_size.x/2 - pad;
+  y_cut = power_bank_size.y/2 + pad;
+  xcopies(n = 2, spacing = x_cut) {
+    plate_xcut_idx(x_cut)
+    preview_cutaway(dir=BOTTOM)
+    back(y_cut/2)
+    front_half(s=base_od*2.1, y=y_cut)
+      base(label = false);
+  }
+}
+
+else if (mode == 106) {
+  echo(camera_arg());
+  power_bank() {
+    // mahths adatped form bosl2 show_anchors, dont worry 'bout it
+    label_size = 1.5;
+    %for (anchor = ["USB-A", "Micro USB-A", "USB-C"]) {
+      attach(anchor)
+      up(4*label_size)
+      fwd(2*label_size)
+      recolor([1, 1, 1, 1])
+        cube([label_size*4/4.5*len(anchor), label_size*4/3, $eps], center=true)
+        attach(TOP, BOTTOM)
+        recolor("black")
+        text3d(anchor, size=label_size, h=$eps, atype="ycenter", center=true);
+    }
+  }
+}
+
 /// implementation
+
+function camera_arg() = str( "--camera=",
+    $vpt.x, ",", $vpt.y, ",", $vpt.z, ",",
+    $vpr.x, ",", $vpr.y, ",", $vpr.z, ",",
+    $vpd);
 
 module qrcode(file,
   size = undef,
@@ -663,6 +785,11 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
             %position("power_module") recolor(power_module_color) power_module();
             up(explode/2)
               position("power_channel") recolor(base_color) channel_plug(anchor=BOTTOM);
+
+            if (base_embed_power_bank) {
+              right(explode/2)
+                %position("power_bank") recolor(power_bank_color) power_bank();
+            }
           }
 
         }
@@ -670,6 +797,26 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
     }
 
     children();
+  }
+}
+
+module power_bank(blank = false, tolerance = 0, anchor = CENTER, spin = 0, orient = UP) {
+  sz = power_bank_size + 2*scalar_vec3(tolerance);
+  if (blank) {
+    cuboid(
+      size = sz,
+      rounding = power_bank_rounding + tolerance,
+      edges = power_bank_rounding_edges,
+      anchor=anchor, spin=spin, orient=orient)
+      children();
+  } else {
+    socketed_block(
+      size = sz,
+      rounding = power_bank_rounding + tolerance,
+      edges = power_bank_rounding_edges,
+      sockets = power_bank_sockets,
+      anchor=anchor, spin=spin, orient=orient)
+      children();
   }
 }
 
@@ -718,6 +865,96 @@ module wall_fit_test() {
     zrot(90) wall_section(wall_len);
     zrot(90) wall_section(wall_len);
   }
+}
+
+module socketed_block(
+  size, sockets,
+  rounding=0, chamfer=0, edges=EDGES_ALL,
+  anchor = CENTER, spin = 0, orient = UP
+) {
+  socket_anchors = [
+    for (socket = sockets)
+    if (is_def(struct_val(socket, "name")))
+    let (
+      anchor = struct_val(socket, "anchor", FRONT),
+      off = struct_val(socket, "offset"),
+      sz = struct_val(socket, "size")/2
+    ) named_anchor(
+      struct_val(socket, "name"),
+      v_mul(size/2, anchor) + off + sz/2,
+      anchor
+    )];
+
+  attachable(anchor, spin, orient, size = size, anchors = socket_anchors) {
+    diff(remove="socket")
+    cuboid(size, rounding=rounding, edges=edges) {
+      tag("socket") attach_sockets(sockets);
+    }
+
+    children();
+  }
+}
+
+module attach_sockets(specs, anchors=[], offsets=[]) {
+  for ($idx = idx(specs)) {
+    spec = socket_spec(specs[$idx]);
+    anchor = default(anchors[$idx], struct_val(spec, "anchor", FRONT));
+    off = default(offsets[$idx], struct_val(spec, "offset", [0, 0]));
+    assert(is_vector(off, 2) || is_vector(off, 3));
+    depth = struct_val(spec, "size").z;
+    // TODO spin
+    translate(off)
+    attach(anchor, struct_val(spec, "attach", BOTTOM), overlap=depth)
+    rotate(struct_val(spec, "rotate", [0, 0, 0]))
+      socket(spec)
+        children();
+  }
+}
+
+function socket_spec(type) =
+  is_struct(type) ?
+    assert(is_vector(struct_val(type, "size"), 3))
+    type
+  : is_vector(type, 3) ? [["size", type]]
+  : type == "usb-a" ? [["size", [12.5, 5.1, 13]]]
+  : type == "usb-a-micro" ? [  
+    ["size", [7.5, 2.5, 7]],
+    ["chamfer", 1],
+    ["edges", [
+      [0, 0, 0, 0], // yz -- +- -+ ++
+      [0, 0, 0, 0], // xz
+      [1, 1, 0, 0], // xy
+    ]]
+  ]
+  // TODO usb-a-mini
+  // TODO usb-b
+  : type == "usb-c" ? [
+    ["size", [9, 3.2, 6.8]],
+    ["rounding", 1]
+  ]
+  : undef;
+
+module socket(size, chamfer, rounding, edges, anchor = FRONT, spin = 0, orient = UP) {
+  spec = socket_spec(size);
+  assert(is_struct(spec));
+
+  // TODO after <https://github.com/BelfrySCAD/BOSL2/pull/1418>
+  //   entry = struct_set(spec, [
+  //     ["rounding", rounding],
+  //     ["chamfer", chamfer],
+  //     ["edges", edges],
+  //   ])
+  // then eliminate sz/r/c/e below and default(...) calls
+
+  sz = struct_val(spec, "size");
+  r = default(rounding, struct_val(spec, "rounding"));
+  c = default(chamfer, struct_val(spec, "chamfer"));
+  e = default(edges, struct_val(spec, "edges", "Z"));
+
+  up($eps/2) cuboid(
+    size=sz + [0, 0, $eps], rounding=r, chamfer=c, edges=e,
+    anchor=anchor, spin=spin, orient=orient
+  ) children();
 }
 
 module power_module_fit_test(
@@ -1252,7 +1489,13 @@ module power_module(tolerance=0, profile=false, anchor = CENTER, spin = 0, orien
 }
 
 function base_size(h=undef) = let (
-  dh = base_height
+  dh = base_embed_power_bank
+    ? base_overhang
+    + power_bank_size.z
+    + 2*base_power_bank_tunnel_chamfer
+    - 2*base_power_bank_tunnel_inset
+    + base_power_bank_lift
+    : base_height
 ) [
   base_od,
   base_od,
@@ -1265,7 +1508,11 @@ function base_clip_sockets(
   num_clips = base_clips,
   p = undef
 ) = let (
-  row_moves = zcopies([0 - size.z/2]),
+  row_moves = zcopies(spacing=size.z > base_height
+    ? [
+      0 - 1.5*clip_size.z - wrapwall_slot_depth,
+      -size.z + 2*clip_size.z
+    ] : [0 - size.z/2]),
   col_moves = ycopies(l=(size.y - 2*overhang - 1.5 * clip_size.x), n=num_clips)
 ) (filter_count < 2 || num_clips <= 0) ? [] : [
   for (row = row_moves)
@@ -1318,6 +1565,18 @@ module base_plate(
       };
 
     children();
+  }
+}
+
+module plate_xcut_idx(x, i=$idx, parity=0, s=base_od*2.1) {
+  if (((i + parity) % filter_count) % 2 == 0) {
+    left(base_od/2 - x/4)
+    right_half(s=s, x=x)
+      children();
+  } else {
+    right(base_od/2 - x/4)
+    left_half(s=s, x=-x)
+      children();
   }
 }
 
@@ -1388,6 +1647,51 @@ module base_label(
   }
 }
 
+module base_power_bank_tunnel(
+  h,
+  inset = 1,
+  chamfer = 1,
+  flare = undef,
+  anchor = CENTER, spin = 0, orient = UP) {
+  flare_out = default(flare, chamfer);
+
+  size1 = [power_bank_size.x, power_bank_size.z] - scalar_vec2(2*inset);
+  size2 = size1 + [2*flare_out, 2*flare_out];
+
+  attachable(anchor, spin, orient, size = scalar_vec3(size1, h), size2 = size2) {
+
+    r = size1/2;
+    cdg = sqrt(2)*chamfer;
+    profile = apply(fwd(r.y) * left(r.x - chamfer), turtle([
+      "repeat", 2, [
+        "move", 2*(r.x - chamfer),
+        "left", 45, "move", cdg,
+        "left", 45, "move", 2*(r.y - chamfer),
+        "left", 45, "move", cdg,
+        "left", 45]
+    ]));
+
+    zrot(90) yrot(-90) path_sweep(profile,
+      path = [
+        [-h/2, 0],
+        [h/2 - flare_out, 0],
+        [h/2, 0]
+      ],
+      tangent = [
+        [1, 0, 0],
+        [1, 0, 0],
+        [1, 0, 0]
+      ],
+      scale = [
+        [1, 1],
+        [1, 1],
+        v_div(size2, size1)
+      ]);
+
+    children();
+  }
+}
+
 module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
   base_i = $idx;
 
@@ -1426,12 +1730,18 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
       ) [
         named_anchor("power_module", power_mod_loc, FRONT),
         named_anchor("power_channel", power_chan_loc, UP)
+      ] : []),
+
+      each(base_embed_power_bank ? let (
+        power_bank_loc = v_mul(join_side+BOTTOM, sz/2) + UP*base_power_bank_lift + UP*power_bank_size.z/2
+      ) [
+        named_anchor("power_bank", power_bank_loc, FRONT)
       ] : [])
 
     ]
   ) {
     plate_mirror_idx(base_i)
-    diff(remove="port label") base_plate() {
+    diff(remove="port label bank", keep="support") base_plate() {
 
       // USB C port and wire channel
       if (base_i == 0) {
@@ -1447,6 +1757,36 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
         attach("filter", BOTTOM, overlap=base_label_depth)
         plate_mirror_idx(base_i)
           base_label(h = base_label_depth + $eps, i = base_i);
+      }
+
+      if (base_embed_power_bank) {
+        tolerance = power_module_tolerance;
+        tag("bank")
+        up(base_power_bank_lift)
+        up(power_bank_size.z/2)
+        position(RIGHT+BOTTOM) {
+          power_bank(blank=true, tolerance=tolerance, anchor=CENTER) {
+            tunnel_l = (sz.y - (power_bank_size.y))/2 + 2*$eps;
+
+            support_cube = v_mul(power_bank_size + scalar_vec3(2*tolerance), [0.5, 1, 1]) - [power_bank_rounding, 0, 0];
+            left(support_cube.x/2)
+              support_walls(support_cube, gap = [ [support_gap, 0], support_every/2, support_gap ]);
+
+            attach(FRONT, BOTTOM, overlap=$eps)
+            base_power_bank_tunnel(
+              tunnel_l,
+              inset = base_power_bank_tunnel_inset,
+              chamfer = base_power_bank_tunnel_chamfer) {
+
+                support_cube = [power_bank_size.x/2, tunnel_l, power_bank_size.z]
+                  - 2*[base_power_bank_tunnel_inset, 0, base_power_bank_tunnel_inset]
+                  - [base_power_bank_tunnel_chamfer, base_power_bank_tunnel_chamfer, 0];
+                left(support_cube.x/2) attach(BOTTOM, BACK, overlap=support_cube.y)
+                  support_walls(support_cube, gap = [ [0, support_gap], 0, support_gap ]);
+
+              }
+          }
+        }
       }
 
     }

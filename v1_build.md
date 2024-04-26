@@ -32,14 +32,14 @@
 
 ## Printed Parts
 
-| Name              | Filament        | Amount  | Time     | Quantity |
-| ----------------- | --------------- | ------- | -------- | -------- |
-| Cover Plate       | Sunlu PLA Green | 166.96g | 3h56m    | 2        |
-| Fan Grill Box     | Sunlu PLA Green |  96.02g | 3h36m    | 2        |
-| Base Plate Main   | Sunlu PLA Grey  | 217.81g | 4h51m    | 1        |
-| Base Plate Second | Sunlu PLA Grey  | 216.34g | 4h46m    | 1        |
-| Mesh Wall         | Sunlu PLA Grey  |  16.83g |   36m24s | 5        |
-| Small Parts       | Sunlu PLA Grey  |   7.66g |   31m45s | 1        |
+| Name          | Filament        | Amount  | Time     | Quantity |
+| ------------- | --------------- | ------- | -------- | -------- |
+| Cover Plate   | Sunlu PLA Green | 166.96g | 3h56m    | 2        |
+| Fan Grill Box | Sunlu PLA Green |  96.02g | 3h36m    | 2        |
+| Base Plate A  | Sunlu PLA Grey  | 217.81g | 4h51m    | 1        |
+| Base Plate B  | Sunlu PLA Grey  | 216.34g | 4h46m    | 1        |
+| Mesh Wall     | Sunlu PLA Grey  |  16.83g |   36m24s | 5        |
+| Small Parts   | Sunlu PLA Grey  |   7.66g |   31m45s | 1        |
 
 | Filament        | Amount  |
 | --------------- | ------- |
@@ -160,6 +160,25 @@ Improve mesh wall section integration:
 - maybe make the dovetails a little wider and deeper
 - taper the dovetails so that they resist coming apart around curves
 
+## v1.1 Power Bank Option
+
+For portable power, there's an option to print a baseplate that can accommodate a battery bank cost increase is around $40-$50 depending on how you amortize things:
+
+| Part Name / Link                                   | Unit Cost | Quantity    | Order Cost | Effective Cost |
+| -------------------------------------------------- | --------- | ----------- | ---------- | -------------- |
+| [USUIE 12V DC Power Bank][amaz_usuie_12v_bank]     | $25.99    | 1           | $25.99     | $25.99         |
+| [USB-C 1ft patch cable][amaz_usbc_patch]           |  $9.99    | 1/3         |  $9.99     |  $3.33         |
+| [Sunlu PLA Grey][sunlu_pla_grey]                   | $14.99    | 943.89g/1kg | $14.99     | $14.15         |
+
+| Name          | Filament        | Amount  | Time     | Quantity |
+| ------------- | --------------- | ------- | -------- | -------- |
+| Base Bank A   | Sunlu PLA Grey  | 477.41g | 10h55m   | 1        |
+| Base Bank B   | Sunlu PLA Grey  | 466.48g | 10h19m   | 1        |
+
+NOTE: while this particular battery bank markets itself as 10000mAh, its packaging actually claims
+only a 5500mAh rating; however my testing of it has only gotten about 2600mAh out from a full charge
+cycle. Fortunately that's still enough to run a duo pchepa for a bit over 10 hours at full tilt.
+
 [amaz_12_pd_trigger]: https://www.amazon.com/gp/product/B0953G14Q2
 [amaz_jst_zh_kit]: https://www.amazon.com/gp/product/B0C6WY7DZM
 [amaz_m3_bolts]: https://www.amazon.com/gp/product/B01C3KUMSY
@@ -170,5 +189,7 @@ Improve mesh wall section integration:
 [amaz_noctua_nf_p12]: https://www.amazon.com/gp/product/B07CG2PGY6
 [amaz_nyemo]: https://www.amazon.com/gp/product/B08Z32BDJY
 [amaz_pe_foam_tape]: https://www.amazon.com/Double-16-4ft-Mounting-Picture-Hanging/dp/B0CPSF8PML
+[amaz_usbc_patch]: https://www.amazon.com/dp/B0B6BLQJ8B?psc=1&ref=ppx_yo2ov_dt_b_product_details
+[amaz_usuie_12v_bank]: https://www.amazon.com/dp/B0CNGM4V32
 [sunlu_pla_green]: https://www.sunlu.com/collections/pla-filament
 [sunlu_pla_grey]: https://www.sunlu.com/collections/pla-filament

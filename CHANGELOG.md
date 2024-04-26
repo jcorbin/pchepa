@@ -1,6 +1,14 @@
 # Errata
 
 - not yet happy with the mesh wall integrity under bend/strain, experimenting with different joinery for next
+- the chosen battery bank option works okay, but the disingenuous capacity rating on it leave a bad taste; other battery options would be welcomeo
+- clips can still be a little too tight fit
+  - for example the power bank base having 2 rows of clips, the bottom row seems too tight, while the top row is okay
+
+# v1.x
+
+- added power bank cavity and access tunnel inside of a thicker base plate variant
+  - power port location shift as far left as possible; corner of power channel now comes close to base filter retention ring
 
 # v1.0.5
 
