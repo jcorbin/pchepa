@@ -9,6 +9,7 @@ Primary inspiration is the [Exhalaron][exhalaron] by cleanairkits.com, but there
 
 - Follow the [v1 build notes](v1_build.md) to make your own
 - Download [STL models on Thangs][duo_thangs]
+- Read [CHANGELOG](CHANGELOG.md) for development status and release notes
 
 ## Design
 
@@ -49,25 +50,6 @@ If RGB lighting is desired, a different controller may be desired to get out of 
 
 Eventually this project would like to support more involved control boards,
 such as an Arduino with additionally added air quality sensor and display.
-
-## Status
-
-- [x] v1 build of a dual-filter/fan model done and works well
-- [x] cleaned up and documented code/parameters a bit
-- [x] iterate [v1 build notes](v1_build.md) into a basic build guide
-- [x] address v1 build pain points: clip tolerance and power socket clearance
-- [x] publish dual-filter models somewhere
-- [x] publish to makerworld with bambu ready slicer project
-- [ ] TODO support integrating a battery or USB power bank
-- [ ] TODO thicker base variant, where the base can act as an electronics enclosure
-- [ ] TODO inter-filter structure for duo to support additional electronics inside the mesh wall
-- [ ] TODO support a carrying shoulder strap attached to the duo cover or grilil
-- [ ] TODO complete and build a single filter variant
-- [ ] TODO evolve parameters, with presets for various fan/filter models
-- [ ] TODO support arduino based electronics package, including an [air quality sensor wing][aq_wing]
-- [ ] TODO a carrying handle part, or option integrated with the grill top
-
-[aq_wing]: https://hackaday.io/project/168492-the-air-quality-wing
 
 ## Setup
 

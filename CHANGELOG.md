@@ -17,3 +17,22 @@
 # v1.0.0
 
 - first dual filter prototype version completed
+
+# Dev Status and TODOs
+
+- [rc] moderate code improvements, and fixed plate curve discontinuity
+- [testing] easier access to remove filter cover plate / mesh wall
+- [testing] thicker / stronger / better mesh wall section joints
+- [dev] support integrating a USB power bank into a thicker base plate
+- [ ] TODO a carrying handle part, should strap attachment, or other option integrated with the cover or grill top
+- [ ] TODO support for simpler/cheaper pwm control modules
+- [ ] TODO inter-filter structure for duo to support additional electronics inside the mesh wall
+- [ ] TODO complete and build a single filter variant
+- [ ] TODO evolve parameters, with presets for various fan/filter models
+- [ ] TODO support arduino based electronics package, including an [air quality sensor wing][aq_wing]
+
+[aq_wing]: https://hackaday.io/project/168492-the-air-quality-wing
+
+[rc]: https://github.com/jcorbin/pchepa/tree/rc
+[testing]: https://github.com/jcorbin/pchepa/tree/testing
+[dev]: https://github.com/jcorbin/pchepa/tree/dev
