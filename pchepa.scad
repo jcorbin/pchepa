@@ -53,14 +53,14 @@ filter_od = 180;
 // Inner diameter of the HEPA filter cylinder cavity.
 filter_id = 149;
 
+// Size of the filter lip: X value is the radial wall thickness, Y value is the height.
+filter_lip_size = [2, 8];
+
 // Thickness of the teardrop grips that hold the filter inside the base and cover plates. You could set this to zero to disable, but then vertical integrity of the assembly is lost, as no other part is currently designed to hold everything together, instead relying on gripping the filter's plastic ledge.
 filter_grip = 1;
 
 // Additional space to leave radially between the filter and mesh wrap wall.
 filter_extra_space = 0;
-
-// How far the filter will be recessed into the cover and base plates. TODO back out a filter_lip measured parameter.
-filter_recess = 10;
 
 // Additional fit tolerance for the cover/base plate filter recess.
 filter_tolerance = 0.1;
@@ -248,6 +248,8 @@ $eps = 0.01;
 /// dispatch / integration
 
 module __customizer_limit__() {}
+
+filter_recess = filter_lip_size[1] + 2*filter_grip;
 
 slot_id = filter_od + filter_extra_space + 2*wrapwall_thickness;
 slot_od = slot_id + (wrapwall_thickness > 0 ? 2*wrapwall_thickness + 2*wrapwall_tolerance : 0);
@@ -738,10 +740,17 @@ module pc_fan(anchor = CENTER, spin = 0, orient = UP) {
 
 module hepa_filter(anchor = CENTER, spin = 0, orient = UP) {
   attachable(anchor, spin, orient, d = filter_od, h = filter_height) {
-    diff() cyl(h = filter_height, d = filter_od) {
-      attach(TOP, TOP, overlap = filter_height + $eps) tag("remove")
-          cyl(h = filter_height + 2 * $eps, d = filter_id);
-    };
+    recolor("#aaaaaa88") tube(
+      h=filter_height - 2*filter_lip_size[1] + 2*$eps,
+      od=filter_od - 2*filter_lip_size[0],
+      id=filter_id + 2*filter_lip_size[0]) {
+
+      attach([TOP, BOTTOM], BOTTOM)
+        recolor("#333333")
+        tube(h=filter_lip_size[1], od=filter_od, id=filter_id);
+
+    }
+
     children();
   }
 }
