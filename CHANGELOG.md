@@ -9,6 +9,7 @@
 - improved power socket internal fit, by chamfering the interior corner of the lip;
   this should make socket installation easier, preventing the usb-c socket from
   getting stuck on the lip when sliding forward into position
+- added designed support inside clip socket; addressed slight roof droop/stringing, which was affecting clip tolerance
 
 # v1.0.1
 

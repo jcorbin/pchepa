@@ -1,6 +1,7 @@
 include <BOSL2/std.scad>
 include <BOSL2/joiners.scad>
 include <BOSL2/screws.scad>
+include <BOSL2/walls.scad>
 
 // original inspiration <https://www.cleanairkits.com/products/exhalaron>
 // cites <https://www.mdpi.com/2075-5309/11/8/329>
@@ -64,6 +65,20 @@ filter_extra_space = 0;
 
 // Additional fit tolerance for the cover/base plate filter recess.
 filter_tolerance = 0.1;
+
+/* [Designed Supports] */
+
+// Interface gap between support and supported part.
+support_gap = 0.2;
+
+// Bridging gap between supports.
+support_every = 15;
+
+// Thickness of support walls and internal struts.
+support_width = 0.8;
+
+// Enable to show support walls in preview, otherwise only active in production renders.
+$support_preview = false;
 
 /* [Wraparound Wall Metrics] */
 
@@ -192,10 +207,10 @@ clip_thick = 1.6;
 clip_compress = 0.2;
 
 // Extra space in the socket for easier insertion.
-clip_tolerance = 0.5;
+clip_tolerance = 0.35;
 
 // Clip fit test tolerance range: [start, step, end]
-clip_fit_test = [0.4, 0.1, 0.8];
+clip_fit_test = [0.2, 0.05, 0.6];
 
 /* [Power Module] */
 
@@ -681,6 +696,32 @@ module channel_plug(
   }
 }
 
+module if_support() {
+  if (!$preview || $support_preview) {
+    children();
+  }
+}
+
+module support_wall(
+  h, l,
+  gap = support_gap,
+  width = support_width,
+  anchor = CENTER, spin = 0, orient = UP
+) {
+  wid = scalar_vec2(width);
+  if_support()
+  tag("support")
+  attachable(anchor, spin, orient, size=[wid.x, l, h]) {
+    sparse_wall(
+      h=h - 2*gap,
+      l=l - 2*gap,
+      thick=wid.x,
+      strut=wid.y);
+
+    children();
+  }
+}
+
 module clip(
   thickness = clip_thick,
   snap = clip_snap,
@@ -705,6 +746,7 @@ module clip_socket(
   clearance = clip_tolerance,
   anchor = CENTER, spin = 0, orient = UP
 ) {
+
   rabbit_clip(type="socket",
     length = clip_size.y + $eps,
     width = clip_size.x,
@@ -713,8 +755,11 @@ module clip_socket(
     snap = snap,
     compression = compression,
     clearance = clearance,
-    anchor = anchor, spin = spin, orient = orient)
-    children();
+    anchor = anchor, spin = spin, orient = orient) {
+      attach(CENTER, CENTER) support_wall(h=clip_size.y, l=clip_size.z);
+
+      children();
+    }
 }
 
 module clip_socket_tolerance_test(
@@ -738,7 +783,7 @@ module clip_socket_tolerance_test(
   ]) {
     xcopies(spacing = spacing, n = len(tolerances)) {
       let (tol = tolerances[$idx])  {
-        diff(remove="socket label", keep="clip")
+        diff(remove="socket label", keep="clip support")
         cuboid(block_size, chamfer=chamfer, edges=[
           [1, 1, 0, 0], // yz -- +- -+ ++
           [1, 1, 0, 0], // xz
@@ -805,7 +850,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
   attachable(anchor, spin, orient, size = size) {
 
-    diff(remove="flow filter wallslot screw socket channel port", keep="grip")
+    diff(remove="flow filter wallslot screw socket channel port", keep="grip support")
       plate(
         h=cover_height, d=cover_od, extra=cover_extra,
         chamfer1=cover_underhang, chamfer2=cover_overhang) {
@@ -944,7 +989,8 @@ module base_plate(
 ) {
   size = base_size(h);
   attachable(anchor, spin, orient, size = size) {
-    diff(remove="filter wallslot socket", keep="grip")
+    tag_scope("base_plate")
+    diff(remove="filter wallslot socket", keep="grip support")
       plate(h=size.z, d=size.x, chamfer2=overhang) {
         tag("filter")
           attach(TOP, BOTTOM, overlap=filter_recess)
@@ -1325,3 +1371,8 @@ module preview_cutaway(dir=BACK, at=0, r=[0, 0, 0], s=max(base_od, filter_height
     children();
   }
 }
+
+function scalar_vec2(v, dflt) =
+  is_undef(v)? undef :
+  is_list(v)? [for (i=[0:1]) default(v[i], default(dflt, 0))] :
+  !is_undef(dflt)? [v,dflt] : [v,v];
