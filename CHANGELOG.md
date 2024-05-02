@@ -6,6 +6,9 @@
 
 - improved duo plate geometry, especially where half-circle transitions to a straight line;
   this should reduce facet-seam artifacts in the printed parts
+- improved power socket internal fit, by chamfering the interior corner of the lip;
+  this should make socket installation easier, preventing the usb-c socket from
+  getting stuck on the lip when sliding forward into position
 
 # v1.0.1
 

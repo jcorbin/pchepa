@@ -414,10 +414,22 @@ else if (mode == 92) {
 /// mode[100...] -- development aids and tests
 
 else if (mode == 100) {
-  echo(str("wall ", wall_section(), " x", wall_sections(), " sections"));
-  wall_section() {
-    show_anchors();
-    #cube($parent_size, center=true);
+  preview_cutaway(dir=RIGHT, at=-12)
+  power_module_fit_test(label="0", buddies=false, plate=false) {
+
+    right(10)
+    position(RIGHT+BOTTOM)
+      channel_plug(anchor=BOTTOM+LEFT);
+
+    attach(BACK, FRONT, overlap=-10)
+    power_module_fit_test(label="2t", socket_lip_chamfer=power_module_tolerance*2, buddies=false, plate=false);
+
+    attach(FRONT, BACK, overlap=-10)
+    power_module_fit_test(label="0.8", socket_lip_chamfer=0.8, buddies=false, plate=false);
+
+    // show_anchors();
+    // #cube($parent_size, center=true);
+
   }
 }
 
@@ -546,7 +558,14 @@ module wall_fit_test() {
   }
 }
 
-module power_module_fit_test(extra = 5, anchor = CENTER, spin = 0, orient = UP) {
+module power_module_fit_test(
+  label = "",
+  extra = 5,
+  plate = true,
+  socket_lip_chamfer = 0,
+  buddies = buddy,
+  anchor = CENTER, spin = 0, orient = UP
+) {
   left_cut = base_od - clip_size.y - (1.5 * power_module_size().x + extra);
   back_cut = base_od - power_module_size().y - power_channel_size.y - extra;
 
@@ -556,26 +575,47 @@ module power_module_fit_test(extra = 5, anchor = CENTER, spin = 0, orient = UP) 
     base_size().z
   ];
 
+  module block() {
+    if (plate) {
+      back(back_cut/2)
+      left(left_cut/2)
+      base_plate() children();
+    } else {
+      cuboid(test_size, chamfer=power_channel_chamfer, edges="Z") children();
+    }
+  }
+
   attachable(anchor, spin, orient, size = test_size) {
-    back(back_cut/2)
-    left(left_cut/2)
-    diff(remove="port cut") base_plate() {
+    diff(remove="cut label port") block() {
       tag("port")
       left(1.5*clip_size.y)
       up(power_module_size().z/2)
       fwd($eps)
       position(FRONT+RIGHT+BOTTOM)
-        base_power_port(anchor=FRONT+RIGHT+BOTTOM) {
-          %position("module") tag("buddy") power_module();
-          %position("channel") tag("buddy") channel_plug(anchor=BOTTOM);
-        }
+        base_power_port(anchor=FRONT+RIGHT+BOTTOM, lip_chamfer=socket_lip_chamfer)
+          if (buddies) {
+            %position("module") tag("buddy") power_module();
+            %position("channel") tag("buddy") channel_plug(anchor=BOTTOM);
+          }
 
-      tag("cut")
-        attach(LEFT, RIGHT, overlap=left_cut)
-        cube([left_cut + $eps, base_od + 2*$eps, test_size.z + 2*$eps]);
-      tag("cut")
-        attach(BACK, FRONT, overlap=back_cut)
-        cube([base_od + 2*$eps, back_cut + $eps, test_size.z + 2*$eps]);
+      if (plate) {
+        tag("cut")
+          attach(LEFT, RIGHT, overlap=left_cut)
+          cube([left_cut + $eps, base_od + 2*$eps, test_size.z + 2*$eps]);
+        tag("cut")
+          attach(BACK, FRONT, overlap=back_cut)
+          cube([base_od + 2*$eps, back_cut + $eps, test_size.z + 2*$eps]);
+      }
+
+      if (len(label) > 0) {
+        tag("label")
+          left(test_size.x/2)
+          back(test_size.y/2 + power_channel_size.y/4)
+          down(1.2)
+          position(TOP+FRONT+RIGHT)
+          text3d(label, h=1.2 + $eps, size=power_channel_size.y/2, anchor=BOTTOM+LEFT+FRONT);
+      }
+
     }
 
     children();
@@ -842,7 +882,19 @@ module power_module(tolerance=0, profile=false, anchor = CENTER, spin = 0, orien
 
   size = power_module_size(tolerance);
 
-  attachable(anchor, spin, orient, size = size) {
+  pcb_front_anchor = [
+    0,
+    (-pcb_size.y + power_socket_overhang)/2 + tolerance,
+    -size.z/2
+  ];
+
+  attachable(anchor, spin, orient,
+    size = size,
+    anchors = [
+      named_anchor("pcb_front_bottom", pcb_front_anchor, FRONT),
+      named_anchor("pcb_front_top", pcb_front_anchor + [0, 0, power_pcb_size.z + 2*tolerance], FRONT)
+    ]
+  ) {
 
     down(size.z/2 - tolerance)
     up(pcb_height/2)
@@ -946,7 +998,7 @@ module base(buddies = true, anchor = CENTER, spin = 0, orient = UP) {
         up(power_module_size(power_module_tolerance).z/2)
         left(1.5*clip_size.y)
           position(FRONT+RIGHT+BOTTOM)
-          base_power_port(anchor=FRONT+RIGHT+BOTTOM) {
+          base_power_port(anchor=FRONT+RIGHT+BOTTOM, lip_chamfer=2*power_module_tolerance) {
             if (buddies) {
               %position("module") tag("buddy") power_module();
               %position("channel") tag("buddy") channel_plug(anchor=BOTTOM);
@@ -964,6 +1016,7 @@ module base_power_port(
   channel_h = base_size().z,
   tolerance = power_module_tolerance,
   gap = power_channel_backset,
+  lip_chamfer = 0,
   anchor = CENTER, spin = 0, orient = UP
 ) {
   mod_size = power_module_size(tolerance);
@@ -1004,6 +1057,15 @@ module base_power_port(
 
     translate(mod_offset)
     power_module(profile=true, tolerance=tolerance) {
+
+      // front lip back-chamfer
+      if (lip_chamfer > $eps) {
+        lcw = power_socket_size.x + 2*tolerance;
+        lcs = sqrt(2) * lip_chamfer;
+        back(sqrt(2) * lcs/2)
+        attach("pcb_front_top", BACK+TOP)
+          cube([lcw, lcs, lcs], center=true);
+      }
 
       // channel -- vertical shaft, plug goes here
       back(gap)
