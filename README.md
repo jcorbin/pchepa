@@ -41,15 +41,18 @@ if needed (likely only makes sense if larger filter are also used).
 A good choice would be something like Noctua NF-P12 fans because:
 - high static pressure fans like these should be better than airflow optimized fans for this application
 - low noise rating should mean that most of the sound created will be by air passing through the filter itself, with little added fan noise
-- no unnecessary RGB lighting ; while this point is mostly an aesthetic choice, it also minimizes power waste for a portable battery driven use case
+- no unnecessary RGB lighting ; while this point is mostly an aesthetic choice, it also minimizes power waste when running on battery
 
 An easy way to control/drive the fans is by using a commodity PWM fan controller, like the Noctua FC1.
 This plus a splitter cable and 12v power source suffice to get things spinning.
 The design could be adapted to support a DC barrel jack instead of USB-C if desired.
-If RGB lighting is desired, a different controller may be desired to get out of default-rainbow mode.
+
+Optionally a thicker base plate that integrate a battery bank can be used for portable power.
 
 Eventually this project would like to support more involved control boards,
 such as an Arduino with additionally added air quality sensor and display.
+
+![Duo Render](duo/render.png)
 
 ## Setup
 

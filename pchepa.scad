@@ -498,14 +498,19 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
     up((under - over)/2)
     zrot(i * 180)
     hepa_filter() {
+
+      recolor("#22c6b4")
       attach(TOP, BOTTOM, overlap=filter_recess) cover() {
         %attach(TOP, BOTTOM) pc_fan();
         right((base_od - grill_size().y)/4)
           attach(TOP, BOTTOM) grill();
       }
+
+      recolor("#545651")
       attach(BOTTOM, TOP, overlap=filter_recess)
         zrot(i * 180)
         base(buddies=i == 0, $idx=i);
+
     }
 
     children();
@@ -780,7 +785,7 @@ module pc_fan(anchor = CENTER, spin = 0, orient = UP) {
 
 module hepa_filter(anchor = CENTER, spin = 0, orient = UP) {
   attachable(anchor, spin, orient, d = filter_od, h = filter_height) {
-    recolor("#aaaaaa88") tube(
+    recolor("#aaaaaa") tube(
       h=filter_height - 2*filter_lip_size[1] + 2*$eps,
       od=filter_od - 2*filter_lip_size[0],
       id=filter_id + 2*filter_lip_size[0]) {
