@@ -78,8 +78,6 @@ The flexible mesh wall section should instead be printed with:
 - sparse infill: 60% tri-hexagon
 - infill direction: 90°
 
-The usb channel plug (U shaped tower in the parts collection) probably needs to be printed with a brim.
-
 ### Fit Testing
 
 There are several cut-down fit test models that can be used to verify assembly fitment.
