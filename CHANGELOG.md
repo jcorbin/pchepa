@@ -2,7 +2,7 @@
 
 - not yet happy with the mesh wall integrity under bend/strain, experimenting with different joinery for next
 
-# v1.0.x
+# v1.0.2
 
 - improved duo plate geometry, especially where half-circle transitions to a straight line;
   this should reduce facet-seam artifacts in the printed parts
@@ -28,11 +28,10 @@
 
 # Dev Status and TODOs
 
-- [rc] moderate code improvements, and fixed plate curve discontinuity
 - [testing] easier access to remove filter cover plate / mesh wall
-- [testing] thicker / stronger / better mesh wall section joints
-- [dev] support integrating a USB power bank into a thicker base plate
-- [ ] TODO a carrying handle part, should strap attachment, or other option integrated with the cover or grill top
+- [testing] support integrating a USB power bank into a thicker base plate
+- [dev] thicker / stronger / better mesh wall section joints
+- [ ] TODO a carrying handle part, shoulder strap attachment, or other option integrated with the cover or grill top
 - [ ] TODO support for simpler/cheaper pwm control modules
 - [ ] TODO inter-filter structure for duo to support additional electronics inside the mesh wall
 - [ ] TODO complete and build a single filter variant
