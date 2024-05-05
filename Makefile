@@ -15,3 +15,9 @@ BOSL2/std.scad:
 $(MODELS): $(SCAD)
 	test -d $(dir $@) || mkdir -p $(dir $@)
 	openscad $< $(shell grep '//@make ' $< | grep -- ' -o $@' | sed -r -e 's/^\/\/@make //')
+
+regen:
+	$(MAKE) clean
+	$(MAKE) all
+	git add $(MODELS)
+	git commit -m 'Regenerate models'
