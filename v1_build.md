@@ -179,6 +179,11 @@ NOTE: while this particular battery bank markets itself as 10000mAh, its packagi
 only a 5500mAh rating; however my testing of it has only gotten about 2600mAh out from a full charge
 cycle. Fortunately that's still enough to run a duo pchepa for a bit over 10 hours at full tilt.
 
+## v1.1 Shoulder Strap Option
+
+TODO grill box variant grams
+TODO strap product link
+
 [amaz_12_pd_trigger]: https://www.amazon.com/gp/product/B0953G14Q2
 [amaz_jst_zh_kit]: https://www.amazon.com/gp/product/B0C6WY7DZM
 [amaz_m3_bolts]: https://www.amazon.com/gp/product/B01C3KUMSY
