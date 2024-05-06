@@ -9,6 +9,7 @@
 
 - added power bank cavity and access tunnel inside of a thicker base plate variant
   - power port location shift as far left as possible; corner of power channel now comes close to base filter retention ring
+- added optional grill box ears with anchor holes for a shoulder strap
 
 # v1.0.5
 
