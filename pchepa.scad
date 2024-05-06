@@ -33,6 +33,7 @@ build_plate_size = [250, 250];
 //@make -o duo/cover_a.stl -D mode=20 -D filter_count=2
 //@make -o duo/cover_b.stl -D mode=21 -D filter_count=2
 
+//@make -o duo/grill_box_basic.stl -D mode=30 -D filter_count=2 -D grill_ear=[0,0]
 //@make -o duo/grill_box_a.stl -D mode=30 -D filter_count=2
 //@make -o duo/grill_box_b.stl -D mode=31 -D filter_count=2
 
@@ -44,13 +45,14 @@ build_plate_size = [250, 250];
 //@make -o test/joiner_clip.stl -D mode=104
 //@make -o test/power_bank_a.stl -D mode=105 -D base_embed_power_bank=true
 //@make -o test/power_bank_b.stl -D mode=106 -D base_embed_power_bank=true
+//@make -o test/grill_ear.stl -D mode=107
 
 //@make -o parts/clip.stl -D mode=90
 //@make -o parts/base_channel_plug.stl -D mode=91
 //@make -o parts/base_bank_channel_plug.stl -D mode=91 -D base_embed_power_bank=true
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Base Label Dev, 106:Base Join Test A, 107:Base Join Test B]
+mode = 0; // [0:Full Assembly, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Base Label Dev, 106:Base Join Test A, 107:Base Join Test B, 108:Grill Ear Test]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -155,6 +157,9 @@ grill_thickness = 3;
 
 // Corner and edge chamfering of the grill box.
 grill_chamfer = 5;
+
+// Optional side anchor/handle ear on the fan grill gox; diameter/height vector, set either to 0 to disable.
+grill_ear = [15, 4];
 
 // Grill perforation hole size.
 grill_hole_size = 4;
@@ -543,6 +548,17 @@ else if (mode == 106 || mode == 107) {
   preview_cutaway(dir=BOTTOM)
   front_half(s=base_od*2.1, y=power_bank_size.y/2 + pad)
     base(buddies=buddy);
+}
+
+else if (mode == 108) {
+  sz = grill_size();
+  y_cut = sz.y/4;
+  left_cut = -sz.x/2 + grill_thickness;
+  yrot($preview ? 0 : 180)
+  back_half(y=-y_cut, s=2.1*base_od)
+  front_half(y=y_cut, s=2.1*base_od)
+  left(left_cut) left_half(x=left_cut, s=2.1*base_od)
+    grill();
 }
 
 /// implementation
@@ -1826,6 +1842,12 @@ module grill(
   ) {
     plate_mirror_idx(grill_i)
     grill_block(size=size, remove="screw hollow vent window") {
+
+      if (grill_ear.x * grill_ear.y > 0) {
+        position(TOP + LEFT)
+        cyl(d=grill_ear.x, h=grill_ear.y, anchor=TOP+RIGHT) {
+        }
+      }
 
       tag("hollow")
         right(extra ? grill_thickness + $eps : 0)
