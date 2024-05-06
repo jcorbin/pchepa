@@ -161,6 +161,9 @@ grill_chamfer = 5;
 // Optional side anchor/handle ear on the fan grill gox; diameter/height vector, set either to 0 to disable.
 grill_ear = [15, 4];
 
+// Optional hole in any side anchor ear for a carrying strap attachment; set to 0 to disable.
+grill_ear_hole = 10;
+
 // Grill perforation hole size.
 grill_hole_size = 4;
 
@@ -1841,11 +1844,22 @@ module grill(
     ]
   ) {
     plate_mirror_idx(grill_i)
-    grill_block(size=size, remove="screw hollow vent window") {
+    grill_block(size=size, remove="screw hollow vent anchor window") {
 
       if (grill_ear.x * grill_ear.y > 0) {
         position(TOP + LEFT)
         cyl(d=grill_ear.x, h=grill_ear.y, anchor=TOP+RIGHT) {
+          if (grill_ear_hole > 0) {
+            cr = (grill_ear.x - grill_ear_hole)/2;
+            tag("anchor") {
+              right((grill_ear.x - grill_ear_hole) - cr)
+              attach(TOP, BOTTOM, overlap=grill_ear.y + $eps)
+                cyl(d=grill_ear_hole, h=grill_ear.y + 2*$eps);
+              left(cr)
+              attach(BOTTOM, TOP)
+                cuboid(size=[2*grill_ear_hole, grill_ear_hole, size.z], chamfer=cr, edges="Z");
+            }
+          }
         }
       }
 
