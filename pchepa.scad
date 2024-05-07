@@ -31,13 +31,14 @@ build_plate_size = [250, 250];
 
 //@make -o duo/base_a.stl -D mode=10 -D filter_count=2
 //@make -o duo/base_b.stl -D mode=11 -D filter_count=2
+
 //@make -o duo/base_bank_a.stl -D mode=10 -D filter_count=2 -D base_embed_power_bank=true
 //@make -o duo/base_bank_b.stl -D mode=11 -D filter_count=2 -D base_embed_power_bank=true
 
 //@make -o duo/cover_a.stl -D mode=20 -D filter_count=2
 //@make -o duo/cover_b.stl -D mode=21 -D filter_count=2
 
-//@make -o duo/grill_box_basic.stl -D mode=30 -D filter_count=2 -D grill_ear=[0,0]
+//@make -o duo/grill_box_basic.stl -D mode=30 -D filter_count=2 -D grill_ear=[0,0] -D grill_window=[24,46] -D pwm_ctl_pcb_size=[0,0,0]
 //@make -o duo/grill_box_a.stl -D mode=30 -D filter_count=2
 //@make -o duo/grill_box_b.stl -D mode=31 -D filter_count=2
 
@@ -49,13 +50,15 @@ build_plate_size = [250, 250];
 //@make -o test/joiner_clip.stl -D mode=104
 //@make -o test/power_bank_tunnel.stl -D mode=105 -D base_embed_power_bank=true
 //@make -o test/grill_ear.stl -D mode=107
+//@make -o test/pwm_ctl_mount.stl -D mode=108
 
 //@make -o parts/clip.stl -D mode=90
 //@make -o parts/base_channel_plug.stl -D mode=91
 //@make -o parts/base_bank_channel_plug.stl -D mode=91 -D base_embed_power_bank=true
+//@make -o parts/pwm_knob.stl -D mode=93
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 106:Power Bank, 107:Grill Ear Test]
+mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 93:PWM Knob, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 106:Power Bank, 107:Grill Ear Test, 108:PWM Controller Test]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -194,8 +197,8 @@ grill_screw_head = "flat";
 // Preview screw head drive type.
 grill_screw_drive = "hex";
 
-// Cutout window size in the extra space area of the grill box between filters; used to allow access to the control module. Set either dimension to 0 to disable.
-grill_window = [ 24, 46 ];
+// Cutout window size in the extra space area of the grill box between filters. Set either dimension to 0 to disable.
+grill_window = [ 0, 0 ];
 
 /* [Filter Cover Parameters] */
 
@@ -218,7 +221,7 @@ cover_clips = 4;
 cover_heatset_hole = [4.4, 5.3];
 
 // Size of wiring pass through hole(s) in the cover plate; set either dimension to zero to disable.
-cover_port = [20, 20];
+cover_port = [40, 20];
 
 // Access notch cutout on the underside of cover, aides mesh wall and filter removal; will be positioned on the bottom surface of cover, centered at the aapex of filter od.
 cover_notch = [20, 20, 20];
@@ -364,6 +367,24 @@ power_bank_sockets = [
   ]
 
 ];
+
+/* [PWM Controller] */
+
+pwm_ctl_tolerance = 0.2;
+
+pwm_ctl_inset = 10;
+
+pwm_ctl_pcb_size = [20, 26, 1.2];
+
+pwm_ctl_pot_size = [9.6, 12.2, 11.5];
+
+pwm_ctl_pot_shaft = [6.8, 15];
+
+pwm_ctl_pot_key = [2, 1, 0.9];
+
+pwm_ctl_pot_offset = 0.6;
+
+pwm_ctl_led_win = [4, 1, 1];
 
 /* [Geometry Detail] */
 
@@ -521,6 +542,8 @@ else if (mode >= 20 && mode < 30) {
             drive = grill_screw_drive,
             thread = false, length = screw_length);
 
+        grill_controller(cover_i);
+
       }
     }
   }
@@ -556,33 +579,17 @@ else if (mode == 92) {
   wall_section();
 }
 
+else if (mode == 93) {
+  pwm_pot_knob();
+}
+
 /// mode[100...] -- development aids and tests
 
 else if (mode == 100) {
-  left_half(s=200)
-  diff(keep="support")
-  cube([power_bank_size.x + 20, 110, power_bank_size.z + 40], center=true) {
-
-    tag("remove")
-      attach(FRONT, BOTTOM, overlap=100)
-      base_power_bank_tunnel(100 + $eps, inset=3, chamfer=4) {
-
-        ts = [power_bank_size.x, 100, power_bank_size.z] - [2*3, 4, 2*3];
-        sw = ts.x/2 - 4;
-
-        left(sw/2)
-        attach(BOTTOM, BACK, overlap=ts.y)
-          support_walls([ sw, ts.y, ts.z ], gap = [
-            [0, support_gap],
-            [support_every/2, 0],
-            support_gap,
-          ]);
-
-      }
-
+  pwm_controller()
+  {
     // show_anchors();
     // #cube($parent_size, center=true);
-
   }
 }
 
@@ -655,6 +662,20 @@ else if (mode == 107) {
   front_half(y=y_cut, s=2.1*base_od)
   left(left_cut) left_half(x=left_cut, s=2.1*base_od)
     grill();
+}
+
+else if (mode == 108) {
+  w = pwm_ctl_pcb_size.x + 2*pwm_ctl_inset;
+  l = pwm_ctl_pcb_size.y + grill_thickness +  pwm_ctl_inset;
+  x_cut = grill_size().x/2 - w;
+  y_cut = grill_size().y/2 - l;
+
+  yrot($preview ? 0 : 180)
+  left(w/2) left(x_cut)
+  back(l/2) back(y_cut)
+  right_half(s=2.1*base_od, x=x_cut)
+  front_half(s=2.1*base_od, y=-y_cut)
+    grill($idx = 0);
 }
 
 /// implementation
@@ -793,6 +814,8 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
           down(explode/2)
           %attach("vent_interior", TOP) recolor(fan_color) pc_fan();
 
+          %grill_controller(i);
+
         }
       }
 
@@ -818,6 +841,188 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
           }
 
         }
+
+    }
+
+    children();
+  }
+}
+
+module pwm_pot_knob(
+  h = 18,
+  base_d = 15, base_h = 5,   // exterior base size
+  nut_d = 13, nut_h = 6,     // clearance to spin around the mounting nut/washer
+  shaft_d = 6, shaft_fn = 8, // exterior knob/shaft; fn is polygon arity
+  point_size = [0.8, 3],     // indicator point oriented towards back face
+  chamfer = 1,               // tip edge and transition from base to knob
+  tolerance = 0.1,
+  anchor = CENTER, spin = 0, orient = UP
+) {
+  shaft_h = h - 2;
+  trans_d = base_d - 2*chamfer;
+  trans_h = chamfer;
+  tap_d = trans_d - trans_h;
+  tip_d = tap_d - 2*chamfer;
+
+  attachable(anchor, spin, orient, d=base_d, h=h) {
+    down(h/2)
+    render()
+    difference() {
+      conv_hull()
+      cyl(d=base_d, h=base_h, chamfer2=chamfer, anchor=BOTTOM) {
+        down(chamfer/2)
+        attach(BACK, BACK, overlap=2)
+          cube([point_size.x, point_size.y, base_h - chamfer]);
+        attach(TOP, BOTTOM, overlap=$eps)
+          cyl(d1=trans_d, d2=tap_d, h=trans_h + $eps, $fn=shaft_fn) {
+          tag("keep")
+          attach(TOP, BOTTOM, overlap=$eps)
+            cyl(d1=tap_d, d2=tip_d, h=h - trans_h - base_h + $eps, chamfer2=chamfer, $fn=shaft_fn - 1);
+        }
+      }
+      down($eps) cyl(
+        d1=nut_d + 2*tolerance,
+        d2=shaft_d + 2*tolerance,
+        h=nut_h + 2*$eps,
+        anchor=BOTTOM)
+        attach(TOP, BOTTOM, overlap=$eps) cyl(
+          d=shaft_d + 2*tolerance,
+          h=shaft_h - nut_h + $eps);
+    }
+
+    children();
+  }
+}
+
+module pwm_controller(
+  anchor = CENTER, spin = 0, orient = UP,
+  tolerance = 0, cut = 0
+) {
+  // TODO as measured from FIXME product ; parameterize?
+
+  vtol = scalar_vec3(tolerance);
+
+  under_clearance = 1.6;
+  pcb_size = pwm_ctl_pcb_size + [2*tolerance, 2*tolerance, 0];
+
+  pot_size = pwm_ctl_pot_size + 2*vtol;
+  pot_shaft = pwm_ctl_pot_shaft + [2*tolerance, tolerance];
+  pot_key_size = pwm_ctl_pot_key + 2*vtol;
+
+  // TODO egress wires are the most likely thing to be quite different on another product?
+  wire_d = 1.2;
+  lead_l = 10;
+  wire_bundle_pitch = 2.1;
+  wire_bundle_width = 3*wire_d + 2*wire_bundle_pitch;
+
+  // TODO as measured; validate against spec?
+  fan_header_base_size = [5.7, 10.2, 3.2] + 2*vtol;
+  fan_pin_size = [0.6, 7.5];
+  fan_pin_pitch = 2.8;
+  fan_key_tab_offset = 1.1;
+  fan_key_tab_size = [0.8, 5, 7.5];
+
+  size = pcb_size
+       + [0, pot_shaft.y, pot_size.z]
+       + [0, 0, under_clearance];
+
+  loc_shaft_tip = [
+    size.x/2 - pot_size.x/2 - pwm_ctl_pot_offset,
+    -size.y/2,
+    -size.z/2 + under_clearance + pcb_size.z + pot_size.z/2
+  ];
+
+  attachable(
+    anchor, spin, orient,
+    size=size,
+    anchors=[
+      named_anchor("pot_shaft_tip", loc_shaft_tip, FRONT),
+      named_anchor("pot_shaft_base", loc_shaft_tip + [0, pot_shaft.y, 0], FRONT),
+      named_anchor("pot_key", [
+        size.x/2 - pot_size.x/2 - pwm_ctl_pot_offset,
+        -size.y/2 + pot_shaft.y,
+        -size.z/2 + under_clearance + pcb_size.z + pot_key_size.z/2
+      ], FRONT),
+      named_anchor("wire_exit", [
+        size.x/2 - wire_bundle_width/2,
+        size.y/2,
+        -size.z/2 + under_clearance/2
+      ], BACK),
+      named_anchor("fan_header", [
+        -size.x/2 + fan_header_base_size.x/2,
+        size.y/2 - fan_header_base_size.y/2,
+        -size.z/2 + under_clearance + pcb_size.z + fan_header_base_size.z
+      ], UP)
+    ]
+  ) {
+
+    recolor("blue")
+    back(pot_shaft.y/2)
+    down(pot_size.z/2)
+    up(under_clearance/2)
+      cube(pcb_size, center=true) {
+
+      // TODO likely need to parameterize pot-attach-from
+
+      recolor("green")
+      left(pwm_ctl_pot_offset)
+      position(FRONT+TOP+RIGHT)
+        cube(pot_size, anchor=BOTTOM+RIGHT+FRONT) {
+
+          recolor("red")
+          back($eps)
+          down(2*tolerance) // bodge
+          position(FRONT+BOTTOM)
+            cube(pot_key_size + [0, $eps, 0], anchor=BACK+BOTTOM);
+
+          attach(FRONT, BOTTOM, overlap=$eps)
+            recolor("silver")
+            cyl(d=pot_shaft.x, h=pot_shaft.y + $eps);
+
+          if (pwm_ctl_led_win.x*pwm_ctl_led_win.y*pwm_ctl_led_win.z > 0) {
+            led_win_size = pwm_ctl_led_win + 2*vtol;
+            recolor("orange")
+            back($eps)
+            position(FRONT+BOTTOM+LEFT)
+              cube(size=led_win_size + [0, cut + 2*$eps, 0], anchor=BACK+BOTTOM+RIGHT);
+          }
+
+        }
+
+      // 4-pin fan header with key tab
+      recolor("white")
+        position(TOP+LEFT+BACK)
+        cube(
+          fan_header_base_size
+          + (tolerance == 0 ? [0, 0, 0] : [0, 0, fan_pin_size.y + tolerance]),
+          anchor=BOTTOM+LEFT+BACK)
+          if (tolerance == 0) {
+            recolor("silver")
+            position(TOP)
+              ycopies(n=4, spacing=fan_pin_pitch)
+              cyl(d=fan_pin_size.x, h=fan_pin_size.y, anchor=BOTTOM);
+            fwd(fan_key_tab_offset)
+            position(TOP+LEFT+BACK)
+              cuboid(
+                size=fan_key_tab_size,
+                anchor=BOTTOM+LEFT+BACK,
+                rounding=1,
+                edges=[
+                  [0, 0, 1, 1], // yz -- +- -+ ++
+                  [0, 0, 0, 0], // xz
+                  [0, 0, 0, 0], // xy
+                ]);
+          }
+
+      if (tolerance == 0) {
+        back(lead_l/4)
+        down(wire_d/2)
+        left(wire_bundle_width/2)
+        position(BOTTOM+BACK+RIGHT)
+          xcopies(n=3, spacing=wire_bundle_pitch)
+            recolor(["yellow", "red", "purple"][$idx])
+            %cyl(d=wire_d, h=lead_l, anchor=FRONT+BACK, orient=BACK);
+      }
 
     }
 
@@ -2126,6 +2331,18 @@ module grill_block(
     ]) children();
 }
 
+module grill_controller(i = 0) {
+  if (i == 0 && pwm_ctl_pcb_size.x*pwm_ctl_pcb_size.y*pwm_ctl_pcb_size.z > 0) {
+    back(explode/2)
+    attach("pwm_pot_hole_interior", "pot_shaft_base", overlap=-$eps)
+      pwm_controller();
+
+    fwd(explode/2)
+    attach("pwm_pot_hole_exterior", BOTTOM, overlap=-0.5)
+      recolor(grill_color) pwm_pot_knob();
+  }
+}
+
 module grill(
   chamfer = grill_chamfer,
   anchor = CENTER, spin = 0, orient = UP
@@ -2142,6 +2359,13 @@ module grill(
 
   screw_hole_tops = grid_copies(p = vent_loc, spacing = fan_screw_spacing, n = [ 2, 2 ]);
 
+  has_pwm = grill_i == 0 && pwm_ctl_pcb_size.x*pwm_ctl_pcb_size.y*pwm_ctl_pcb_size.z > 0;
+
+  pwm_pot_shaft = [size.x/2, -size.y/2, 0]
+    + LEFT*pwm_ctl_inset
+    + LEFT*pwm_ctl_pcb_size.x
+    + RIGHT*(pwm_ctl_pot_size.x/2 + pwm_ctl_pot_offset);
+
   attachable(
     anchor, spin, orient,
     size = size,
@@ -2152,11 +2376,16 @@ module grill(
       each([
         for (i = idx(screw_hole_tops))
         named_anchor(str("screw_hole_", i), screw_hole_tops[i], UP)]),
+      each(has_pwm ? [
+        named_anchor("pwm_pot_hole", pwm_pot_shaft, FRONT),
+        named_anchor("pwm_pot_hole_interior", pwm_pot_shaft + BACK*grill_thickness, BACK),
+        named_anchor("pwm_pot_hole_exterior", pwm_pot_shaft, FRONT)
+      ] : [])
     ]
   ) {
     plate_mirror_idx(grill_i)
     render()
-    grill_block(size=size, remove="screw hollow vent anchor window") {
+    grill_block(size=size, remove="screw hollow vent anchor window pwm_ctl") {
 
       if (grill_ear.x * grill_ear.y > 0) {
         position(TOP + LEFT)
@@ -2222,6 +2451,18 @@ module grill(
           attach(TOP + RIGHT, TOP + LEFT)
           xrot(90)
             cuboid(window_size + [0, 0, $eps], chamfer=2 * grill_thickness);
+      }
+
+      if (has_pwm) {
+        position(RIGHT+FRONT)
+        left(pwm_ctl_inset)
+        left(pwm_ctl_pcb_size.x)
+        right(pwm_ctl_pot_size.x/2 + pwm_ctl_pot_offset)
+        back(grill_thickness) {
+          back($eps)
+          tag("pwm_ctl")
+            pwm_controller(anchor="pot_shaft_base", orient=DOWN, tolerance=pwm_ctl_tolerance, cut=grill_thickness);
+        }
       }
 
     }
