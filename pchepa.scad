@@ -27,13 +27,14 @@ build_plate_size = [250, 250];
 
 //@make -o duo/base_a.stl -D mode=10 -D filter_count=2
 //@make -o duo/base_b.stl -D mode=11 -D filter_count=2
+
 //@make -o duo/base_bank_a.stl -D mode=10 -D filter_count=2 -D base_embed_power_bank=true
 //@make -o duo/base_bank_b.stl -D mode=11 -D filter_count=2 -D base_embed_power_bank=true
 
 //@make -o duo/cover_a.stl -D mode=20 -D filter_count=2
 //@make -o duo/cover_b.stl -D mode=21 -D filter_count=2
 
-//@make -o duo/grill_box_basic.stl -D mode=30 -D filter_count=2 -D grill_ear=[0,0]
+//@make -o duo/grill_box_basic.stl -D mode=30 -D filter_count=2 -D grill_ear=[0,0] -D grill_window=[24,46]
 //@make -o duo/grill_box_a.stl -D mode=30 -D filter_count=2
 //@make -o duo/grill_box_b.stl -D mode=31 -D filter_count=2
 
@@ -179,8 +180,8 @@ grill_screw = "M3";
 // Head type for the grill box mounting screw, default is flush/countersunk heads.
 grill_screw_head = "flat";
 
-// Cutout window size in the extra space area of the grill box between filters; used to allow access to the control module. Set either dimension to 0 to disable.
-grill_window = [ 24, 46 ];
+// Cutout window size in the extra space area of the grill box between filters. Set either dimension to 0 to disable.
+grill_window = [ 0, 0 ];
 
 /* [Filter Cover Parameters] */
 
