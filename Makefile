@@ -21,3 +21,12 @@ regen:
 	$(MAKE) all
 	git add $(MODELS)
 	git commit -m 'Regenerate models'
+
+GOBIN ?= $(shell go env GOPATH)/bin
+QRCODE=$(GOBIN)/qrcode
+
+$(QRCODE):
+	go install github.com/skip2/go-qrcode/qrcode@latest
+
+%.qr.png: %.link $(QRCODE)
+	$(QRCODE) -d '$(shell head -n1 $<)' >$@
