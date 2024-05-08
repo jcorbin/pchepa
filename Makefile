@@ -7,7 +7,7 @@ all: $(MODELS)
 clean:
 	rm -f $(MODELS)
 
-$(SCAD): BOSL2/std.scad
+$(SCAD): init
 
 BOSL2/std.scad:
 	git submodule update --init
@@ -30,3 +30,6 @@ $(QRCODE):
 
 %.qr.png: %.link $(QRCODE)
 	$(QRCODE) -d '$(shell head -n1 $<)' >$@
+
+init: BOSL2/std.scad
+	git config filter.git_scad_vars.smudge >/dev/null || git config --local include.path ../.gitconfig

@@ -1,0 +1,3 @@
+[filter "git_scad_vars"]
+  clean = ./git_scad_vars.sh clean
+  smudge = ./git_scad_vars.sh smudge
