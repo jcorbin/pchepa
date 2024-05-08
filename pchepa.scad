@@ -103,6 +103,9 @@ $support_preview = false;
 
 /* [Wraparound Wall Metrics] */
 
+// Mesh wrap wall preview color.
+wrapwall_color = "#545651";
+
 // Thickness of the mesh wrap wall, radially away from filter center; set to zero to disable mesh wall.
 wrapwall_thickness = 1.6;
 
@@ -679,7 +682,13 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
 
       recolor(base_color)
       attach(BOTTOM, TOP, overlap=filter_recess)
-        base(buddies=i == 0, $idx=i);
+        base(buddies=i == 0, $idx=i) {
+          position(TOP+(i % 2 == 0 ? RIGHT : LEFT))
+          down(wrapwall_slot_depth)
+          zrot(i % 2 == 0 ? 0 : 180)
+          recolor(wrapwall_color)
+            wallmock(filter_height - 2*filter_recess + 2*wrapwall_slot_depth, anchor=RIGHT+BOTTOM);
+        }
 
     }
 
@@ -1883,6 +1892,31 @@ module base_power_port(
 
     children();
   }
+}
+
+module wallmock(h, anchor = CENTER, spin = 0, orient = UP) {
+  slot_t = (slot_od - slot_id)/2;
+  r = (slot_od - slot_t)/2;
+  r1 = r + wrapwall_thickness/2;
+  r2 = r - wrapwall_thickness/2;
+
+  extra = (base_od - slot_od)/2;
+  path = turtle([
+    "left", 180,
+    "move", r1 + extra,
+    "arcright", r1, 180,
+    "move", r1 + extra,
+
+    "right", 90, "move", wrapwall_thickness,
+    "right", 90,
+    "move", r2 + wrapwall_thickness + extra,
+    "arcleft", r2, 180,
+    "move", r2 + wrapwall_thickness + extra,
+    "right", 90, "move", wrapwall_thickness,
+  ], state=[r1 + extra/2, -r1]);
+
+  linear_sweep(path, h, anchor=anchor, spin=spin, orient=orient)
+    children();
 }
 
 module wallslot(h=undef, anchor = CENTER, spin = 0, orient = UP) {
