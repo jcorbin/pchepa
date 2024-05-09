@@ -45,7 +45,7 @@ build_plate_size = [250, 250];
 
 //@make -o parts/duo_kit.stl -D mode=1 -D filter_count=2
 //@make -o parts/clip.stl -D mode=90
-//@make -o parts/power_channel_plug.stl -D mode=91
+//@make -o parts/base_channel_plug.stl -D mode=91
 
 // Which part to model: base / cover / grill / wall / etc...
 mode = 0; // [0:Full Assembly, 1:Small Part Kit, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test]
