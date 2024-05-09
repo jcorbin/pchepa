@@ -1113,8 +1113,9 @@ module base(
   pms = power_module_size(power_module_tolerance);
   filter_r = filter_od/2 + filter_tolerance;
 
-  // inset just behind clip socket row
-  power_port_offset = 1.5*clip_size.y;
+  // placed just outside of the filter recess circle
+  ytangent = filter_r - power_channel_size.y - 3*wrapwall_thickness;
+  power_port_offset = sqrt(filter_r^2 - ytangent^2);
 
   attachable(
     anchor, spin, orient,
@@ -1130,9 +1131,9 @@ module base(
       if (base_i == 0) {
         tag("port")
         up(pms.z/2)
-        left(power_port_offset)
-        position(FRONT+RIGHT+BOTTOM)
-          base_power_port(anchor=FRONT+RIGHT+BOTTOM, lip_chamfer=2*power_module_tolerance) {
+        right(power_port_offset)
+        position(FRONT+BOTTOM)
+          base_power_port(anchor=FRONT+BOTTOM, lip_chamfer=2*power_module_tolerance) {
             if (buddies) {
               %position("module") tag("buddy") power_module();
               %position("channel") tag("buddy") channel_plug(anchor=BOTTOM);
