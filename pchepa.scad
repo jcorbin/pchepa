@@ -27,11 +27,15 @@ build_plate_size = [250, 250];
 
 //@make -o duo/render.png --colorscheme='Tomorrow Night' --camera=-2.56,-4.16,-8.15,55.00,0.00,25.00,1151.54 -D mode=0 -D filter_count=2
 
-//@make -o duo/base.stl -D mode=10 -D filter_count=2 -D base_with_power_port=false
-//@make -o duo/base_with_usbc_port.stl -D mode=10 -D filter_count=2 -D base_with_power_port=true
+//@make -o duo/base_a.stl -D mode=10 -D filter_count=2
+//@make -o duo/base_b.stl -D mode=11 -D filter_count=2
 
-//@make -o duo/cover.stl -D mode=20 -D filter_count=2
-//@make -o duo/grill_box.stl -D mode=30 -D filter_count=2
+//@make -o duo/cover_a.stl -D mode=20 -D filter_count=2
+//@make -o duo/cover_b.stl -D mode=21 -D filter_count=2
+
+//@make -o duo/grill_box_a.stl -D mode=30 -D filter_count=2
+//@make -o duo/grill_box_b.stl -D mode=31 -D filter_count=2
+
 //@make -o duo/wall_section.stl -D mode=92 -D filter_count=2
 
 //@make -o test/power_module.stl -D mode=101 -D filter_count=2
@@ -44,7 +48,7 @@ build_plate_size = [250, 250];
 //@make -o parts/power_channel_plug.stl -D mode=91
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Small Part Kit, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate, 30:Fan Grill Box, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test]
+mode = 0; // [0:Full Assembly, 1:Small Part Kit, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -196,9 +200,6 @@ base_overhang = 10;
 // How many joiner clips to use in the base plate.
 base_clips = 4;
 
-// Enable a cut out and insertion/wire channel in the base plate for a USB-C power module.
-base_with_power_port = true;
-
 /* [Joiner Clip Parameters] */
 
 // Size of the joiner BOSL2 rabbit clips used to join base and cover plate pairs: [width, length, depth]
@@ -316,7 +317,7 @@ if (mode == 0) {
 else if (mode == 1) {
   build_plate() {
 
-    if (filter_count == 2 && base_with_power_port) {
+    if (filter_count == 2) {
       power_channel_plug_size = channel_plug_size();
       xdistribute(sizes=[
         2*clip_size.y + 1,
@@ -386,9 +387,10 @@ else if (mode >= 10 && mode < 20) {
 
 /// mode[20-29] -- tops (i.e. filter/fan integration cover)
 
-else if (mode == 20) {
+else if (mode >= 20 && mode < 30) {
+  cover_i = mode - 20;
   preview_cutaway(r=[0, 0, 22.5])
-  cover(orient=$preview ? UP : DOWN) {
+  cover($idx = cover_i, orient = $preview ? UP : DOWN) {
     %if (buddy) {
       attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
       attach(TOP, BOTTOM) pc_fan();
@@ -408,13 +410,15 @@ else if (mode == 20) {
 
 /// mode[30-39] -- fan grills
 
-else if (mode == 30) {
+else if (mode >= 30 && mode < 40) {
+  grill_i = mode - 30;
   preview_cutaway(dir=FRONT)
-  grill(orient=$preview ? UP : DOWN) {
+  grill($idx = grill_i, orient=$preview ? UP : DOWN) {
     if (buddy) {
+      plate_mirror_idx(grill_i)
       left(filter_count == 1 ? 0 : (base_od - grill_size().y)/4) {
         %attach(BOTTOM, TOP, overlap=fan_size.z) pc_fan();
-        %attach(BOTTOM, TOP) render() cover();
+        %attach(BOTTOM, TOP) render() cover($idx = grill_i);
       }
     }
   }
@@ -536,8 +540,7 @@ module preview_cut(v=UP, s=max(build_plate_size), t=0) {
 }
 
 module assembly(anchor = CENTER, spin = 0, orient = UP) {
-  // TODO should cover and/or grill also be built $idx-mirrored?
-  i = $idx;
+  i = default($idx, 0);
 
   b = base_size();
   g = grill_size();
@@ -547,12 +550,11 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
 
   attachable(anchor, spin, orient, size=[b.x, b.y, h]) {
     up((under - over)/2)
-    zrot(i * 180)
     hepa_filter() {
 
       attach(TOP, BOTTOM, overlap=filter_recess)
-        recolor("#22c6b4") cover() {
-          attach(TOP, "vent_bottom") grill()
+        recolor("#22c6b4") cover($idx=i) {
+          attach(TOP, "vent_bottom") grill($idx=i)
           recolor(undef) {
             %attach("vent_interior", TOP) pc_fan();
           }
@@ -560,7 +562,6 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
 
       recolor("#545651")
       attach(BOTTOM, TOP, overlap=filter_recess)
-        zrot(i * 180)
         base(buddies=i == 0, $idx=i);
 
     }
@@ -579,7 +580,7 @@ module cover_hole_test(anchor = CENTER, spin = 0, orient = UP) {
     right((cover_od + cover_extra)/4)
     back_half(s=base_od*2.1)
     left_half(s=base_od*2.1)
-      cover();
+      cover($idx=0);
 
     children();
   }
@@ -604,7 +605,7 @@ module wall_fit_test() {
   ]) {
     back(cover_size/2)
     back(cover_cut)
-      front_half(s=cut_size, y=-cover_cut) cover(orient=DOWN);
+      front_half(s=cut_size, y=-cover_cut) cover($idx=0, orient=DOWN);
 
     back((base_od/2 - base_cut)/2)
     back(base_cut)
@@ -883,10 +884,13 @@ module hepa_filter(anchor = CENTER, spin = 0, orient = UP) {
 }
 
 module cover(anchor = CENTER, spin = 0, orient = UP) {
+  cover_i = $idx;
+
   size = [cover_od + cover_extra, cover_od, cover_height];
 
   attachable(anchor, spin, orient, size = size) {
 
+    plate_mirror_idx(cover_i)
     diff(remove="flow filter wallslot screw socket channel port", keep="grip support")
       plate(
         h=cover_height, d=cover_od, extra=cover_extra,
@@ -1122,7 +1126,7 @@ module base(
     diff(remove="port label") base_plate() {
 
       // USB C port and wire channel
-      if (base_i == 0 && base_with_power_port) {
+      if (base_i == 0) {
         tag("port")
         up(pms.z/2)
         left(power_port_offset)
@@ -1429,13 +1433,15 @@ module grill(
   chamfer = grill_chamfer,
   anchor = CENTER, spin = 0, orient = UP
 ) {
+  grill_i = $idx;
+
   size = grill_size();
   extra = size.x - size.y;
 
   inner_h = size.z - grill_thickness;
   screw_length = inner_h + grill_thickness;
 
-  vent_loc = [-extra/2, 0, size.z/2];
+  vent_loc = [extra/2 * (grill_i == 0 ? -1 : 1), 0, size.z/2];
 
   attachable(
     anchor, spin, orient,
@@ -1446,6 +1452,7 @@ module grill(
       named_anchor("vent_bottom", vent_loc + size.z*DOWN, DOWN),
     ]
   ) {
+    plate_mirror_idx(grill_i)
     grill_block(size=size, remove="screw hollow vent window") {
 
       tag("hollow")
