@@ -1,16 +1,29 @@
 # Errata
 
-- not yet happy with the mesh wall integrity under bend/strain, experimenting with different joinery for next
-- the chosen battery bank option works okay, but the disingenuous capacity rating on it leave a bad taste; other battery options would be welcomeo
-- clips can still be a little too tight fit
-  - for example the power bank base having 2 rows of clips, the bottom row seems too tight, while the top row is okay
+- the mesh wall is currently in a state of tradeoff:
+  1. the alternating dovetail option is stronger, but nearly impossible to assemble
+  2. the thicker version alone (sans dovetail) does an okay job, certainly better than v1.0 thin walls
+- the chosen battery bank option works okay, but the disingenuous capacity rating on it leave a bad taste;
+  other battery options would be welcome
 
-# v1.x
+# v1.1.0-rc2
 
 - added power bank cavity and access tunnel inside of a thicker base plate variant
-  - power port location shift as far left as possible; corner of power channel now comes close to base filter retention ring
+- moved power port location as far left as possible; corner of power channel now comes close to base filter retention ring
 - added optional grill box ears with anchor holes for a shoulder strap
 - added cutout notch to cover underside, allowing easier removal of mesh wall and filter
+- added positive base label models for easy multi color prints
+- changed PWM controller module to a more minimal pcb mounted thru the front of left fan grill box; removed grill window
+- improved mesh wall stability:
+  - now thicker so that it's both stronger, and so that sections cannot overlap each other as easily when slotted
+  - tapered the dovetails alternating directions so that they hold together like a hinge
+  - but not using dovetail by default/recommendation due to how difficult they are to assemble and manage
+  - also added a bending arch to help form smooth wall bends with a heat gun
+- improved strength of inner wall between the mesh wall slot and the filter recess
+  - late in v1.1.0-rc testing, noticed minor breakage (layer separation near A side cover notch)
+  - turns out that prior geometry led to a mere 2 wall perimeters at that point
+  - so remade the wallslot channel, thickening that internal wall, and also taking the opportunity to trim down overall base plate size a little
+  - **NOTE**: this change will invalidate fit with prior base and cover plates
 
 # v1.0.4
 
@@ -54,14 +67,11 @@
 
 # Dev Status and TODOs
 
-- [rc] easier access to remove filter cover plate / mesh wall
-- [rc] support integrating a USB power bank into a thicker base plate
-- [rc] thicker / stronger / better mesh wall section joints
-- [rc] carrying ears and anchor points for a shoulder strap
-- [rc] support for simpler/cheaper pwm control modules
-- [ ] TODO inter-filter structure for duo to support additional electronics inside the mesh wall
+- [ ] TODO better mesh wall: bending aid, hemi-loop dovetail assembly
 - [ ] TODO support N-fan stacks, primarily for dual-fan stacks (4-fans 2-filters) for higher airflow
+- [ ] TODO inter-filter structure for duo to support additional electronics inside the mesh wall
 - [ ] TODO complete and build a single filter variant
+- [ ] TODO N-fan/filter: a horizontally scalable section
 - [ ] TODO evolve parameters, with presets for various fan/filter models
 - [ ] TODO support arduino based electronics package, including an [air quality sensor wing][aq_wing]
 
