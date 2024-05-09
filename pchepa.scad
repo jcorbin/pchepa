@@ -17,14 +17,19 @@ pchepa_version = ""; // $gitvar$describe$
 // Enables display of meeting-part ghosts ; e.g. adjoining base/cover plate counterpart.
 buddy = true;
 
+// Enables preview cutaway for some parts.
+cutaway = true;
+
 // How big is your printer's printable area?
 build_plate_size = [250, 250];
 
 /* [Part Selection] */
 
-//@make -o duo/render.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 --camera=-2.56,-4.16,-8.15,55.00,0.00,25.00,1151.54
+//@make -o duo/render.png --colorscheme='Tomorrow Night' --camera=-2.56,-4.16,-8.15,55.00,0.00,25.00,1151.54 -D mode=0 -D filter_count=2
+
 //@make -o duo/base.stl -D mode=10 -D filter_count=2 -D base_with_power_port=false
 //@make -o duo/base_with_usbc_port.stl -D mode=10 -D filter_count=2 -D base_with_power_port=true
+
 //@make -o duo/cover.stl -D mode=20 -D filter_count=2
 //@make -o duo/grill_box.stl -D mode=30 -D filter_count=2
 //@make -o duo/wall_section.stl -D mode=92 -D filter_count=2
@@ -404,10 +409,13 @@ else if (mode == 20) {
 /// mode[30-39] -- fan grills
 
 else if (mode == 30) {
+  preview_cutaway(dir=FRONT)
   grill(orient=$preview ? UP : DOWN) {
-    left(filter_count == 1 ? 0 : (base_od - grill_size().y)/4) {
-      %attach(BOTTOM, TOP, overlap=fan_size.z) pc_fan();
-      %attach(BOTTOM, TOP) render() cover();
+    if (buddy) {
+      left(filter_count == 1 ? 0 : (base_od - grill_size().y)/4) {
+        %attach(BOTTOM, TOP, overlap=fan_size.z) pc_fan();
+        %attach(BOTTOM, TOP) render() cover();
+      }
     }
   }
 }
@@ -492,7 +500,7 @@ module build_plate(size=build_plate_size, anchor = CENTER, spin = 0, orient = UP
 
 // Development cutaway aid
 module preview_cut(v=UP, s=max(build_plate_size), t=0) {
-  if ($preview) {
+  if ($preview && cutaway) {
     half_of(v, s=s)
     translate(scalar_vec3(t))
       children();
@@ -516,12 +524,13 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
     zrot(i * 180)
     hepa_filter() {
 
-      recolor("#22c6b4")
-      attach(TOP, BOTTOM, overlap=filter_recess) cover() {
-        %attach(TOP, BOTTOM) pc_fan();
-        right((base_od - grill_size().y)/4)
-          attach(TOP, BOTTOM) grill();
-      }
+      attach(TOP, BOTTOM, overlap=filter_recess)
+        recolor("#22c6b4") cover() {
+          attach(TOP, "vent_bottom") grill()
+          recolor(undef) {
+            %attach("vent_interior", TOP) pc_fan();
+          }
+        }
 
       recolor("#545651")
       attach(BOTTOM, TOP, overlap=filter_recess)
@@ -909,7 +918,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
         }
 
 
-      };
+      }
 
     children();
   }
@@ -977,10 +986,12 @@ module power_module(tolerance=0, profile=false, anchor = CENTER, spin = 0, orien
   }
 }
 
-function base_size(h=undef) = [
+function base_size(h=undef) = let (
+  dh = base_height
+) [
   base_od,
   base_od,
-  default(h, base_height)
+  default(h, dh)
 ];
 
 module base_plate(
@@ -1038,19 +1049,35 @@ module plate_mirror_idx(i=$idx) {
   }
 }
 
-module base(buddies = true, anchor = CENTER, spin = 0, orient = UP) {
+module base(
+  buddies = true,
+  anchor = CENTER, spin = 0, orient = UP
+) {
   base_i = $idx;
+
   sz = base_size();
-  attachable(anchor, spin, orient, size=sz) {
+
+  pms = power_module_size(power_module_tolerance);
+
+  // inset just behind clip socket row
+  power_port_offset = 1.5*clip_size.y;
+
+  attachable(
+    anchor, spin, orient,
+    size = sz,
+    anchors = [
+      // TODO export part anchors, evict buddies
+    ]
+  ) {
     plate_mirror_idx(base_i)
     diff(remove="port") base_plate() {
 
       // USB C port and wire channel
       if (base_i == 0 && base_with_power_port) {
         tag("port")
-        up(power_module_size(power_module_tolerance).z/2)
-        left(1.5*clip_size.y)
-          position(FRONT+RIGHT+BOTTOM)
+        up(pms.z/2)
+        left(power_port_offset)
+        position(FRONT+RIGHT+BOTTOM)
           base_power_port(anchor=FRONT+RIGHT+BOTTOM, lip_chamfer=2*power_module_tolerance) {
             if (buddies) {
               %position("module") tag("buddy") power_module();
@@ -1292,77 +1319,104 @@ function grill_size() = let (
   fan_size.z + grill_thickness
 ];
 
-module grill(anchor = CENTER, spin = 0, orient = UP) {
-  screw_length = fan_size.z + grill_thickness;
+module grill_block(
+  remove = "remove",
+  keep = "keep",
+  size = undef,
+  chamfer = grill_chamfer,
+  anchor = CENTER, spin = 0, orient = UP
+) {
+  sz = default(size, grill_size());
+  extra = sz.x - sz.y;
+  diff(remove=remove, keep=keep)
+  conv_hull(str(remove, " ", keep))
+    cuboid(size=sz, chamfer=chamfer, edges=[
+      [0, 0, 1, 1], // yz -- +- -+ ++
+      [0, 0, 1, extra > 0 ? 0 : 1], // xz
+      [1, extra > 0 ? 0 : 1, 1, extra > 0 ? 0 : 1], // xy
+    ]) children();
+}
+
+module grill(
+  chamfer = grill_chamfer,
+  anchor = CENTER, spin = 0, orient = UP
+) {
   size = grill_size();
+  extra = size.x - size.y;
 
-  attachable(anchor, spin, orient, size=size) {
-    extra = size.x - size.y;
+  inner_h = size.z - grill_thickness;
+  screw_length = inner_h + grill_thickness;
 
-    diff(remove="screw hollow holes window")
-      cuboid(size=size, chamfer=grill_chamfer, edges=[
-        [0, 0, 1, 1], // yz -- +- -+ ++
-        [0, 0, 1, extra > 0 ? 0 : 1], // xz
-        [1, extra > 0 ? 0 : 1, 1, extra > 0 ? 0 : 1], // xy
-      ]) {
+  vent_loc = [-extra/2, 0, size.z/2];
 
-        tag("hollow")
-          right(extra ? grill_thickness + $eps : 0)
-          attach(BOTTOM, TOP, overlap=fan_size.z)
-          cuboid(size=[
-            size.x - 2 * grill_thickness + (extra > 0 ? grill_thickness + $eps : 0),
-            size.y - 2 * grill_thickness,
-            fan_size.z + $eps,
-          ], chamfer = grill_thickness, edges = [
-            [0, 0, 1, 1], // yz -- +- -+ ++
-            [0, 0, 0, 0], // xz
-            [1, extra > 0 ? 0 : 1, 1, extra > 0 ? 0 : 1], // xy
-          ]);
+  attachable(
+    anchor, spin, orient,
+    size = size,
+    anchors = [
+      named_anchor("vent_exterior", vent_loc, UP),
+      named_anchor("vent_interior", vent_loc + grill_thickness*DOWN, DOWN),
+      named_anchor("vent_bottom", vent_loc + size.z*DOWN, DOWN),
+    ]
+  ) {
+    grill_block(size=size, remove="screw hollow vent window") {
 
-        left(extra/2) {
+      tag("hollow")
+        right(extra ? grill_thickness + $eps : 0)
+        attach(BOTTOM, TOP, overlap=inner_h)
+        cuboid(size=[
+          size.x - 2 * grill_thickness + (extra > 0 ? grill_thickness + $eps : 0),
+          size.y - 2 * grill_thickness,
+          inner_h + $eps,
+        ], chamfer = grill_thickness, edges = [
+          [0, 0, 1, 1], // yz -- +- -+ ++
+          [0, 0, 0, 0], // xz
+          [1, extra > 0 ? 0 : 1, 1, extra > 0 ? 0 : 1], // xy
+        ]);
 
-          tag("screw")
-            attach(TOP, BOTTOM, overlap = screw_length + $eps)
-              grid_copies(spacing = fan_screw_spacing, n = [ 2, 2 ])
-                  screw_hole(spec = grill_screw, head = grill_screw_head, thread = false,
-                             length = screw_length + 2 * $eps);
+      left(extra/2) {
 
-          tag("holes")
-            attach(TOP, BOTTOM, overlap=size[2] + $eps)
-            grid_copies(
-              spacing=grill_hole_size + grill_hole_spacing,
-              size=size.y,
-              stagger=true,
-              inside=circle(d=fan_id)
-            )
-              zrot(30)
-              cyl(h=size[2] + 2*$eps, d=grill_hole_size, $fn=grill_hole_degree);
+        tag("screw")
+          attach(TOP, BOTTOM, overlap = screw_length + $eps)
+            grid_copies(spacing = fan_screw_spacing, n = [ 2, 2 ])
+                screw_hole(spec = grill_screw, head = grill_screw_head, thread = false,
+                           length = screw_length + 2 * $eps);
 
-        }
+        tag("vent")
+          attach(TOP, BOTTOM, overlap=size[2] + $eps)
+          grid_copies(
+            spacing=grill_hole_size + grill_hole_spacing,
+            size=size.y,
+            stagger=true,
+            inside=circle(d=fan_id)
+          )
+            zrot(30)
+            cyl(h=size[2] + 2*$eps, d=grill_hole_size, $fn=grill_hole_degree);
 
-        if (filter_count > 1 && grill_window[0] * grill_window[1] > 0) {
-          window_size = [
-            grill_window[0] + 2 * grill_thickness,
-            grill_window[1] + 2 * grill_thickness, 4 *
-            grill_thickness
-          ];
+      }
 
-          tag("window")
-            left(window_size[0] / 2)
-            up(window_size[2] / 2)
-            attach(TOP + RIGHT, TOP + LEFT)
-            xrot(90)
-              cuboid(window_size + [0, 0, $eps], chamfer=2 * grill_thickness);
-        }
+      if (filter_count > 1 && grill_window[0] * grill_window[1] > 0) {
+        window_size = [
+          grill_window[0] + 2 * grill_thickness,
+          grill_window[1] + 2 * grill_thickness, 4 *
+          grill_thickness
+        ];
 
-      };
+        tag("window")
+          left(window_size[0] / 2)
+          up(window_size[2] / 2)
+          attach(TOP + RIGHT, TOP + LEFT)
+          xrot(90)
+            cuboid(window_size + [0, 0, $eps], chamfer=2 * grill_thickness);
+      }
+
+    }
 
     children();
   }
 }
 
 module preview_cutaway(dir=BACK, at=0, r=[0, 0, 0], s=max(base_od, filter_height)*2.1) {
-  if ($preview) {
+  if (cutaway && $preview) {
     difference() {
       rotate(r)
       children();
