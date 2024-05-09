@@ -46,7 +46,7 @@ build_plate_size = [250, 250];
 //@make -o parts/base_channel_plug.stl -D mode=91
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Small Part Kit, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test]
+mode = 0; // [0:Full Assembly, 1:Small Part Kit, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Base Label Dev]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -61,7 +61,7 @@ filter_od = 180;
 // Nyemo supposedly has a 7inch spec, so 177.8 = 7*25.4, but in reality it measured more like 180mm.
 
 // Inner diameter of the HEPA filter cylinder cavity.
-filter_id = 149;
+filter_id = 114;
 
 // Size of the filter lip: X value is the radial wall thickness, Y value is the height.
 filter_lip_size = [2, 8];
@@ -489,6 +489,15 @@ else if (mode == 104) {
   preview_cut(FRONT) clip_socket_tolerance_test(
     tolerances=[ for (tol = [ clip_fit_test.x : clip_fit_test.y : clip_fit_test.z ]) tol ],
     orient=$preview ? UP : BACK);
+}
+
+else if (mode == 105) {
+  xcopies(n=filter_count, spacing = filter_id + 5)
+  let ( base_i = $idx )
+  diff() cyl(d = filter_id, h=2)
+    tag("remove")
+    attach(TOP, BOTTOM, overlap=1)
+      base_label(i=base_i, h=1 + $eps);
 }
 
 /// implementation
@@ -1085,6 +1094,56 @@ module plate_mirror_idx(i=$idx) {
   }
 }
 
+module base_label(h = 1, i = 0, anchor = CENTER, spin = 0, orient = UP) {
+  module txt(mess, size, center = true) {
+    text3d(mess,
+      h = h,
+      font = "Liberation Sans:style=Bold",
+      size = size,
+      anchor = center ? BOTTOM : BOTTOM+LEFT,
+      $fa = 16, $fs = 0.4
+    );
+  }
+
+  attachable(anchor, spin, orient, d=filter_id, h=h) {
+    union() {
+      if (i == 0) {
+        qr_res = 256;
+        qr_border = 8;
+        qr_size = 60;
+        border = qr_size * qr_border / qr_res;
+
+        back(qr_size/2 + border + 1 + 4)
+          txt("PCHEPA", size=8);
+        fwd(qr_size/2 + border + 1 + 3 + 4)
+          txt(pchepa_version, size=6);
+
+        down(h/2)
+        qrcode("user_guide/v1.qr.png",
+          size = [qr_size, qr_size, h/2 + $eps],
+          dat_size = qr_res,
+          margin = [border, border, h/2],
+          range = 100,
+          anchor = TOP, orient = DOWN
+        );
+      }
+
+      else if (i == 1) {
+        back(24)
+          txt("Replacement Filter:", size=6);
+        back(12)
+          txt("Nyemo H12 / TT-AP006", size=6);
+        fwd(6)
+          txt("https://github.com/jcorbin/pchepa", size=5);
+        fwd(18)
+          txt(pchepa_version, size=6);
+      }
+    }
+
+    children();
+  }
+}
+
 module base(
   buddies = true,
   anchor = CENTER, spin = 0, orient = UP
@@ -1098,22 +1157,6 @@ module base(
 
   // inset just behind clip socket row
   power_port_offset = 1.5*clip_size.y;
-
-  label_depth = 1;
-  label_text_size = 8;
-  label_line_size = 12;
-
-  qr_res = 256;
-  qr_border = 8;
-  qr_size = 60;
-
-  module txt(mess, size = label_text_size, center = true) {
-    text3d(mess,
-      h = label_depth + $eps,
-      size = size,
-      anchor = center ? BOTTOM : BOTTOM+LEFT
-    );
-  }
 
   attachable(
     anchor, spin, orient,
@@ -1140,43 +1183,9 @@ module base(
       }
 
       tag("label")
-      position("filter")
+      attach("filter", BOTTOM, overlap=1)
       plate_mirror_idx(base_i)
-      down(label_depth) {
-
-        border = qr_size * qr_border / qr_res;
-
-        back(qr_size/2 + border)
-        back(label_line_size) {
-          back(label_line_size)
-            txt("PCHEPA");
-          txt(pchepa_version);
-        }
-
-        right(filter_r/3) {
-          qrcode("user_guide/v1.qr.png",
-            size=[ qr_size, qr_size, label_depth/2 + $eps ],
-            dat_size=qr_res,
-            margin = [border, border, label_depth/2],
-            range=100,
-            anchor=TOP, orient=DOWN
-          );
-
-          left(filter_r) {
-            txt("Filter:", size=6, center=false);
-            fwd(label_line_size)
-            txt("Nyemo H12", size=6, center=false);
-            fwd(2*label_line_size)
-              txt(" aka TT-AP006", size=6, center=false);
-          }
-        }
-
-        fwd(qr_size/2 + border)
-        fwd(label_line_size) {
-          txt("https://jcorbin.github.io/pchepa", size=6);
-        }
-
-      }
+        base_label(h = 1 + $eps, i = base_i);
 
     }
 
