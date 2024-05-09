@@ -17,6 +17,8 @@ $(MODELS): $(SCAD)
 	openscad $< $(shell grep '//@make ' $< | grep -- ' -o $@' | sed -r -e 's/^\/\/@make //')
 
 regen:
+	git diff --exit-code pchepa.scad
+	rm -f pchepa.scad && git checkout -f pchepa.scad
 	$(MAKE) clean
 	$(MAKE) all
 	git add $(MODELS)

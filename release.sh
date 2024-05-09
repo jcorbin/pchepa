@@ -28,9 +28,5 @@ if ! next_version=$(sed -e "/^# ${last_version}/q" <CHANGELOG.md | head -n-1 | g
 fi
 
 git tag "$next_version"
-
-rm -f pchepa.scad && git checkout -f pchepa.scad
-
-make -j2 regen
-
+make -j8 regen
 git tag -a -f "$next_version"
