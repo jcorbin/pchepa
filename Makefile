@@ -7,7 +7,7 @@ all: $(MODELS)
 clean:
 	rm -f $(MODELS)
 
-$(SCAD): init
+$(SCAD): init user_guide/v1.qr.png
 
 BOSL2/std.scad:
 	git submodule update --init

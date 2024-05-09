@@ -489,6 +489,32 @@ else if (mode == 104) {
 
 /// implementation
 
+module qrcode(file,
+  size = undef,
+  dat_size = 256,
+  range = 100,
+  convexity = 5,
+  margin = 0,
+  anchor = CENTER, spin = 0, orient = UP
+) {
+  dsize = scalar_vec2(dat_size);
+  from_size = [dsize.x, dsize.y, range];
+  to_size = default(scalar_vec3(size), from_size);
+  marg = scalar_vec3(margin);
+  sz = to_size + [ 2*marg.x, 2*marg.y, marg.z ];
+  attachable(anchor, spin, orient, size=sz) {
+    union() {
+      up(marg.z/2)
+      scale(v_div(to_size + [0, 0, $eps], from_size))
+      down(range/2)
+      zrot(-90)
+        surface(file = file, center = true, convexity = convexity);
+      cube(v_mul(sz, [1, 1, 0.5]), anchor=TOP);
+    }
+    children();
+  }
+}
+
 module build_plate(size=build_plate_size, anchor = CENTER, spin = 0, orient = UP) {
   size = scalar_vec3(size, 1);
   down(size.z)
@@ -1001,7 +1027,13 @@ module base_plate(
   anchor = CENTER, spin = 0, orient = UP
 ) {
   size = base_size(h);
-  attachable(anchor, spin, orient, size = size) {
+  attachable(
+    anchor, spin, orient,
+    size = size,
+    anchors = [
+      named_anchor("filter", [0, 0, size.z/2 - filter_recess], UP)
+    ]
+  ) {
     tag_scope("base_plate")
     diff(remove="filter wallslot socket", keep="grip support")
       plate(h=size.z, d=size.x, chamfer2=overhang) {
@@ -1058,9 +1090,26 @@ module base(
   sz = base_size();
 
   pms = power_module_size(power_module_tolerance);
+  filter_r = filter_od/2 + filter_tolerance;
 
   // inset just behind clip socket row
   power_port_offset = 1.5*clip_size.y;
+
+  label_depth = 1;
+  label_text_size = 8;
+  label_line_size = 12;
+
+  qr_res = 256;
+  qr_border = 8;
+  qr_size = 60;
+
+  module txt(mess, size = label_text_size, center = true) {
+    text3d(mess,
+      h = label_depth + $eps,
+      size = size,
+      anchor = center ? BOTTOM : BOTTOM+LEFT
+    );
+  }
 
   attachable(
     anchor, spin, orient,
@@ -1070,7 +1119,7 @@ module base(
     ]
   ) {
     plate_mirror_idx(base_i)
-    diff(remove="port") base_plate() {
+    diff(remove="port label") base_plate() {
 
       // USB C port and wire channel
       if (base_i == 0 && base_with_power_port) {
@@ -1084,6 +1133,45 @@ module base(
               %position("channel") tag("buddy") channel_plug(anchor=BOTTOM);
             }
           }
+      }
+
+      tag("label")
+      position("filter")
+      plate_mirror_idx(base_i)
+      down(label_depth) {
+
+        border = qr_size * qr_border / qr_res;
+
+        back(qr_size/2 + border)
+        back(label_line_size) {
+          back(label_line_size)
+            txt("PCHEPA");
+          txt(pchepa_version);
+        }
+
+        right(filter_r/3) {
+          qrcode("user_guide/v1.qr.png",
+            size=[ qr_size, qr_size, label_depth/2 + $eps ],
+            dat_size=qr_res,
+            margin = [border, border, label_depth/2],
+            range=100,
+            anchor=TOP, orient=DOWN
+          );
+
+          left(filter_r) {
+            txt("Filter:", size=6, center=false);
+            fwd(label_line_size)
+            txt("Nyemo H12", size=6, center=false);
+            fwd(2*label_line_size)
+              txt(" aka TT-AP006", size=6, center=false);
+          }
+        }
+
+        fwd(qr_size/2 + border)
+        fwd(label_line_size) {
+          txt("https://jcorbin.github.io/pchepa", size=6);
+        }
+
       }
 
     }
