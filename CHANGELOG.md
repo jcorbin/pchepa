@@ -2,13 +2,21 @@
 
 - not yet happy with the mesh wall integrity under bend/strain, experimenting with different joinery for next
 
+# v1.0.3
+
+- added project and filter notes inside base plate
+- added a user guide stub document with link embedded in QR code within base plate
+- renamed most duo model files to follow an A (left) and B (right) side convention
+- renamed the power channel plug model file
+- many internal code cleanups and improvements while working on upcoming new features
+
 # v1.0.2
 
 - improved duo plate geometry, especially where half-circle transitions to a straight line;
-  this should reduce facet-seam artifacts in the printed parts
+this should reduce facet-seam artifacts in the printed parts
 - improved power socket internal fit, by chamfering the interior corner of the lip;
-  this should make socket installation easier, preventing the usb-c socket from
-  getting stuck on the lip when sliding forward into position
+this should make socket installation easier, preventing the usb-c socket from
+getting stuck on the lip when sliding forward into position
 - added designed support inside clip socket; addressed slight roof droop/stringing, which was affecting clip tolerance
 
 # v1.0.1
