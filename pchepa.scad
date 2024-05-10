@@ -219,7 +219,7 @@ clip_snap = 0.75;
 clip_thick = 1.6;
 
 // The clip "ears" are made over-wide by the compression value. A nonzero compression helps make the clip secure in its socket.
-clip_compress = 0.2;
+clip_compress = 1.0;
 
 // Extra space in the socket for easier insertion.
 clip_tolerance = 0.35;
@@ -455,22 +455,10 @@ else if (mode == 92) {
 /// mode[100...] -- development aids and tests
 
 else if (mode == 100) {
-  preview_cutaway(dir=RIGHT, at=-12)
-  power_module_fit_test(label="0", buddies=false, plate=false) {
-
-    right(10)
-    position(RIGHT+BOTTOM)
-      channel_plug(anchor=BOTTOM+LEFT);
-
-    attach(BACK, FRONT, overlap=-10)
-    power_module_fit_test(label="2t", socket_lip_chamfer=power_module_tolerance*2, buddies=false, plate=false);
-
-    attach(FRONT, BACK, overlap=-10)
-    power_module_fit_test(label="0.8", socket_lip_chamfer=0.8, buddies=false, plate=false);
-
-    // show_anchors();
-    // #cube($parent_size, center=true);
-
+  xdistribute(spacing=clip_size.x*1.5) {
+    clip(compression = 2.0, orient=BACK);
+    clip(compression = 2.4, orient=BACK);
+    clip(compression = 2.8, orient=BACK);
   }
 }
 
