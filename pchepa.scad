@@ -414,11 +414,11 @@ else if (mode >= 30 && mode < 40) {
   grill_i = mode - 30;
   preview_cutaway(dir=FRONT)
   grill($idx = grill_i, orient=$preview ? UP : DOWN) {
-    if (buddy) {
+    %if (buddy) {
       plate_mirror_idx(grill_i)
       left(filter_count == 1 ? 0 : (base_od - grill_size().y)/4) {
-        %attach(BOTTOM, TOP, overlap=fan_size.z) pc_fan();
-        %attach(BOTTOM, TOP) render() cover($idx = grill_i);
+        attach("vent_interior", TOP) pc_fan();
+        attach("vent_bottom", TOP) render() cover($idx = grill_i);
       }
     }
   }
