@@ -137,6 +137,9 @@ fan_screw_spacing = 105;
 
 /* [Fan Grill Metrics] */
 
+// Fan grill box preview color.
+grill_color = "#22c6b4";
+
 // Amount of padding to add around each side of the fan within the grill box; should be at least enough to allow routing of fan cables.
 grill_padding = 5;
 
@@ -166,6 +169,9 @@ grill_window = [ 24, 46 ];
 
 /* [Filter Cover Parameters] */
 
+// Cover plate preview color.
+cover_color = "#22c6b4";
+
 // Overall Z thickness of the cover plate between the filter and fan.
 cover_height = 20;
 
@@ -188,6 +194,9 @@ cover_port = [20, 20];
 cover_port_at = [-48, 48];
 
 /* [Filter Base Parameters] */
+
+// Base plate preview color.
+base_color = "#545651";
 
 // Overall Z thickness of the base plate under the filter.
 base_height = 20;
@@ -365,8 +374,9 @@ else if (mode >= 10 && mode < 20) {
 
   translate($preview ? bb*base_od/2 : [0, 0, 0])
   preview_cutaway(dir=by)
+  recolor(base_color)
   base($idx = base_i, buddies = buddy) {
-    %if (buddy) {
+    %if (buddy) recolor(undef) {
       attach(TOP, BOTTOM, overlap=filter_recess) hepa_filter();
       if (filter_count > 1) {
 
@@ -390,8 +400,9 @@ else if (mode >= 10 && mode < 20) {
 else if (mode >= 20 && mode < 30) {
   cover_i = mode - 20;
   preview_cutaway(r=[0, 0, 22.5])
+  recolor(cover_color)
   cover($idx = cover_i, orient = $preview ? UP : DOWN) {
-    %if (buddy) {
+    %if (buddy) recolor(undef) {
       attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
       attach(TOP, BOTTOM) pc_fan();
 
@@ -413,8 +424,9 @@ else if (mode >= 20 && mode < 30) {
 else if (mode >= 30 && mode < 40) {
   grill_i = mode - 30;
   preview_cutaway(dir=FRONT)
+  recolor(grill_color)
   grill($idx = grill_i, orient=$preview ? UP : DOWN) {
-    %if (buddy) {
+    %if (buddy) recolor(undef) {
       plate_mirror_idx(grill_i)
       left(filter_count == 1 ? 0 : (base_od - grill_size().y)/4) {
         attach("vent_interior", TOP) pc_fan();
@@ -562,14 +574,15 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
     hepa_filter() {
 
       attach(TOP, BOTTOM, overlap=filter_recess)
-        recolor("#22c6b4") cover($idx=i) {
-          attach(TOP, "vent_bottom") grill($idx=i)
+        recolor(cover_color) cover($idx=i) {
+          attach(TOP, "vent_bottom")
+          recolor(grill_color) grill($idx=i)
           recolor(undef) {
             %attach("vent_interior", TOP) pc_fan();
           }
         }
 
-      recolor("#545651")
+      recolor(base_color)
       attach(BOTTOM, TOP, overlap=filter_recess)
         base(buddies=i == 0, $idx=i);
 
