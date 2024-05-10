@@ -52,9 +52,10 @@ build_plate_size = [250, 250];
 //@make -o parts/clip.stl -D mode=90
 //@make -o parts/base_channel_plug.stl -D mode=91
 //@make -o parts/base_bank_channel_plug.stl -D mode=91 -D base_embed_power_bank=true
+//@make -o parts/pwm_knob.stl -D mode=93
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Base Label Dev, 106:Base Join Test A, 107:Base Join Test B, 108:Grill Ear Test, 108:PWM Contoller Test]
+mode = 0; // [0:Full Assembly, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 93:PWM Knob, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Base Label Dev, 106:Base Join Test A, 107:Base Join Test B, 108:Grill Ear Test, 108:PWM Contoller Test]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -512,6 +513,10 @@ else if (mode == 92) {
   wall_section();
 }
 
+else if (mode == 93) {
+  pwm_pot_knob();
+}
+
 /// mode[100...] -- development aids and tests
 
 else if (mode == 100) {
@@ -673,6 +678,51 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
       attach(BOTTOM, TOP, overlap=filter_recess)
         base(buddies=i == 0, $idx=i);
 
+    }
+
+    children();
+  }
+}
+
+module pwm_pot_knob(
+  h = 18,
+  base_d = 15, base_h = 5,   // exterior base size
+  nut_d = 13, nut_h = 6,     // clearance to spin around the mounting nut/washer
+  shaft_d = 6, shaft_fn = 8, // exterior knob/shaft; fn is polygon arity
+  point_size = [0.8, 3],     // indicator point oriented towards back face
+  chamfer = 1,               // tip edge and transition from base to knob
+  tolerance = 0.1,
+  anchor = CENTER, spin = 0, orient = UP
+) {
+  shaft_h = h - 2;
+  trans_d = base_d - 2*chamfer;
+  trans_h = chamfer;
+  tap_d = trans_d - trans_h;
+  tip_d = tap_d - 2*chamfer;
+
+  attachable(anchor, spin, orient, d=base_d, h=h) {
+    down(h/2)
+    difference() {
+      conv_hull()
+      cyl(d=base_d, h=base_h, chamfer2=chamfer, anchor=BOTTOM) {
+        down(chamfer/2)
+        attach(BACK, BACK, overlap=2)
+          cube([point_size.x, point_size.y, base_h - chamfer]);
+        attach(TOP, BOTTOM, overlap=$eps)
+          cyl(d1=trans_d, d2=tap_d, h=trans_h + $eps, $fn=shaft_fn) {
+          tag("keep")
+          attach(TOP, BOTTOM, overlap=$eps)
+            cyl(d1=tap_d, d2=tip_d, h=h - trans_h - base_h + $eps, chamfer2=chamfer, $fn=shaft_fn - 1);
+        }
+      }
+      down($eps) cyl(
+        d1=nut_d + 2*tolerance,
+        d2=shaft_d + 2*tolerance,
+        h=nut_h + 2*$eps,
+        anchor=BOTTOM)
+        attach(TOP, BOTTOM, overlap=$eps) cyl(
+          d=shaft_d + 2*tolerance,
+          h=shaft_h - nut_h + $eps);
     }
 
     children();
