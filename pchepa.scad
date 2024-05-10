@@ -1452,6 +1452,8 @@ module grill(
 
   vent_loc = [extra/2 * (grill_i == 0 ? -1 : 1), 0, size.z/2];
 
+  screw_hole_tops = grid_copies(p = vent_loc, spacing = fan_screw_spacing, n = [ 2, 2 ]);
+
   attachable(
     anchor, spin, orient,
     size = size,
@@ -1459,6 +1461,9 @@ module grill(
       named_anchor("vent_exterior", vent_loc, UP),
       named_anchor("vent_interior", vent_loc + grill_thickness*DOWN, DOWN),
       named_anchor("vent_bottom", vent_loc + size.z*DOWN, DOWN),
+      each([
+        for (i = idx(screw_hole_tops))
+        named_anchor(str("screw_hole_", i), screw_hole_tops[i], DOWN)]),
     ]
   ) {
     plate_mirror_idx(grill_i)
