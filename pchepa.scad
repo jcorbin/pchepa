@@ -3,8 +3,6 @@ include <BOSL2/joiners.scad>
 include <BOSL2/screws.scad>
 include <BOSL2/walls.scad>
 
-pchepa_version = ""; // $gitvar$describe$
-
 // original inspiration <https://www.cleanairkits.com/products/exhalaron>
 // cites <https://www.mdpi.com/2075-5309/11/8/329>
 // looks similar to <https://www.printables.com/model/386124> -- minimal single
@@ -271,6 +269,8 @@ $eps = 0.01;
 /// dispatch / integration
 
 module __customizer_limit__() {}
+
+pchepa_version = ""; // $gitvar$describe$
 
 filter_recess = filter_lip_size[1] + 2*filter_grip;
 
