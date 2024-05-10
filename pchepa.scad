@@ -205,7 +205,7 @@ cover_clips = 4;
 cover_heatset_hole = [4.4, 5.3];
 
 // Size of wiring pass through hole(s) in the cover plate; set either dimension to zero to disable.
-cover_port = [20, 20];
+cover_port = [40, 20];
 
 // Access notch cutout on the underside of cover, aides mesh wall and filter removal; will be positioned on the bottom surface of cover, centered at the aapex of filter od.
 cover_notch = [20, 20, 20];
@@ -449,12 +449,22 @@ else if (mode >= 10 && mode < 20) {
 
 else if (mode >= 20 && mode < 30) {
   cover_i = mode - 20;
-  preview_cutaway()
+  preview_cutaway(dir=FRONT)
   recolor(cover_color)
   cover($idx = cover_i, orient = $preview ? UP : DOWN) {
     %if (buddy) recolor(undef) {
       attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
-      attach(TOP, BOTTOM) pc_fan();
+
+      attach(TOP, "vent_bottom")
+      recolor(grill_color) grill($idx=cover_i)
+      recolor(undef) {
+        attach("vent_interior", TOP) pc_fan();
+
+        if (cover_i == 0 && pwm_ctl_pcb_size.x*pwm_ctl_pcb_size.y*pwm_ctl_pcb_size.z > 0) {
+          attach("pwm_pot_hole_interior", "pot_shaft_base", overlap=-$eps)
+            pwm_controller();
+        }
+      }
 
       if (filter_count > 1) {
         render() attach(RIGHT, RIGHT) cover();
