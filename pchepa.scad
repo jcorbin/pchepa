@@ -41,12 +41,11 @@ build_plate_size = [250, 250];
 //@make -o test/cover_hole.stl -D mode=103 -D filter_count=1
 //@make -o test/joiner_clip.stl -D mode=104
 
-//@make -o parts/duo_kit.stl -D mode=1 -D filter_count=2
 //@make -o parts/clip.stl -D mode=90
 //@make -o parts/base_channel_plug.stl -D mode=91
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Small Part Kit, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Base Label Dev]
+mode = 0; // [0:Full Assembly, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Base Label Dev]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -320,48 +319,6 @@ if (mode == 0) {
 
   else {
     assert(false, "base unsupported filter_count");
-  }
-}
-
-else if (mode == 1) {
-  build_plate() {
-
-    if (filter_count == 2) {
-      power_channel_plug_size = channel_plug_size();
-      xdistribute(sizes=[
-        2*clip_size.y + 1,
-        power_channel_plug_size.x,
-        2*clip_size.y + 1,
-      ], spacing=1) {
-        xcopies(n=2, spacing=clip_size.y+1)
-        attach(TOP, BACK) clip();
-
-        ydistribute(sizes=[
-          2*clip_size.y,
-          power_channel_plug_size.y,
-          2*clip_size.y,
-        ], spacing=1) {
-
-          xcopies(n=2, spacing=2*clip_size.y+1)
-          zrot(90) attach(TOP, BACK) clip();
-
-          attach(TOP, BOTTOM) channel_plug();
-
-          xcopies(n=2, spacing=2*clip_size.y+1)
-          zrot(90) attach(TOP, BACK) clip();
-        }
-
-        xcopies(n=2, spacing=clip_size.y+1)
-        attach(TOP, BACK) clip();
-      }
-    }
-
-    else if (filter_count == 2) {
-      ycopies(n=2, spacing=2*clip_size.y+1)
-      xcopies(n=4, spacing=clip_size.y+1)
-        attach(TOP, BACK) clip();
-    }
-
   }
 }
 
