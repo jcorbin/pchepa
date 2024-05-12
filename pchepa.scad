@@ -1317,7 +1317,7 @@ module wallslot(h=undef, anchor = CENTER, spin = 0, orient = UP) {
 }
 
 function wall_perim() = let (
-  wall_d = filter_od + 3*wrapwall_thickness,
+  wall_d = filter_od + 2*wrapwall_thickness + filter_extra_space + wrapwall_thickness,
   wall_circ = PI * wall_d,
   wall_leg = base_od/2
 ) filter_count == 1 ? wall_circ
