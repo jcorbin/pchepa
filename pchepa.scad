@@ -110,7 +110,7 @@ wrapwall_thickness = 1.6;
 wrapwall_slot_depth = 5;
 
 // Mesh wrap wall slot fit tolerance for the channel cut into the base/cover plates.
-wrapwall_tolerance = 0.4;
+wrapwall_tolerance = 0.2;
 
 // Additional tolerance at the open end of the base/cover plate mesh wall slot.
 wrapwall_draft = 0.4;
@@ -123,6 +123,9 @@ wrapwall_sections = 0;
 
 // Mesh wrap wall sections will use dovetail joiners of this dimension; [w, h, spacing] vector, set either w or h to 0 to disable dovetails.
 wrapwall_dovetail = [5, 3, 15];
+
+// Additional tolerance added to mesh wrap wall dovetail receptacles.
+wrapwall_dovetail_tolerance = 0.1;
 
 /* [PC Fan Metrics] */
 
@@ -1942,7 +1945,7 @@ function wall_sections() = wrapwall_sections > 0
 function wall_section(w=undef) = [
   default(w, wall_perim() / wall_sections() - 2*wrapwall_tolerance),
   filter_height - 2*filter_recess + 2*wrapwall_slot_depth - 2*wrapwall_tolerance,
-  wrapwall_thickness - 2*wrapwall_tolerance
+  wrapwall_thickness
 ];
 
 module wall_section(w=undef, anchor = CENTER, spin = 0, orient = UP) {
@@ -1957,19 +1960,23 @@ module wall_section(w=undef, anchor = CENTER, spin = 0, orient = UP) {
     diff() cube(wall_size, center=true) {
       if (dovetail_area > 0) {
         tag("keep")
-        ycopies(l=wall_size.y - wrapwall_dovetail.x, spacing=wrapwall_dovetail.z)
         attach(RIGHT, BOTTOM, overlap=$eps)
+        xcopies(l=wall_size.y - wrapwall_dovetail.x, spacing=wrapwall_dovetail.z)
+        zrot($idx % 2 == 0 ? 0 : 180)
           dovetail("male",
-            w=wrapwall_dovetail.x,
-            h=wrapwall_dovetail.y + $eps,
+            h = wrapwall_dovetail.y + $eps,
+            width = wrapwall_dovetail.x,
+            back_width = wrapwall_dovetail.x - wrapwall_thickness,
             thickness=wall_size.z);
 
         tag("remove")
-        ycopies(l=wall_size.y - wrapwall_dovetail.x, spacing=wrapwall_dovetail.z)
         attach(LEFT, TOP, overlap=wrapwall_dovetail.y)
+        xcopies(l=wall_size.y - wrapwall_dovetail.x, spacing=wrapwall_dovetail.z)
+        zrot($idx % 2 == 0 ? 0 : 180)
           dovetail("female",
-            w=wrapwall_dovetail.x,
-            h=wrapwall_dovetail.y + $eps,
+            h = wrapwall_dovetail.y + wrapwall_dovetail_tolerance + $eps,
+            width = wrapwall_dovetail.x + 2*wrapwall_dovetail_tolerance,
+            back_width = wrapwall_dovetail.x - wrapwall_thickness + 2*wrapwall_dovetail_tolerance,
             thickness=wall_size.z);
 
       }
