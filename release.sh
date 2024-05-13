@@ -43,7 +43,7 @@ prep_next_version() {
 }
 
 edit_changelog
-# prep_next_version
+prep_next_version
 
 # TODO cut release by tag promotion
 # git tag -a -f "$next_version" $next_version
