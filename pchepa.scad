@@ -18,12 +18,16 @@ buddy = true;
 // Enables preview cutaway for some parts.
 cutaway = false;
 
+// Assembly explosion distance.
+explode = 50;
+
 // How big is your printer's printable area?
 build_plate_size = [250, 250];
 
 /* [Part Selection] */
 
-//@make -o duo/render.png --colorscheme='Tomorrow Night' --camera=-2.56,-4.16,-8.15,55.00,0.00,25.00,1151.54 -D mode=0 -D filter_count=2
+//@make -o duo/render.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 --imgsize=1024,768 --camera=-48.4318,49.2886,16.9119,81.6,0,39.2,1279.49
+//@make -o duo/as_explode.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 --imgsize=1024,768 --animate=40 -D explode='50*$t' --camera=-48.4318,49.2886,16.9119,81.6,0,39.2,1279.49
 
 //@make -o duo/base_a.stl -D mode=10 -D filter_count=2
 //@make -o duo/base_b.stl -D mode=11 -D filter_count=2
@@ -91,6 +95,9 @@ $support_preview = false;
 
 /* [Wraparound Wall Metrics] */
 
+// Mesh wrap wall preview color.
+wrapwall_color = "#bb2424";
+
 // Thickness of the mesh wrap wall, radially away from filter center; set to zero to disable mesh wall.
 wrapwall_thickness = 1.6;
 
@@ -113,6 +120,9 @@ wrapwall_sections = 0;
 wrapwall_dovetail = [5, 3, 15];
 
 /* [PC Fan Metrics] */
+
+// Fan body preview color.
+fan_color = "#666666";
 
 // Basic dimensions of the fan, default is for a standard 120mm fan.
 fan_size = [ 120, 120, 25 ];
@@ -138,7 +148,7 @@ fan_screw_spacing = 105;
 /* [Fan Grill Metrics] */
 
 // Fan grill box preview color.
-grill_color = "#22c6b4";
+grill_color = "#24705b";
 
 // Amount of padding to add around each side of the fan within the grill box; should be at least enough to allow routing of fan cables.
 grill_padding = 5;
@@ -161,8 +171,14 @@ grill_hole_degree = 6;
 // Grill box mounting screw size, need to be compatible with the fan_screw size; will bolt through grill, fan, and into cover plate.
 grill_screw = "M3";
 
+// Screw preview color for grill assembly.
+grill_screw_color = "silver";
+
 // Head type for the grill box mounting screw, default is flush/countersunk heads.
 grill_screw_head = "flat";
+
+// Preview screw head drive type.
+grill_screw_drive = "hex";
 
 // Cutout window size in the extra space area of the grill box between filters; used to allow access to the control module. Set either dimension to 0 to disable.
 grill_window = [ 24, 46 ];
@@ -170,7 +186,7 @@ grill_window = [ 24, 46 ];
 /* [Filter Cover Parameters] */
 
 // Cover plate preview color.
-cover_color = "#22c6b4";
+cover_color = "#4390e0";
 
 // Overall Z thickness of the cover plate between the filter and fan.
 cover_height = 20;
@@ -196,7 +212,7 @@ cover_port_at = [-48, 48];
 /* [Filter Base Parameters] */
 
 // Base plate preview color.
-base_color = "#545651";
+base_color = "#4390e0";
 
 // Base label cut depth.
 base_label_depth = 1;
@@ -211,6 +227,9 @@ base_overhang = 10;
 base_clips = 4;
 
 /* [Joiner Clip Parameters] */
+
+// Preview color for joiner clips.
+clip_color = "#eeeeee";
 
 // Size of the joiner BOSL2 rabbit clips used to join base and cover plate pairs: [width, length, depth]
 clip_size = [14, 14, 3];
@@ -233,6 +252,9 @@ clip_fit_test = [0.2, 0.05, 0.6];
 /* [Power Module] */
 
 // Tune for a particular USB-C 12v power trigger module
+
+// Preview color; TODO would be nice to color the pcb separate from socket.
+power_module_color = "silver";
 
 // Measured size of the USB-C power module PCB.
 power_pcb_size = [10.8, 16.25, 1.5];
@@ -318,14 +340,19 @@ power_channel_size = [
 /// mode[0-9] -- assemblies
 
 if (mode == 0) {
+  echo(camera_arg());
+  echo(str("anim@", $t, " explode=", explode));
+
   if (filter_count == 1) {
     assembly();
   }
 
   else if (filter_count == 2) {
     left(base_od/2)
+    left(explode/2)
     assembly($idx = 0)
-    attach(RIGHT, LEFT) assembly($idx = 1);
+      right(explode)
+      attach(RIGHT, LEFT) assembly($idx = 1);
   }
 
   else {
@@ -387,12 +414,25 @@ else if (mode >= 10 && mode < 20) {
   recolor(base_color) base($idx = base_i, label = !$preview) recolor(undef) {
     %if (buddy) {
 
+      recolor(clip_color)
+      attach([
+        for (i = [ base_i % 2 : 2 : len(base_clip_sockets())-1 ])
+        str("clip_socket_", i)
+      ], BOTTOM, overlap=clip_size.y - explode/4) clip(spin=90);
+
       if (base_i == 0) {
-        position("power_module") power_module();
-        position("power_channel") channel_plug(anchor=BOTTOM);
+        fwd(explode)
+        position("power_module")
+          recolor(power_module_color) power_module();
+        up(explode)
+        position("power_channel")
+          recolor(base_color) channel_plug(anchor=BOTTOM);
       }
 
-      attach(TOP, BOTTOM, overlap=filter_recess) hepa_filter();
+      up(explode)
+      attach(TOP, BOTTOM, overlap=filter_recess)
+        hepa_filter();
+
     }
   }
 }
@@ -405,11 +445,38 @@ else if (mode >= 20 && mode < 30) {
   recolor(cover_color)
   cover($idx = cover_i, orient = $preview ? UP : DOWN) recolor(undef) {
     %if (buddy) {
-      attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
 
+      down(explode)
+        attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
+
+      up(explode/4)
+      down(cover_heatset_hole.y)
+      up($eps)
+      attach(["screw_hole_0", "screw_hole_1", "screw_hole_2", "screw_hole_3"], BOTTOM)
+        heatset_insert();
+
+      recolor(clip_color)
+      attach([
+        for (i = [ cover_i % 2 : 2 : cover_clips-1 ])
+        str("clip_socket_", i)
+      ], BOTTOM, overlap=clip_size.y - explode/4) clip(spin=90);
+
+      up(explode)
       attach(TOP, "vent_bottom")
       recolor(grill_color) grill($idx=cover_i) recolor(undef) {
-        attach("vent_interior", TOP) pc_fan();
+
+        down(explode/2)
+        attach("vent_interior", TOP) recolor(fan_color) pc_fan();
+
+        screw_length = grill_size().z + 5;
+        up(explode/2)
+        attach(["screw_hole_0", "screw_hole_1", "screw_hole_2", "screw_hole_3"], BOTTOM, overlap=screw_length)
+          recolor(grill_screw_color) screw(
+            spec = grill_screw,
+            head = grill_screw_head,
+            drive = grill_screw_drive,
+            thread = false, length = screw_length);
+
       }
     }
   }
@@ -536,6 +603,38 @@ module preview_cut(v=UP, s=max(build_plate_size), t=0) {
   }
 }
 
+module cover_walls(i = 0) {
+  // TODO explode
+  wall_size = wall_section();
+  wall_profile = square([wall_size.z, wall_size.y], center=true);
+
+  translate((wrapwall_thickness/2 + explode) * (i == 0 ? FWD : BACK))
+  position(i == 0 ? "wallslot_front" : "wallslot_back")
+  zrot(i == 0 ? 0 : 180)
+    wallarc(wall_profile, 0, 1/3, anchor=RIGHT+TOP);
+
+  translate((wrapwall_thickness/2 + explode) * (i == 0 ? BACK : FWD))
+  position(i == 0 ? "wallslot_back" : "wallslot_front")
+  zrot(i == 0 ? 0 : 180)
+    wallarc(wall_profile, 2/3, 1, anchor=RIGHT+TOP);
+
+  translate(explode * (i == 0 ? LEFT : RIGHT))
+  position("wallslot_apex")
+  zrot(i == 0 ? 0 : 180)
+    wallarc(wall_profile, 1/3, 2/3, anchor=LEFT+TOP);
+}
+
+module heatset_insert()
+  if (cover_heatset_hole.x * cover_heatset_hole.y > 0) {
+    screw_d = struct_val(screw_info(grill_screw), "diameter");
+    recolor("#b19a5b") tube(
+      od1 = cover_heatset_hole.x,
+      od2 = cover_heatset_hole.x + 1,
+      id = screw_d,
+      h = cover_heatset_hole.y
+    );
+  }
+
 module assembly(anchor = CENTER, spin = 0, orient = UP) {
   i = default($idx, 0);
 
@@ -549,21 +648,59 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
     up((under - over)/2)
     hepa_filter() {
 
+      up(explode)
       attach(TOP, BOTTOM, overlap=filter_recess)
-        recolor(cover_color) cover($idx=i) {
-          attach(TOP, "vent_bottom")
-          recolor(grill_color) grill($idx=i)
-          recolor(undef) {
-            %attach("vent_interior", TOP) pc_fan();
-          }
-        }
+      recolor(cover_color) cover($idx=i) recolor(undef) {
 
+        down(explode)
+        recolor(wrapwall_color) cover_walls(i);
+
+        up(explode/4)
+        down(cover_heatset_hole.y)
+        up($eps)
+        attach(["screw_hole_0", "screw_hole_1", "screw_hole_2", "screw_hole_3"], BOTTOM)
+          heatset_insert();
+
+        recolor(clip_color) attach([
+          for (i = [ i % 2 : 2 : cover_clips-1 ])
+          str("clip_socket_", i)
+        ], BOTTOM, overlap=clip_size.y - explode/4) clip(spin=90);
+
+        up(explode)
+        attach(TOP, "vent_bottom")
+        recolor(grill_color) grill($idx=i) recolor(undef) {
+
+          screw_length = grill_size().z + 5;
+          up(explode/2)
+          %attach(["screw_hole_0", "screw_hole_1", "screw_hole_2", "screw_hole_3"], BOTTOM, overlap=screw_length)
+            recolor(grill_screw_color) screw(
+              spec = grill_screw,
+              head = grill_screw_head,
+              drive = grill_screw_drive,
+              thread = false, length = screw_length);
+
+          down(explode/2)
+          %attach("vent_interior", TOP) recolor(fan_color) pc_fan();
+
+        }
+      }
+
+      down(explode)
       attach(BOTTOM, TOP, overlap=filter_recess)
         recolor(base_color) base($idx=i, label=!$preview) recolor(undef) {
+
+          recolor(clip_color)
+          attach([
+            for (i = [ i % 2 : 2 : len(base_clip_sockets())-1 ])
+            str("clip_socket_", i)
+          ], BOTTOM, overlap=clip_size.y - explode/4) clip(spin=90);
+
           if (i == 0) {
-            position("power_module") power_module();
-            position("power_channel") channel_plug(anchor=BOTTOM);
+            %position("power_module") recolor(power_module_color) power_module();
+            up(explode/2)
+              position("power_channel") recolor(base_color) channel_plug(anchor=BOTTOM);
           }
+
         }
 
     }
@@ -888,10 +1025,43 @@ module hepa_filter(anchor = CENTER, spin = 0, orient = UP) {
 
 module cover(anchor = CENTER, spin = 0, orient = UP) {
   cover_i = $idx;
+  join_side = cover_i == 0 ? RIGHT : LEFT;
+  apex_side = cover_i == 0 ? LEFT : RIGHT;
 
   size = [cover_od + cover_extra, cover_od, cover_height];
 
-  attachable(anchor, spin, orient, size = size) {
+  attachable(
+    anchor, spin, orient,
+    size = size,
+    anchors = let (
+      r = wall_d/2,
+      wallslot_floor = v_mul(size/2, BOTTOM+join_side) + UP*wrapwall_slot_depth,
+      cover_top = v_mul(size/2, TOP),
+      screw_holes_at = grid_copies(spacing = fan_screw_spacing, n = [ 2, 2 ], p = cover_top),
+
+      clips_at = filter_count > 1 && cover_clips > 0 ? ycopies(
+        l = (cover_od - 2*cover_overhang - 1.5 * clip_size.x),
+        n = cover_clips,
+        p = v_mul(size/2, TOP+join_side) + DOWN*clip_size.z*1.5
+      ) : []
+
+    ) [
+
+      each [
+        for (i = idx(screw_holes_at))
+        named_anchor(str("screw_hole_", i), screw_holes_at[i], UP)
+      ],
+
+      each [
+        for (i = idx(clips_at))
+        named_anchor(str("clip_socket_", i), clips_at[i], join_side)
+      ],
+
+      named_anchor("wallslot_front", wallslot_floor + FRONT*r, join_side),
+      named_anchor("wallslot_back", wallslot_floor + BACK*r, join_side),
+      named_anchor("wallslot_apex", wallslot_floor + apex_side*(wall_d + wall_extra), apex_side)
+    ]
+  ) {
 
     plate_mirror_idx(cover_i)
     diff(remove="flow filter wallslot screw socket channel port", keep="grip support")
@@ -919,12 +1089,12 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
           cyl(h=cover_hole[1]+$eps, d=cover_hole[0]);
 
         if (filter_count > 1 && cover_clips > 0) {
-            down(clip_size.z * 1.5)
-            up(cover_height / 2)
-            ycopies(l=(cover_od - 2*cover_overhang - 1.5 * clip_size.x), n=cover_clips)
-              tag("socket")
-              attach(RIGHT, TOP, overlap=clip_size.y)
-              clip_socket();
+          down(clip_size.z * 1.5)
+          up(cover_height / 2)
+          ycopies(l=(cover_od - 2*cover_overhang - 1.5 * clip_size.x), n=cover_clips)
+            tag("socket")
+            attach(RIGHT, TOP, overlap=clip_size.y)
+            clip_socket();
         }
 
         if (filter_grip > 0) {
@@ -1026,6 +1196,20 @@ function base_size(h=undef) = let (
   default(h, dh)
 ];
 
+function base_clip_sockets(
+  size = base_size(),
+  overhang = base_overhang,
+  num_clips = base_clips,
+  p = undef
+) = let (
+  row_moves = zcopies([0 - size.z/2]),
+  col_moves = ycopies(l=(size.y - 2*overhang - 1.5 * clip_size.x), n=num_clips)
+) (filter_count < 2 || num_clips <= 0) ? [] : [
+  for (row = row_moves)
+  for (col = col_moves)
+  is_def(p) ? apply(row * col, p) : row * col
+];
+
 module base_plate(
   h = base_size().z,
   overhang = base_overhang,
@@ -1054,14 +1238,10 @@ module base_plate(
             wallslot(anchor=TOP+RIGHT, zflip=true);
         }
 
-        if (filter_count > 1 && num_clips > 0) {
-          zcopies(spacing=[0 - size.z/2])
-          ycopies(l=(size.y - 2*overhang - 1.5 * clip_size.x), n=num_clips)
-            tag("socket")
-            left(clip_size.y/2)
-            position(RIGHT+TOP)
+        move_copies(base_clip_sockets(size, overhang = overhang, p = v_mul(size/2, RIGHT+TOP)))
+          tag("socket")
+          left(clip_size.y/2)
             clip_socket(orient=LEFT, spin=90);
-        }
 
         if (filter_grip > 0) {
           tag("grip")
@@ -1158,10 +1338,17 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
 
   join_side = base_i == 0 ? RIGHT : LEFT;
 
+  clips_at = base_clip_sockets(sz, p = v_mul(sz/2, join_side+TOP));
+
   attachable(
     anchor, spin, orient,
     size = sz,
     anchors = [
+
+      each [
+        for (i = idx(clips_at))
+        named_anchor(str("clip_socket_", i), clips_at[i], join_side)
+      ],
 
       each(base_i == 0 ? let (
         deets = base_power_port_details(),
@@ -1459,6 +1646,7 @@ module plate(h, d, extra=0, chamfer1=0, chamfer2=0, anchor=CENTER, spin=0, orien
     ]);
 
     attachable(anchor, spin, orient, size = [d + extra, d, h]) {
+      render()
       hull() path_sweep(profile, outline);
 
       children();
@@ -1522,10 +1710,11 @@ module grill(
       named_anchor("vent_bottom", vent_loc + size.z*DOWN, DOWN),
       each([
         for (i = idx(screw_hole_tops))
-        named_anchor(str("screw_hole_", i), screw_hole_tops[i], DOWN)]),
+        named_anchor(str("screw_hole_", i), screw_hole_tops[i], UP)]),
     ]
   ) {
     plate_mirror_idx(grill_i)
+    render()
     grill_block(size=size, remove="screw hollow vent window") {
 
       tag("hollow")

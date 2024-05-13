@@ -47,12 +47,13 @@ An easy way to control/drive the fans is by using a commodity PWM fan controller
 This plus a splitter cable and 12v power source suffice to get things spinning.
 The design could be adapted to support a DC barrel jack instead of USB-C if desired.
 
-Optionally a thicker base plate that integrate a battery bank can be used for portable power.
+Optionally a thicker base plate that integrates a battery bank can be used for portable power.
+
+![Duo Assembly Explosion](duo/as_explode.gif)
+*assembly explosion: blue base & cover plates, red mesh wrap wall, green fan grill boxes*
 
 Eventually this project would like to support more involved control boards,
 such as an Arduino with additionally added air quality sensor and display.
-
-![Duo Render](duo/render.png)
 
 ## Setup
 
