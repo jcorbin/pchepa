@@ -2030,13 +2030,13 @@ module wall_section(w=undef, anchor = CENTER, spin = 0, orient = UP) {
             thickness=wall_size.z);
 
         tag("remove")
-        attach(LEFT, TOP, overlap=wrapwall_dovetail.y)
+        attach(LEFT, TOP, overlap=wrapwall_dovetail.y + wrapwall_dovetail_tolerance)
         xcopies(l=wall_size.y - wrapwall_dovetail.x, spacing=wrapwall_dovetail.z)
         zrot($idx % 2 == 0 ? 0 : 180)
           dovetail("female",
             h = wrapwall_dovetail.y + wrapwall_dovetail_tolerance + $eps,
             width = wrapwall_dovetail.x + 2*wrapwall_dovetail_tolerance,
-            back_width = wrapwall_dovetail.x - wrapwall_thickness + 2*wrapwall_dovetail_tolerance,
+            back_width = wrapwall_dovetail.x + 2*wrapwall_dovetail_tolerance - wrapwall_thickness,
             thickness=wall_size.z);
 
       }
