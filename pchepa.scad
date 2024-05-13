@@ -55,7 +55,7 @@ build_plate_size = [250, 250];
 //@make -o parts/pwm_knob.stl -D mode=93
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 93:PWM Knob, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Base Label Dev, 106:Base Join Test A, 107:Base Join Test B, 108:Grill Ear Test, 108:PWM Contoller Test]
+mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 93:PWM Knob, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Base Label Dev, 106:Base Join Test A, 107:Base Join Test B, 108:Grill Ear Test, 108:PWM Contoller Test]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -420,6 +420,10 @@ if (mode == 0) {
   else {
     assert(false, "base unsupported filter_count");
   }
+}
+
+else if (mode >= 1 && mode < 10) {
+  assembly($idx = mode - 1);
 }
 
 /// mode[10-19] -- bases
