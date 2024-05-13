@@ -379,9 +379,14 @@ else if (mode >= 10 && mode < 20) {
 
   translate($preview ? bb*base_od/2 : [0, 0, 0])
   preview_cutaway(dir=by)
-  recolor(base_color)
-  base($idx = base_i, label = !$preview, buddies = buddy) recolor(undef) {
+  recolor(base_color) base($idx = base_i, label = !$preview) recolor(undef) {
     %if (buddy) {
+
+      if (base_i == 0) {
+        position("power_module") power_module();
+        position("power_channel") channel_plug(anchor=BOTTOM);
+      }
+
       attach(TOP, BOTTOM, overlap=filter_recess) hepa_filter();
     }
   }
@@ -553,9 +558,13 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
           }
         }
 
-      recolor(base_color)
       attach(BOTTOM, TOP, overlap=filter_recess)
-        base(buddies=i == 0, $idx=i, label = !$preview);
+        recolor(base_color) base($idx=i, label=!$preview) recolor(undef) {
+          if (i == 0) {
+            position("power_module") power_module();
+            position("power_channel") channel_plug(anchor=BOTTOM);
+          }
+        }
 
     }
 
@@ -1129,11 +1138,7 @@ module base_label(h = 1, i = 0, anchor = CENTER, spin = 0, orient = UP) {
   }
 }
 
-module base(
-  buddies = true,
-  label = true,
-  anchor = CENTER, spin = 0, orient = UP
-) {
+module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
   base_i = $idx;
 
   sz = base_size();
@@ -1144,11 +1149,26 @@ module base(
   // inset just behind clip socket row
   power_port_offset = 1.5*clip_size.y;
 
+  join_side = base_i == 0 ? RIGHT : LEFT;
+
   attachable(
     anchor, spin, orient,
     size = sz,
     anchors = [
-      // TODO export part anchors, evict buddies
+
+      each(base_i == 0 ? let (
+        deets = base_power_port_details(),
+        power_bounds = struct_val(deets, "size"),
+        power_mod_offset = struct_val(deets, "mod_offset"),
+        power_chan_offset = struct_val(deets, "chan_offset"),
+        power_port_loc = v_mul(FRONT+BOTTOM, sz/2) + UP*pms.z/2 + join_side*power_port_offset,
+        power_mod_loc = translate(v_mul(BACK+UP, power_bounds/2) + power_mod_offset, power_port_loc),
+        power_chan_loc = translate(v_mul(BACK+UP, power_bounds/2) + power_chan_offset, power_port_loc)
+      ) [
+        named_anchor("power_module", power_mod_loc, FRONT),
+        named_anchor("power_channel", power_chan_loc, UP)
+      ] : [])
+
     ]
   ) {
     plate_mirror_idx(base_i)
@@ -1160,12 +1180,7 @@ module base(
         up(pms.z/2)
         left(power_port_offset)
         position(FRONT+RIGHT+BOTTOM)
-          base_power_port(anchor=FRONT+RIGHT+BOTTOM, lip_chamfer=2*power_module_tolerance) {
-            if (buddies) {
-              %position("module") tag("buddy") power_module();
-              %position("channel") tag("buddy") channel_plug(anchor=BOTTOM);
-            }
-          }
+          base_power_port(anchor=FRONT+RIGHT+BOTTOM, lip_chamfer=2*power_module_tolerance);
       }
 
       if (label) {
@@ -1181,6 +1196,48 @@ module base(
   }
 }
 
+function base_power_port_details(
+  channel_h = base_size().z,
+  tolerance = power_module_tolerance,
+  gap = power_channel_backset
+) = let (
+  mod_size = power_module_size(tolerance),
+  chan_size = point3d(power_channel_size, channel_h),
+  size = [
+    chan_size.x,
+    mod_size.y + gap + chan_size.y,
+    channel_h
+  ]
+) [
+  ["size", size],
+  ["mod_size", mod_size],
+  ["chan_size", chan_size],
+
+  ["mod_offset", [
+    0,
+    (size.y - mod_size.y)/2 - gap - chan_size.y,
+    (mod_size.z - size.z)/2
+  ]],
+
+  ["chan_offset", [
+    0,
+    size.y/2 - chan_size.y/2,
+    -size.z/2 + tolerance,
+  ]],
+
+  ["cut_size", [
+    mod_size.x,
+    1.5*power_module_cut + 2*tolerance,
+    4*power_module_cut + 2*tolerance
+  ]],
+
+  ["fill_size", [
+    mod_size.x,
+    gap + power_channel_chamfer + 2*$eps,
+    mod_size.z
+  ]]
+];
+
 module base_power_port(
   channel_h = base_size().z,
   tolerance = power_module_tolerance,
@@ -1188,39 +1245,13 @@ module base_power_port(
   lip_chamfer = 0,
   anchor = CENTER, spin = 0, orient = UP
 ) {
-  mod_size = power_module_size(tolerance);
-  chan_size = point3d(power_channel_size, channel_h);
-  cut_size = [
-    mod_size.x,
-    1.5*power_module_cut + 2*tolerance,
-    4*power_module_cut + 2*tolerance
-  ];
+  deets = base_power_port_details(channel_h, tolerance, gap);
+  mod_offset = struct_val(deets, "mod_offset");
+  chan_offset = struct_val(deets, "chan_offset");
 
-  fill_size = [
-    mod_size.x,
-    gap + power_channel_chamfer + 2*$eps,
-    mod_size.z
-  ];
-
-  size = [
-    chan_size.x,
-    mod_size.y + gap + chan_size.y,
-    channel_h
-  ];
-
-  mod_offset = [
-    0,
-    (size.y - mod_size.y)/2 - gap - chan_size.y,
-    (mod_size.z - size.z)/2
-  ];
-
-  attachable(anchor, spin, orient, size=size,
+  attachable(anchor, spin, orient, size=struct_val(deets, "size"),
     anchors=[
-      named_anchor("channel", [
-        0,
-        size.y/2 - chan_size.y/2,
-        -size.z/2 + tolerance,
-      ]),
+      named_anchor("channel", chan_offset),
       named_anchor("module", mod_offset),
     ]) {
 
@@ -1237,16 +1268,19 @@ module base_power_port(
       }
 
       // channel -- vertical shaft, plug goes here
+      chan_size = struct_val(deets, "chan_size");
       back(gap)
       position(BACK+BOTTOM)
         cuboid(chan_size, anchor=FRONT+BOTTOM, chamfer=power_channel_chamfer, edges="Z");
 
       // backfill -- between the channel and back of power module (over any backset)
+      fill_size = struct_val(deets, "fill_size");
       position(BACK+BOTTOM)
       fwd($eps)
       cube(fill_size, anchor=FRONT+BOTTOM);
 
       // diagonal cut -- allows pcb entry and wire egress from rear of pcb
+      cut_size = struct_val(deets, "cut_size");
       csdg = sqrt(cut_size.y^2 + (cut_size.z - power_module_cut)^2)/2;
       nudge = power_module_cut/2 - 2*tolerance;
       fwd(csdg + nudge)
