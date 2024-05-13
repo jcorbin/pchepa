@@ -38,7 +38,8 @@ build_plate_size = [250, 250];
 //@make -o duo/grill_box_a.stl -D mode=30 -D filter_count=2
 //@make -o duo/grill_box_b.stl -D mode=31 -D filter_count=2
 
-//@make -o duo/wall_section.stl -D mode=92 -D filter_count=2
+//@make -o duo/wall_section.stl -D mode=92 -D filter_count=2 -D wrapwall_dovetail=[0,0,0]
+//@make -o duo/wall_section_dovetails.stl -D mode=92 -D filter_count=2
 
 //@make -o test/power_module.stl -D mode=101 -D filter_count=2
 //@make -o test/wall.stl -D mode=102 -D filter_count=1
