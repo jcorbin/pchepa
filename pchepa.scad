@@ -432,22 +432,9 @@ else if (mode >= 10 && mode < 20) {
   translate($preview ? bb*base_od/2 : [0, 0, 0])
   preview_cutaway(dir=by)
   recolor(base_color)
-  base($idx = base_i, buddies = buddy) {
-    %if (buddy) recolor(undef) {
+  base($idx = base_i, label = !$preview, buddies = buddy) recolor(undef) {
+    %if (buddy) {
       attach(TOP, BOTTOM, overlap=filter_recess) hepa_filter();
-      if (filter_count > 1) {
-
-        render() attach(by, bb) base($idx = (base_i+1)%filter_count, buddies = false);
-
-        clip_rows = base_size().z > base_height ? 2 : 1;
-        ycopies(n=clip_rows, spacing=clip_size.x*1.5)
-        xcopies(n=base_clips, spacing=clip_size.y * 2.5)
-        up(clip_size.z/2)
-        fwd(clip_rows*clip_size.x)
-          render() position(FRONT+by+BOTTOM) clip(orient=by, spin=90);
-
-      }
-
     }
   }
 }
@@ -458,13 +445,12 @@ else if (mode >= 20 && mode < 30) {
   cover_i = mode - 20;
   preview_cutaway(dir=FRONT)
   recolor(cover_color)
-  cover($idx = cover_i, orient = $preview ? UP : DOWN) {
-    %if (buddy) recolor(undef) {
+  cover($idx = cover_i, orient = $preview ? UP : DOWN) recolor(undef) {
+    %if (buddy) {
       attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
 
       attach(TOP, "vent_bottom")
-      recolor(grill_color) grill($idx=cover_i)
-      recolor(undef) {
+      recolor(grill_color) grill($idx=cover_i) recolor(undef) {
         attach("vent_interior", TOP) pc_fan();
 
         if (cover_i == 0 && pwm_ctl_pcb_size.x*pwm_ctl_pcb_size.y*pwm_ctl_pcb_size.z > 0) {
@@ -472,16 +458,6 @@ else if (mode >= 20 && mode < 30) {
             pwm_controller();
         }
       }
-
-      if (filter_count > 1) {
-        render() attach(RIGHT, RIGHT) cover();
-
-        up(clip_size.z/2)
-        fwd(clip_size.x)
-        xcopies(n=cover_clips, spacing=clip_size.y * 2.5)
-          render() position(FRONT+RIGHT+BOTTOM) clip(orient=RIGHT, spin=90);
-      }
-
     }
   }
 }
@@ -492,13 +468,10 @@ else if (mode >= 30 && mode < 40) {
   grill_i = mode - 30;
   preview_cutaway(dir=FRONT)
   recolor(grill_color)
-  grill($idx = grill_i, orient=$preview ? UP : DOWN) {
-    %if (buddy) recolor(undef) {
-      plate_mirror_idx(grill_i)
-      left(filter_count == 1 ? 0 : (base_od - grill_size().y)/4) {
-        attach("vent_interior", TOP) pc_fan();
-        attach("vent_bottom", TOP) render() cover($idx = grill_i);
-      }
+  grill($idx = grill_i, orient=$preview ? UP : DOWN) recolor(undef) {
+    %if (buddy) {
+      attach("vent_interior", TOP) pc_fan();
+      attach("vent_bottom", TOP) render() cover($idx = grill_i);
     }
   }
 }
@@ -577,7 +550,7 @@ else if (mode == 106 || mode == 107) {
   plate_xcut_idx(base_od/2 - power_bank_size.x/2 - pad)
   preview_cutaway(dir=BOTTOM)
   front_half(s=base_od*2.1, y=power_bank_size.y/2 + pad)
-    base(buddies=buddy);
+    base(label = false, buddies = buddy);
 }
 
 else if (mode == 108) {
@@ -682,7 +655,7 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
 
       recolor(base_color)
       attach(BOTTOM, TOP, overlap=filter_recess)
-        base(buddies=i == 0, $idx=i) {
+        base(buddies=i == 0, $idx=i, label=!$preview) {
           position(TOP+(i % 2 == 0 ? RIGHT : LEFT))
           down(wrapwall_slot_depth)
           zrot(i % 2 == 0 ? 0 : 180)
@@ -1732,6 +1705,7 @@ module base_power_bank_tunnel(
 
 module base(
   buddies = true,
+  label = true,
   anchor = CENTER, spin = 0, orient = UP
 ) {
   base_i = $idx;
@@ -1769,10 +1743,12 @@ module base(
           }
       }
 
-      tag("label")
-      attach("filter", BOTTOM, overlap=1)
-      plate_mirror_idx(base_i)
-        base_label(h = 1 + $eps, i = base_i);
+      if (label) {
+        tag("label")
+        attach("filter", BOTTOM, overlap=1)
+        plate_mirror_idx(base_i)
+          base_label(h = 1 + $eps, i = base_i);
+      }
 
       if (base_embed_power_bank) {
         tolerance = power_module_tolerance;
