@@ -157,7 +157,7 @@ fan_screw_spacing = 105;
 /* [Fan Grill Metrics] */
 
 // Fan grill box preview color.
-grill_color = "#22c6b4";
+grill_color = "#246f5a";
 
 // Amount of padding to add around each side of the fan within the grill box; should be at least enough to allow routing of fan cables.
 grill_padding = 5;
@@ -189,13 +189,15 @@ grill_screw = "M3";
 // Head type for the grill box mounting screw, default is flush/countersunk heads.
 grill_screw_head = "flat";
 
+grill_screw_drive = "hex";
+
 // Cutout window size in the extra space area of the grill box between filters. Set either dimension to 0 to disable.
 grill_window = [ 0, 0 ];
 
 /* [Filter Cover Parameters] */
 
 // Cover plate preview color.
-cover_color = "#22c6b4";
+cover_color = "#4390e0";
 
 // Overall Z thickness of the cover plate between the filter and fan.
 cover_height = 20;
@@ -227,7 +229,7 @@ cover_port_at = [-48, 48];
 /* [Filter Base Parameters] */
 
 // Base plate preview color.
-base_color = "#545651";
+base_color = "#4390e0";
 
 // Overall Z thickness of the base plate under the filter.
 base_height = 20;
@@ -659,11 +661,24 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
           attach(TOP, "vent_bottom")
           recolor(grill_color) grill($idx=i)
           recolor(undef) {
-            %attach("vent_interior", TOP) pc_fan();
+
+            screw_length = grill_size().z + 5;
+            %attach(["screw_hole_0", "screw_hole_1", "screw_hole_2", "screw_hole_3"], BOTTOM, overlap=screw_length)
+              recolor("#333333")
+              screw(
+                spec = grill_screw,
+                head = grill_screw_head,
+                drive = grill_screw_drive,
+                thread = false, length = screw_length);
+
+            %attach("vent_interior", TOP) recolor("#666666") pc_fan();
 
             if (i == 0 && pwm_ctl_pcb_size.x*pwm_ctl_pcb_size.y*pwm_ctl_pcb_size.z > 0) {
               %attach("pwm_pot_hole_interior", "pot_shaft_base", overlap=-$eps)
                 pwm_controller();
+
+              %attach("pwm_pot_hole_exterior", BOTTOM, overlap=-0.5)
+                recolor(grill_color) pwm_pot_knob();
             }
           }
         }
@@ -678,12 +693,12 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
             wallmock(filter_height - 2*filter_recess + 2*wrapwall_slot_depth, anchor=RIGHT+BOTTOM);
 
           if (i == 0) {
-            position("power_module") power_module();
-            position("power_channel") channel_plug(anchor=BOTTOM);
+            %position("power_module") recolor("silver") power_module();
+            position("power_channel") recolor(base_color) channel_plug(anchor=BOTTOM);
           }
 
           if (base_embed_power_bank) {
-            position("power_bank") power_bank();
+            %position("power_bank") recolor("#333333") power_bank();
           }
         }
 
@@ -2147,10 +2162,11 @@ module grill(
       named_anchor("vent_bottom", vent_loc + size.z*DOWN, DOWN),
       each([
         for (i = idx(screw_hole_tops))
-        named_anchor(str("screw_hole_", i), screw_hole_tops[i], DOWN)]),
+        named_anchor(str("screw_hole_", i), screw_hole_tops[i], UP)]),
       each(has_pwm ? [
         named_anchor("pwm_pot_hole", pwm_pot_shaft, FRONT),
-        named_anchor("pwm_pot_hole_interior", pwm_pot_shaft + BACK*grill_thickness, BACK)
+        named_anchor("pwm_pot_hole_interior", pwm_pot_shaft + BACK*grill_thickness, BACK),
+        named_anchor("pwm_pot_hole_exterior", pwm_pot_shaft, FRONT)
       ] : [])
     ]
   ) {
