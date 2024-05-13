@@ -21,10 +21,10 @@
 # v1.0.2
 
 - improved duo plate geometry, especially where half-circle transitions to a straight line;
-this should reduce facet-seam artifacts in the printed parts
+  this should reduce facet-seam artifacts in the printed parts
 - improved power socket internal fit, by chamfering the interior corner of the lip;
-this should make socket installation easier, preventing the usb-c socket from
-getting stuck on the lip when sliding forward into position
+  this should make socket installation easier, preventing the usb-c socket from
+  getting stuck on the lip when sliding forward into position
 - added designed support inside clip socket; addressed slight roof droop/stringing, which was affecting clip tolerance
 
 # v1.0.1
@@ -44,12 +44,13 @@ getting stuck on the lip when sliding forward into position
 
 # Dev Status and TODOs
 
-- [testing] easier access to remove filter cover plate / mesh wall
-- [testing] support integrating a USB power bank into a thicker base plate
-- [dev] thicker / stronger / better mesh wall section joints
-- [ ] TODO a carrying handle part, shoulder strap attachment, or other option integrated with the cover or grill top
-- [ ] TODO support for simpler/cheaper pwm control modules
+- [rc] easier access to remove filter cover plate / mesh wall
+- [rc] support integrating a USB power bank into a thicker base plate
+- [rc] thicker / stronger / better mesh wall section joints
+- [rc] carrying ears and anchor points for a shoulder strap
+- [rc] support for simpler/cheaper pwm control modules
 - [ ] TODO inter-filter structure for duo to support additional electronics inside the mesh wall
+- [ ] TODO support N-fan stacks, primarily for dual-fan stacks (4-fans 2-filters) for higher airflow
 - [ ] TODO complete and build a single filter variant
 - [ ] TODO evolve parameters, with presets for various fan/filter models
 - [ ] TODO support arduino based electronics package, including an [air quality sensor wing][aq_wing]
