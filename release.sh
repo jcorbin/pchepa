@@ -11,7 +11,7 @@ get_next_version() {
 }
 
 regen_changelog() {
-  while read -r line; do
+  while IFS= read -r line; do
     if [[ $line =~ ^##*\ \ #v ]]; then
       echo "# ${next_version:-vNEXT}"
       echo
@@ -43,7 +43,7 @@ prep_next_version() {
 }
 
 edit_changelog
-prep_next_version
+# prep_next_version
 
 # TODO cut release by tag promotion
 # git tag -a -f "$next_version" $next_version
