@@ -2,6 +2,14 @@
 
 - not yet happy with the mesh wall integrity under bend/strain, experimenting with different joinery for next
 
+# v1.0.4
+
+- revamped base label text to fit just inside the filter inner diameter;
+  this is not just aesthetic, as cut text underneath the filter's rubber seal could potentially cause unintended air ingress
+- increased joiner clip compression now that we've got better socket tolerance and print quality
+- made the preview assembly easy to recolor
+- several minor code level improvements while working towards v1.1
+
 # v1.0.3
 
 - added project and filter notes inside base plate
