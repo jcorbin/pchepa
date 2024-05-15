@@ -1,13 +1,13 @@
 # PC fan driven HEPA filter -- [PCHEPA](https://github.com/jcorbin/pchepa)
 
-[Build Guide](v1_build.md) / [STLs on Thangs][duo_thangs] / [Bambu 3mf on MakerWorld][duo_makerworld]
+[Build Guide](build_guide.md) / [STLs on Thangs][duo_thangs] / [Bambu 3mf on MakerWorld][duo_makerworld]
 
 ![Duo Assembled With Top Open](duo/topdown_open.jpg)
 
 Primary inspiration is the [Exhalaron][exhalaron] by cleanairkits.com, but there's also a strong similarity to other
 "integrate a commodity HEPA filter and PC fan" makes before such as by [bigclive][bigclive_diy_hepa] and [greymanx][greymanx_diy_hepa].
 
-- Follow the [v1 build notes](v1_build.md) to make your own
+- Follow the [build guide](build_guide.md) to make your own
 - Download [STL models on Thangs][duo_thangs]
 - Read [CHANGELOG](CHANGELOG.md) for development status and release notes
 
