@@ -43,7 +43,7 @@ A good choice would be something like Noctua NF-P12 fans because:
 - low noise rating should mean that most of the sound created will be by air passing through the filter itself, with little added fan noise
 - no unnecessary RGB lighting ; while this point is mostly an aesthetic choice, it also minimizes power waste when running on battery
 
-An easy way to control/drive the fans is by using a commodity PWM fan controller, like the Noctua FC1.
+An easy way to control/drive the fans is by using a commodity PWM fan controller.
 This plus a splitter cable and 12v power source suffice to get things spinning.
 The design could be adapted to support a DC barrel jack instead of USB-C if desired.
 
