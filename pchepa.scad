@@ -25,6 +25,9 @@ build_plate_size = [250, 250];
 
 //@make -o duo/render.png --colorscheme='Tomorrow Night' --camera=-2.56,-4.16,-8.15,55.00,0.00,25.00,1151.54 -D mode=0 -D filter_count=2 -D base_embed_power_bank=true
 
+//@make -o user_guide/power_bank_ports.png --colorscheme='Tomorrow Night' -D mode=109 --camera=-1.47908,-49.6462,2.79803,84.4,0,351.6,172.84
+
+
 //@make -o duo/base_a.stl -D mode=10 -D filter_count=2
 //@make -o duo/base_b.stl -D mode=11 -D filter_count=2
 
@@ -56,7 +59,7 @@ build_plate_size = [250, 250];
 //@make -o parts/pwm_knob.stl -D mode=93
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 93:PWM Knob, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Base Join Test A, 106:Base Join Test B, 107:Grill Ear Test, 108:PWM Contoller Test]
+mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 93:PWM Knob, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Base Join Test A, 106:Base Join Test B, 107:Grill Ear Test, 108:PWM Contoller Test, 109:Power Bank]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -320,19 +323,23 @@ power_bank_rounding_edges = "Y";
 power_bank_sockets = [
 
   struct_set(socket_spec("usb-c"), [
+    "name", "USB-C",
     "offset", [15.5, 0]
   ]),
 
   struct_set(socket_spec("usb-a-micro"), [
+    "name", "Micro USB-A",
     "offset", [0, 0]
   ]),
 
   struct_set(socket_spec("usb-a"), [
+    "name", "USB-A",
     "offset", [-15.5, 0, 2]
   ]),
 
   // led window
   [
+    ["name", "LED Indicator"],
     ["size", [11, 1.5, 1]],
     ["offset", [0, 0, -2.8]]
   ],
@@ -596,7 +603,30 @@ else if (mode == 108) {
     grill($idx = 0);
 }
 
+else if (mode == 109) {
+  echo(camera_arg());
+  power_bank() {
+    // mahths adatped form bosl2 show_anchors, dont worry 'bout it
+    label_size = 1.5;
+    %for (anchor = ["USB-A", "Micro USB-A", "USB-C"]) {
+      attach(anchor)
+      up(4*label_size)
+      fwd(2*label_size)
+      recolor([1, 1, 1, 1])
+        cube([label_size*4/4.5*len(anchor), label_size*4/3, $eps], center=true)
+        attach(TOP, BOTTOM)
+        recolor("black")
+        text3d(anchor, size=label_size, h=$eps, atype="ycenter", center=true);
+    }
+  }
+}
+
 /// implementation
+
+function camera_arg() = str( "--camera=",
+    $vpt.x, ",", $vpt.y, ",", $vpt.z, ",",
+    $vpr.x, ",", $vpr.y, ",", $vpr.z, ",",
+    $vpd);
 
 module qrcode(file,
   size = undef,
