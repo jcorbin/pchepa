@@ -8,7 +8,6 @@ Primary inspiration is the [Exhalaron][exhalaron] by cleanairkits.com, but there
 "integrate a commodity HEPA filter and PC fan" makes before such as by [bigclive][bigclive_diy_hepa] and [greymanx][greymanx_diy_hepa].
 
 - Follow the [build guide](build_guide.md) to make your own
-- Download [STL models on Thangs][duo_thangs]
 - Read [CHANGELOG](CHANGELOG.md) for development status and release notes
 
 ## Design
@@ -43,7 +42,7 @@ A good choice would be something like Noctua NF-P12 fans because:
 - low noise rating should mean that most of the sound created will be by air passing through the filter itself, with little added fan noise
 - no unnecessary RGB lighting ; while this point is mostly an aesthetic choice, it also minimizes power waste when running on battery
 
-An easy way to control/drive the fans is by using a commodity PWM fan controller, like the Noctua FC1.
+An easy way to control/drive the fans is by using a commodity PWM fan controller.
 This plus a splitter cable and 12v power source suffice to get things spinning.
 The design could be adapted to support a DC barrel jack instead of USB-C if desired.
 
@@ -84,6 +83,8 @@ The flexible mesh wall section should instead be printed with:
 - sparse infill: 60% tri-hexagon
 - infill direction: 90°
 
+The channel plug and wall bender need to be printed with a brim.
+
 ### Fit Testing
 
 There are several cut-down fit test models that can be used to verify assembly fitment.
@@ -110,6 +111,10 @@ Joiner Clip Tolerance Test
 - primarily useful to verify socket tolerance vs printer accuracy
 - secondarily may also check printer ability to bridge, since these are meant to be printed without support
 - makefile creates `test/joiner_clip.stl`
+
+PWM Controller Mount Test
+- primarily to verify potentiometer thru-hole mount
+- also check for indicator LED visibility
 
 Power Bank Fit Test
 - cut down sections of the base plate pair, used to validate power bank fit
