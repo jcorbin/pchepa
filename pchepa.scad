@@ -387,7 +387,7 @@ filter_recess = filter_lip_size[1] + 2*filter_grip;
 
 // So the slot od/id span needs to accomdate wrapwall_thickness, wrapwall_draft, and still provide enoough
 // surrounding wall thickness either side of that drafted wallslot channel
-slot_inner_wall = 2*wrapwall_thickness;
+slot_inner_wall = 3*wrapwall_thickness;
 slot_outer_wall = wrapwall_thickness;
 slot_width = wrapwall_thickness > 0 ? wrapwall_thickness + 2*wrapwall_tolerance : 0;
 slot_id = filter_od + filter_extra_space + slot_inner_wall;
