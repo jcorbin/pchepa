@@ -1439,9 +1439,8 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
         if (wrapwall_thickness > 0) {
           tag("wallslot")
-            right(filter_count > 1 ? (base_od - slot_od)/4 + $eps : 0)
-            attach(BOTTOM, TOP, overlap=wrapwall_slot_depth)
-            wallslot();
+          down($eps) position(BOTTOM+RIGHT)
+            wallslot(anchor=BOTTOM+RIGHT);
         }
 
         tag("screw")
@@ -1597,10 +1596,8 @@ module base_plate(
 
         if (wrapwall_thickness > 0) {
           tag("wallslot")
-            right(slot_extra/2 + $eps) // TODO why the rotational assymetry?
-            zrot(180)
-            attach(TOP, TOP, overlap=wrapwall_slot_depth)
-            wallslot();
+          up($eps) position(TOP+RIGHT)
+            zflip() wallslot(anchor=BOTTOM+RIGHT);
         }
 
         if (filter_count > 1 && num_clips > 0) {
