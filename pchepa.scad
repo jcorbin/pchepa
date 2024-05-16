@@ -1752,11 +1752,14 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
 
   sz = base_size();
 
+  power_deets = base_power_port_details();
+  power_bounds = struct_val(power_deets, "size");
+
   pms = power_module_size(power_module_tolerance);
   filter_r = filter_od/2 + filter_tolerance;
 
   // placed just outside of the filter recess circle
-  ytangent = filter_r - power_channel_size.y - 3*wrapwall_thickness;
+  ytangent = base_od/2 - (power_bounds.y + sqrt(2)*power_channel_chamfer);
   power_port_offset = sqrt(filter_r^2 - ytangent^2);
 
   join_side = base_i == 0 ? RIGHT : LEFT;
@@ -1767,11 +1770,9 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
     anchors = [
 
       each(base_i == 0 ? let (
-        deets = base_power_port_details(),
-        power_bounds = struct_val(deets, "size"),
-        power_mod_offset = struct_val(deets, "mod_offset"),
-        power_chan_offset = struct_val(deets, "chan_offset"),
-        power_port_loc = v_mul(FRONT+BOTTOM, sz/2) + UP*pms.z/2 + join_side*power_port_offset,
+        power_mod_offset = struct_val(power_deets, "mod_offset"),
+        power_chan_offset = struct_val(power_deets, "chan_offset"),
+        power_port_loc = v_mul(FRONT+BOTTOM, sz/2) + UP*pms.z/2 + join_side*power_port_offset + RIGHT*power_channel_size.x/2,
         power_mod_loc = translate(v_mul(BACK+UP, power_bounds/2) + power_mod_offset, power_port_loc),
         power_chan_loc = translate(v_mul(BACK+UP, power_bounds/2) + power_chan_offset, power_port_loc)
       ) [
@@ -1796,7 +1797,7 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
         up(pms.z/2)
         translate(join_side * power_port_offset)
         position(FRONT+BOTTOM)
-          base_power_port(anchor=FRONT+BOTTOM, lip_chamfer=2*power_module_tolerance);
+          base_power_port(anchor=FRONT+BOTTOM+LEFT, lip_chamfer=2*power_module_tolerance);
       }
 
       if (label) {
