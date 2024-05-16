@@ -218,7 +218,7 @@ cover_heatset_hole = [4.4, 5.3];
 cover_port = [40, 20];
 
 // Access notch cutout on the underside of cover, aides mesh wall and filter removal; will be positioned on the bottom surface of cover, centered at the aapex of filter od.
-cover_notch = [20, 20, 20];
+cover_notch = [12, 20, 20];
 
 // Rounding radius for any cover notch cutout.
 cover_notch_rounding = 5;
@@ -235,7 +235,7 @@ base_color = "#4390e0";
 base_height = 20;
 
 // Chamfer size of the base plate, additional radial space as needed.
-base_overhang = 10;
+base_overhang = 8;
 
 // How many joiner clips to use in the base plate.
 base_clips = 4;
@@ -395,7 +395,7 @@ slot_od = slot_id + slot_width + slot_outer_wall;
 wall_d = slot_id/2 + slot_od/2;
 
 cover_od = slot_od + 2*max(cover_overhang, cover_underhang);
-base_od = slot_od + 2*base_overhang + filter_recess;
+base_od = slot_od + 2*(base_overhang + wrapwall_thickness);
 
 cover_extra = filter_count < 2 ? 0 : base_od - cover_od; // FIXME why not /2 like the others
 slot_extra = filter_count < 2 ? 0 : (base_od - slot_od)/2;
@@ -1605,7 +1605,7 @@ module base_plate(
         if (filter_count > 1 && num_clips > 0) {
           zcopies(spacing=size.z > base_height
             ? [
-              0 - 2*clip_size.z - wrapwall_slot_depth,
+              0 - 1.5*clip_size.z - wrapwall_slot_depth,
               -size.z + 2*clip_size.z
             ]
             : [0 - size.z/2])
