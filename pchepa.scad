@@ -392,12 +392,14 @@ slot_outer_wall = wrapwall_thickness;
 slot_width = wrapwall_thickness > 0 ? wrapwall_thickness + 2*wrapwall_tolerance : 0;
 slot_id = filter_od + filter_extra_space + slot_inner_wall;
 slot_od = slot_id + slot_width + slot_outer_wall;
+wall_d = slot_id/2 + slot_od/2;
 
 cover_od = slot_od + 2*max(cover_overhang, cover_underhang);
 base_od = slot_od + 2*base_overhang + filter_recess;
 
 cover_extra = filter_count < 2 ? 0 : base_od - cover_od; // FIXME why not /2 like the others
 slot_extra = filter_count < 2 ? 0 : (base_od - slot_od)/2;
+wall_extra = (base_od - wall_d)/2;
 
 cover_hole = cover_heatset_hole.x * cover_heatset_hole.y > 0
   ? cover_heatset_hole
@@ -1596,8 +1598,9 @@ module base_plate(
 
         if (wrapwall_thickness > 0) {
           tag("wallslot")
-          up($eps) position(TOP+RIGHT)
-            zflip() wallslot(anchor=BOTTOM+RIGHT);
+          up($eps)
+          position(TOP+RIGHT)
+            wallslot(anchor=TOP+RIGHT, zflip=true);
         }
 
         if (filter_count > 1 && num_clips > 0) {
@@ -1963,41 +1966,72 @@ module wallmock(h, anchor = CENTER, spin = 0, orient = UP) {
     children();
 }
 
-module wallslot(h=undef, anchor = CENTER, spin = 0, orient = UP) {
+function wallarc(
+  start = 0,
+  end = 1,
+  d = wall_d
+) = let (
+
+  r = d/2,
+  extra = (base_od - d)/2 + $eps,
+  outline = turtle([
+    "left", 180,
+    "move", r + extra,
+    "arcright", r, 180,
+    "move", r + extra,
+  ], state=[r + extra/2, -r]),
+
+  maxlen = path_length(outline),
+  start_at = maxlen * start,
+  end_at = maxlen * end,
+
+  at_start = approx(start_at, 0, $eps),
+  at_end = approx(end_at, maxlen, $eps)
+
+) at_start && at_end ? outline
+: at_start ? path_cut(outline, end_at)[0]
+: at_end ? path_cut(outline, start_at)[1]
+: path_cut(outline, [start_at, end_at])[1];
+
+module wallarc(
+  profile,
+  start = 0,
+  end = 1,
+  d = wall_d,
+  anchor = CENTER, spin = 0, orient = UP
+) {
+  outline = wallarc(start, end, d);
+  path_sweep(profile, outline, anchor = anchor, spin = spin, orient = orient)
+    children();
+}
+
+module wallslot(h=undef, zflip = false, anchor = CENTER, spin = 0, orient = UP) {
   slot_h = default(h, wrapwall_slot_depth + $eps);
+  w2 = (slot_od - slot_id)/2;
+  w1 = w2 + 2*wrapwall_draft;
+  dg = sqrt(slot_h^2 + wrapwall_draft^2);
+  t1 = acos(wrapwall_draft / dg);
+  t2 = 90 - t1;
+
+  profile = apply(zflip ? yflip() : ident(3), turtle([
+    "move", w2,
+    "right", t1,
+    "move", dg,
+    "right", 90 + t2,
+    "move", w1,
+    "right", t1 + 2*t2,
+    "move", dg,
+  ], state=[-w2/2, slot_h/2]));
 
   if (filter_count == 1) {
+    // TODO use profile
     tube(h = slot_h, id = slot_id, od = slot_od, anchor = anchor, spin = spin, orient = orient)
       children();
   }
 
   else if (filter_count == 2) {
-    attachable(anchor, spin, orient, size = [slot_od + slot_extra + $eps, slot_od, slot_h]) {
-      left((slot_extra + $eps)/2) {
-        left_half(s=2.01*slot_od)
-          diff() cyl(
-            d1 = slot_od + 2*wrapwall_draft,
-            d2 = slot_od,
-            h = slot_h)
-          tag("remove") cyl(
-            d1 = slot_id - 2*wrapwall_draft,
-            d2 = slot_id,
-            h = slot_h + 2*$eps);
-        right_half(s=2.01*slot_od, x=-$eps)
-          diff() prismoid(
-            size1=[base_od + 2*$eps, slot_od + 2*wrapwall_draft],
-            size2=[base_od + 2*$eps, slot_od],
-            h=slot_h,
-            center=true)
-          tag("remove") prismoid(
-            size1=[base_od + 4*$eps, slot_id - 2*wrapwall_draft],
-            size2=[base_od + 4*$eps, slot_id],
-            h=slot_h + 2*$eps,
-            center=true);
-      }
-
+    wallarc(profile, anchor = anchor, spin = spin, orient = orient)
       children();
-    }
   }
 
   else {
@@ -2006,7 +2040,6 @@ module wallslot(h=undef, anchor = CENTER, spin = 0, orient = UP) {
 }
 
 function wall_perim() = let (
-  wall_d = filter_od + 2*wrapwall_thickness + filter_extra_space + wrapwall_thickness,
   wall_circ = PI * wall_d,
   wall_leg = base_od/2
 ) filter_count == 1 ? wall_circ
