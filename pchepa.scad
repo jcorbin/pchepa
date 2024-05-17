@@ -63,9 +63,10 @@ build_plate_size = [250, 250];
 //@make -o parts/base_channel_plug.stl -D mode=91
 //@make -o parts/base_bank_channel_plug.stl -D mode=91 -D base_embed_power_bank=true
 //@make -o parts/pwm_knob.stl -D mode=93
+//@make -o parts/wall_bender_duo.stl -D mode=94
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 40:Base Label A, 41:Base Label B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 93:PWM Knob, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 106:Power Bank, 107:Grill Ear Test, 108:PWM Controller Test]
+mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 40:Base Label A, 41:Base Label B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 93:PWM Knob, 94:Wall Bender, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 106:Power Bank, 107:Grill Ear Test, 108:PWM Controller Test]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -598,6 +599,36 @@ else if (mode == 92) {
 
 else if (mode == 93) {
   pwm_pot_knob();
+}
+
+else if (mode == 94) {
+  preview_cutaway(dir=BOTTOM)
+
+  if ($preview && buddy) {
+    up((2*cover_height + filter_height - 2*filter_recess)/2)
+    cover($idx=0, anchor=TOP) {
+      down(explode) {
+
+        color("red") cover_walls();
+
+        position(BOTTOM+RIGHT)
+        recolor("yellow")
+          wall_bender(anchor = RIGHT+TOP);
+
+        attach(BOTTOM, TOP, overlap=filter_recess)
+        hepa_filter()
+          down(explode)
+          zrot(180) // XXX y tho
+          attach(BOTTOM, BOTTOM, overlap=filter_recess)
+            cover($idx=0);
+
+      }
+
+    }
+  } else {
+    recolor("yellow")
+      wall_bender(anchor = BOTTOM);
+  }
 }
 
 /// mode[100...] -- development aids and tests
@@ -2199,11 +2230,12 @@ module base_power_port(
 function wallarc(
   start = 0,
   end = 1,
-  d = wall_d
+  d = wall_d,
+  adj = 0
 ) = let (
 
   r = d/2,
-  extra = (base_od - d)/2 + $eps,
+  extra = (base_od - d)/2 + $eps - adj,
   outline = turtle([
     "left", 180,
     "move", r + extra,
@@ -2289,8 +2321,8 @@ function wall_section(w=undef) = [
   wrapwall_thickness
 ];
 
-module wall_section(w=undef, anchor = CENTER, spin = 0, orient = UP) {
-  dovetail_area = wrapwall_dovetail.x * wrapwall_dovetail.y;
+module wall_section(w=undef, dovetail = true, anchor = CENTER, spin = 0, orient = UP) {
+  dovetail_area = dovetail ? wrapwall_dovetail.x * wrapwall_dovetail.y : 0;
   extra = dovetail_area > 0
     ? [wrapwall_dovetail.y, 0, 0]
     : [0, 0, 0];
@@ -2325,6 +2357,42 @@ module wall_section(w=undef, anchor = CENTER, spin = 0, orient = UP) {
 
     children();
   }
+}
+
+module wall_bender(
+  h = filter_height - 2*filter_recess,
+  anchor = CENTER, spin = 0, orient = UP
+) {
+  foot_w = 25;
+  foot_c = 5; // chamfer
+  foot_s = foot_c/sqrt(2); // linear setback for chamfer
+
+  od = slot_id - 4*wrapwall_draft;
+  id = filter_od;
+  md = id/2 + od/2;
+  w = od - id;
+  profile = square([w, h], center=true);
+
+  outline = wallarc(d=md, adj=2.5); // TODO y tho
+  path = let (
+    first = outline[0],
+    last = outline[len(outline)-1]
+  ) [
+    first + foot_w * BACK, // back foot endpoint
+    first + foot_s * BACK, // back foot chamfer end
+    first + foot_s * LEFT, // back leg chamfer start
+
+    each slice(outline, 1, -2), // ... U arc body
+
+    last + foot_s * LEFT, // front leg chamfer start
+    last + foot_s * FWD, // front foot chamfer end
+    last + foot_w * FWD, // front foot endpoint
+  ];
+
+  path_sweep(
+    shape = profile, path = path,
+    anchor = anchor, spin = spin, orient = orient)
+    children();
 }
 
 module plate(h, d, extra=0, chamfer1=0, chamfer2=0, anchor=CENTER, spin=0, orient=UP) {
