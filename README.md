@@ -52,7 +52,7 @@ Optionally a thicker base plate that integrate a battery bank can be used for po
 Eventually this project would like to support more involved control boards,
 such as an Arduino with additionally added air quality sensor and display.
 
-![Duo Render](duo/render.png)
+![Duo Assembly Explosion](duo/as_explode.gif)
 
 ## Setup
 
