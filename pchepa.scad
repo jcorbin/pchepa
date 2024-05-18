@@ -30,9 +30,13 @@ build_plate_size = [250, 250];
 
 //@make -o duo/base_a.stl -D mode=10 -D filter_count=2
 //@make -o duo/base_b.stl -D mode=11 -D filter_count=2
+//@make -o duo/base_label_a.stl -D mode=40 -D filter_count=2
+//@make -o duo/base_label_b.stl -D mode=41 -D filter_count=2
 
 //@make -o duo/base_bank_a.stl -D mode=10 -D filter_count=2 -D base_embed_power_bank=true
 //@make -o duo/base_bank_b.stl -D mode=11 -D filter_count=2 -D base_embed_power_bank=true
+//@make -o duo/base_bank_label_a.stl -D mode=40 -D filter_count=2 -D base_embed_power_bank=true
+//@make -o duo/base_bank_label_b.stl -D mode=41 -D filter_count=2 -D base_embed_power_bank=true
 
 //@make -o duo/cover_a.stl -D mode=20 -D filter_count=2
 //@make -o duo/cover_b.stl -D mode=21 -D filter_count=2
@@ -60,7 +64,7 @@ build_plate_size = [250, 250];
 //@make -o parts/wall_bender_duo.stl -D mode=94
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 93:PWM Knob, 94:Wall Bender, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Base Join Test A, 106:Base Join Test B, 107:Grill Ear Test, 108:PWM Contoller Test, 109:Power Bank]
+mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 40:Base Label A, 41:Base Label B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 93:PWM Knob, 94:Wall Bender, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Base Join Test A, 106:Base Join Test B, 107:Grill Ear Test, 108:PWM Contoller Test, 109:Power Bank]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -235,7 +239,10 @@ cover_port_at = [-48, 48];
 // Base plate preview color.
 base_color = "#4390e0";
 
-// Base label cut depth.
+// Base label preview color.
+base_label_color = "white";
+
+// Base label cut/color depth.
 base_label_depth = 1;
 
 // Overall Z thickness of the base plate under the filter.
@@ -511,7 +518,21 @@ else if (mode >= 30 && mode < 40) {
   }
 }
 
-// TODO a flat grill plate (alternate to wraparound / foll coverage box
+/// mode[40-49] -- base labels
+
+else if (mode >= 40 && mode < 50) {
+  base_i = mode - 40;
+  size = base_size();
+  filter_at = [0, 0, size.z/2 - filter_recess];
+
+  recolor(base_label_color)
+  translate(filter_at) {
+    %cyl(d = filter_id, h=filter_lip_size.y, anchor=BOTTOM);
+    %cyl(d = filter_od, h=cover_height, anchor=TOP);
+    down(base_label_depth)
+      base_label(i = base_i, positive = true, anchor = BOTTOM);
+  }
+}
 
 /// mode[90-99] -- spare parts
 
@@ -668,6 +689,7 @@ module qrcode(file,
   range = 100,
   convexity = 5,
   margin = 0,
+  positive = false,
   anchor = CENTER, spin = 0, orient = UP
 ) {
   dsize = scalar_vec2(dat_size);
@@ -679,10 +701,19 @@ module qrcode(file,
     intersection() {
       up(marg.z/2)
       scale(v_div(to_size, from_size)) {
-        down(range/2)
-        zrot(-90)
-          surface(file = file, center = true, convexity = convexity);
-        cube(v_mul(sz, [1, 1, 0.5]), anchor=TOP);
+        if (positive) {
+          elide = 10;
+          down(range/2)
+          zrot(-90)
+            difference() {
+              surface(file = file, center = true, convexity = convexity);
+              down(elide) cube([dsize.x, dsize.y, 2*elide], center=true);
+            }
+        } else {
+          down(range/2)
+          zrot(-90)
+            surface(file = file, center = true, convexity = convexity);
+        }
       }
 
       cube(sz, center=true);
@@ -1750,6 +1781,7 @@ module plate_mirror_idx(i=$idx) {
 module base_label(
   i = 0,
   h = base_label_depth,
+  positive = false,
   anchor = CENTER, spin = 0, orient = UP
 ) {
   module txt(mess, size, center = true) {
@@ -1781,6 +1813,7 @@ module base_label(
           dat_size = qr_res,
           margin = [border, border, 0],
           range = 100,
+          positive = positive,
           anchor = TOP, orient = DOWN
         );
       }
