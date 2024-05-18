@@ -5,8 +5,9 @@
   2. the thicker version alone (sans dovetail) does an okay job, certainly better than v1.0 thin walls
 - the chosen battery bank option works okay, but the disingenuous capacity rating on it leave a bad taste;
   other battery options would be welcome
+- FIXME: what happened to base plate wallslots
 
-# v1.1.0
+# v1.1.0-rc2
 
 - added power bank cavity and access tunnel inside of a thicker base plate variant
 - moved power port location as far left as possible; corner of power channel now comes close to base filter retention ring
