@@ -56,7 +56,7 @@ build_plate_size = [250, 250];
 //@make -o parts/pwm_knob.stl -D mode=93
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 93:PWM Knob, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Base Label Dev, 106:Base Join Test A, 107:Base Join Test B, 108:Grill Ear Test, 108:PWM Contoller Test]
+mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 93:PWM Knob, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Base Join Test A, 106:Base Join Test B, 107:Grill Ear Test, 108:PWM Contoller Test]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -559,16 +559,7 @@ else if (mode == 104) {
     orient=$preview ? UP : BACK);
 }
 
-else if (mode == 105) {
-  xcopies(n=filter_count, spacing = filter_id + 5)
-  let ( base_i = $idx )
-  diff() cyl(d = filter_id, h=2)
-    tag("remove")
-    attach(TOP, BOTTOM, overlap=1)
-      base_label(i=base_i, h=1 + $eps);
-}
-
-else if (mode == 106 || mode == 107) {
+else if (mode == 105 || mode == 106) {
   $idx = mode - 106;
   pad = 5;
   plate_xcut_idx(base_od/2 - power_bank_size.x/2 - pad)
@@ -577,7 +568,7 @@ else if (mode == 106 || mode == 107) {
     base(label = false);
 }
 
-else if (mode == 108) {
+else if (mode == 107) {
   sz = grill_size();
   y_cut = sz.y/4;
   left_cut = -sz.x/2 + grill_thickness;
