@@ -511,10 +511,7 @@ else if (mode >= 20 && mode < 30) {
       recolor(grill_color) grill($idx=cover_i) recolor(undef) {
         attach("vent_interior", TOP) pc_fan();
 
-        if (cover_i == 0 && pwm_ctl_pcb_size.x*pwm_ctl_pcb_size.y*pwm_ctl_pcb_size.z > 0) {
-          attach("pwm_pot_hole_interior", "pot_shaft_base", overlap=-$eps)
-            pwm_controller();
-        }
+        grill_controller(cover_i);
       }
     }
   }
@@ -815,15 +812,7 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
           down(explode/2)
           %attach("vent_interior", TOP) recolor(fan_color) pc_fan();
 
-          if (i == 0 && pwm_ctl_pcb_size.x*pwm_ctl_pcb_size.y*pwm_ctl_pcb_size.z > 0) {
-            back(explode/2)
-            %attach("pwm_pot_hole_interior", "pot_shaft_base", overlap=-$eps)
-              pwm_controller();
-
-            fwd(explode/2)
-            %attach("pwm_pot_hole_exterior", BOTTOM, overlap=-0.5)
-              recolor(grill_color) pwm_pot_knob();
-          }
+          %grill_controller(i);
         }
       }
 
@@ -2356,6 +2345,18 @@ module grill_block(
       [0, 0, 1, extra > 0 ? 0 : 1], // xz
       [1, extra > 0 ? 0 : 1, 1, extra > 0 ? 0 : 1], // xy
     ]) children();
+}
+
+module grill_controller(i = 0) {
+  if (i == 0 && pwm_ctl_pcb_size.x*pwm_ctl_pcb_size.y*pwm_ctl_pcb_size.z > 0) {
+    back(explode/2)
+    attach("pwm_pot_hole_interior", "pot_shaft_base", overlap=-$eps)
+      pwm_controller();
+
+    fwd(explode/2)
+    attach("pwm_pot_hole_exterior", BOTTOM, overlap=-0.5)
+      recolor(grill_color) pwm_pot_knob();
+  }
 }
 
 module grill(
