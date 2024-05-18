@@ -231,6 +231,9 @@ cover_port_at = [-48, 48];
 // Base plate preview color.
 base_color = "#4390e0";
 
+// Base label cut depth.
+base_label_depth = 1;
+
 // Overall Z thickness of the base plate under the filter.
 base_height = 20;
 
@@ -1643,7 +1646,11 @@ module plate_mirror_idx(i=$idx) {
   }
 }
 
-module base_label(h = 1, i = 0, anchor = CENTER, spin = 0, orient = UP) {
+module base_label(
+  i = 0,
+  h = base_label_depth,
+  anchor = CENTER, spin = 0, orient = UP
+) {
   module txt(mess, size, center = true) {
     text3d(mess,
       h = h,
@@ -1798,9 +1805,9 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
 
       if (label) {
         tag("label")
-        attach("filter", BOTTOM, overlap=1)
+        attach("filter", BOTTOM, overlap=base_label_depth)
         plate_mirror_idx(base_i)
-          base_label(h = 1 + $eps, i = base_i);
+          base_label(h = base_label_depth + $eps, i = base_i);
       }
 
       if (base_embed_power_bank) {
