@@ -612,14 +612,18 @@ module qrcode(file,
   marg = scalar_vec3(margin);
   sz = to_size + [ 2*marg.x, 2*marg.y, marg.z ];
   attachable(anchor, spin, orient, size=sz) {
-    union() {
+    intersection() {
       up(marg.z/2)
-      scale(v_div(to_size + [0, 0, $eps], from_size))
-      down(range/2)
-      zrot(-90)
-        surface(file = file, center = true, convexity = convexity);
-      cube(v_mul(sz, [1, 1, 0.5]), anchor=TOP);
+      scale(v_div(to_size, from_size)) {
+        down(range/2)
+        zrot(-90)
+          surface(file = file, center = true, convexity = convexity);
+        cube(v_mul(sz, [1, 1, 0.5]), anchor=TOP);
+      }
+
+      cube(sz, center=true);
     }
+
     children();
   }
 }
@@ -1662,6 +1666,7 @@ module base_label(
   }
 
   attachable(anchor, spin, orient, d=filter_id, h=h) {
+    down(h/2)
     union() {
       if (i == 0) {
         qr_res = 256;
@@ -1674,11 +1679,10 @@ module base_label(
         fwd(qr_size/2 + border + 1 + 3 + 4)
           txt(pchepa_version, size=6);
 
-        down(h/2)
         qrcode("user_guide/v1.qr.png",
-          size = [qr_size, qr_size, h/2 + $eps],
+          size = [qr_size, qr_size, h],
           dat_size = qr_res,
-          margin = [border, border, h/2],
+          margin = [border, border, 0],
           range = 100,
           anchor = TOP, orient = DOWN
         );
