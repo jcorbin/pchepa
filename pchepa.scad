@@ -198,6 +198,9 @@ cover_port_at = [-48, 48];
 // Base plate preview color.
 base_color = "#545651";
 
+// Base label cut depth.
+base_label_depth = 1;
+
 // Overall Z thickness of the base plate under the filter.
 base_height = 20;
 
@@ -495,14 +498,18 @@ module qrcode(file,
   marg = scalar_vec3(margin);
   sz = to_size + [ 2*marg.x, 2*marg.y, marg.z ];
   attachable(anchor, spin, orient, size=sz) {
-    union() {
+    intersection() {
       up(marg.z/2)
-      scale(v_div(to_size + [0, 0, $eps], from_size))
-      down(range/2)
-      zrot(-90)
-        surface(file = file, center = true, convexity = convexity);
-      cube(v_mul(sz, [1, 1, 0.5]), anchor=TOP);
+      scale(v_div(to_size, from_size)) {
+        down(range/2)
+        zrot(-90)
+          surface(file = file, center = true, convexity = convexity);
+        cube(v_mul(sz, [1, 1, 0.5]), anchor=TOP);
+      }
+
+      cube(sz, center=true);
     }
+
     children();
   }
 }
@@ -1079,7 +1086,11 @@ module plate_mirror_idx(i=$idx) {
   }
 }
 
-module base_label(h = 1, i = 0, anchor = CENTER, spin = 0, orient = UP) {
+module base_label(
+  i = 0,
+  h = base_label_depth,
+  anchor = CENTER, spin = 0, orient = UP
+) {
   module txt(mess, size, center = true) {
     text3d(mess,
       h = h,
@@ -1091,6 +1102,7 @@ module base_label(h = 1, i = 0, anchor = CENTER, spin = 0, orient = UP) {
   }
 
   attachable(anchor, spin, orient, d=filter_id, h=h) {
+    down(h/2)
     union() {
       if (i == 0) {
         qr_res = 256;
@@ -1103,11 +1115,10 @@ module base_label(h = 1, i = 0, anchor = CENTER, spin = 0, orient = UP) {
         fwd(qr_size/2 + border + 1 + 3 + 4)
           txt(pchepa_version, size=6);
 
-        down(h/2)
         qrcode("user_guide/v1.qr.png",
-          size = [qr_size, qr_size, h/2 + $eps],
+          size = [qr_size, qr_size, h],
           dat_size = qr_res,
-          margin = [border, border, h/2],
+          margin = [border, border, 0],
           range = 100,
           anchor = TOP, orient = DOWN
         );
@@ -1181,9 +1192,9 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
 
       if (label) {
         tag("label")
-        attach("filter", BOTTOM, overlap=1)
+        attach("filter", BOTTOM, overlap=base_label_depth)
         plate_mirror_idx(base_i)
-          base_label(h = 1 + $eps, i = base_i);
+          base_label(h = base_label_depth + $eps, i = base_i);
       }
 
     }
