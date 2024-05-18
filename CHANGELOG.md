@@ -6,24 +6,26 @@
 - the chosen battery bank option works okay, but the disingenuous capacity rating on it leave a bad taste;
   other battery options would be welcome
 
-# v1.1.0-rc2
+# v1.1.0
 
 - added power bank cavity and access tunnel inside of a thicker base plate variant
 - moved power port location as far left as possible; corner of power channel now comes close to base filter retention ring
 - added optional grill box ears with anchor holes for a shoulder strap
 - added cutout notch to cover underside, allowing easier removal of mesh wall and filter
-- added positive base label models for easy multi color prints
+- added positive base label models for easy multi color prints;
+  this also makes the up-surface of the base plates smooth (when doing a multi-color print)
 - changed PWM controller module to a more minimal pcb mounted thru the front of left fan grill box; removed grill window
 - improved mesh wall stability:
   - now thicker so that it's both stronger, and so that sections cannot overlap each other as easily when slotted
   - tapered the dovetails alternating directions so that they hold together like a hinge
   - but not using dovetail by default/recommendation due to how difficult they are to assemble and manage
   - also added a bending arch to help form smooth wall bends with a heat gun
-- improved strength of inner wall between the mesh wall slot and the filter recess
-  - late in v1.1.0-rc testing, noticed minor breakage (layer separation near A side cover notch)
-  - turns out that prior geometry led to a mere 2 wall perimeters at that point
-  - so remade the wallslot channel, thickening that internal wall, and also taking the opportunity to trim down overall base plate size a little
-  - **NOTE**: this change will invalidate fit with prior base and cover plates
+- improved strength of base and cover plate filter grips
+  - release candidate testing, noticed a minor layer separation break near A side cover notch
+  - increased thickness of the wall between the filter recess cavity and the mesh wall channel
+  - further trimmed base plate geometry to reduce extra added interstitial space a little
+  - **NOTE**: this change will slightly invalidate fit with prior base and cover plates,
+    but the overall quality / strength makes it a worthy reprint
 
 # v1.0.4
 
@@ -67,11 +69,12 @@
 
 # Dev Status and TODOs
 
-- [ ] TODO better mesh wall: bending aid, hemi-loop dovetail assembly
-- [ ] TODO support N-fan stacks, primarily for dual-fan stacks (4-fans 2-filters) for higher airflow
+- [ ] TODO try a hemi-loop mesh wall dovetail assembly
+- [ ] TODO support N-filter stacks with a joiner plate
+- [ ] TODO support N-fan stacks, but also take care, and support inter-fan spacing
+- [ ] TODO support scaling down to single-stack assembly
+- [ ] TODO support N-assembly: an un-curved plate mode to allow horizontal scale
 - [ ] TODO inter-filter structure for duo to support additional electronics inside the mesh wall
-- [ ] TODO complete and build a single filter variant
-- [ ] TODO N-fan/filter: a horizontally scalable section
 - [ ] TODO evolve parameters, with presets for various fan/filter models
 - [ ] TODO support arduino based electronics package, including an [air quality sensor wing][aq_wing]
 
