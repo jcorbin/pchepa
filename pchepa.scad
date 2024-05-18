@@ -117,7 +117,7 @@ $support_preview = false;
 /* [Wraparound Wall Metrics] */
 
 // Mesh wrap wall preview color.
-wrapwall_color = "#545651";
+wrapwall_color = "#bb2424";
 
 // Thickness of the mesh wrap wall, radially away from filter center; set to zero to disable mesh wall.
 wrapwall_thickness = 1.6;
@@ -172,7 +172,7 @@ fan_screw_spacing = 105;
 /* [Fan Grill Metrics] */
 
 // Fan grill box preview color.
-grill_color = "#246f5a";
+grill_color = "#24705b";
 
 // Amount of padding to add around each side of the fan within the grill box; should be at least enough to allow routing of fan cables.
 grill_padding = 5;
