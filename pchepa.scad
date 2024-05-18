@@ -243,7 +243,7 @@ base_color = "#4390e0";
 base_label_color = "white";
 
 // Base label cut/color depth.
-base_label_depth = 1;
+base_label_depth = 0.5;
 
 // Overall Z thickness of the base plate under the filter.
 base_height = 20;
