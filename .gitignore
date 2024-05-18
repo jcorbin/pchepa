@@ -4,3 +4,5 @@
 !duo/*.stl
 !parts/*.stl
 !test/*.stl
+
+duo/as_explode*.png

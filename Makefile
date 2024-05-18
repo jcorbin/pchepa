@@ -21,8 +21,12 @@ regen:
 	rm -f pchepa.scad && git checkout -f pchepa.scad
 	$(MAKE) clean
 	$(MAKE) all
+	$(MAKE) duo/as_explode.gif
 	git add $(MODELS)
 	git commit -m 'Regenerate models'
+
+duo/as_explode.gif:
+	convert $$(ls -1 duo/as_explode*.png; ls -1 duo/as_explode*.png | tac) -set delay 4 duo/as_explode.gif
 
 GOBIN ?= $(shell go env GOPATH)/bin
 QRCODE=$(GOBIN)/qrcode
