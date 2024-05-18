@@ -144,6 +144,9 @@ wrapwall_dovetail_tolerance = 0.1;
 
 /* [PC Fan Metrics] */
 
+// Fan body preview color.
+fan_color = "#666666";
+
 // Basic dimensions of the fan, default is for a standard 120mm fan.
 fan_size = [ 120, 120, 25 ];
 
@@ -196,6 +199,9 @@ grill_hole_degree = 6;
 
 // Grill box mounting screw size, need to be compatible with the fan_screw size; will bolt through grill, fan, and into cover plate.
 grill_screw = "M3";
+
+// Screw preview color for grill assembly.
+grill_screw_color = "silver";
 
 // Head type for the grill box mounting screw, default is flush/countersunk heads.
 grill_screw_head = "flat";
@@ -505,11 +511,25 @@ else if (mode >= 20 && mode < 30) {
   recolor(cover_color)
   cover($idx = cover_i, orient = $preview ? UP : DOWN) recolor(undef) {
     %if (buddy) {
-      attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
 
+      down(explode)
+        attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
+
+      up(explode)
       attach(TOP, "vent_bottom")
       recolor(grill_color) grill($idx=cover_i) recolor(undef) {
-        attach("vent_interior", TOP) pc_fan();
+
+        down(explode/2)
+        attach("vent_interior", TOP) recolor(fan_color) pc_fan();
+
+        screw_length = grill_size().z + 5;
+        up(explode/2)
+        attach(["screw_hole_0", "screw_hole_1", "screw_hole_2", "screw_hole_3"], BOTTOM, overlap=screw_length)
+          recolor(grill_screw_color) screw(
+            spec = grill_screw,
+            head = grill_screw_head,
+            drive = grill_screw_drive,
+            thread = false, length = screw_length);
 
         grill_controller(cover_i);
       }
@@ -782,9 +802,6 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
   under = b.z - filter_recess;
   h = filter_height + under + over;
 
-  fan_color = "#666666";
-  screw_color = "silver";
-
   attachable(anchor, spin, orient, size=[b.x, b.y, h]) {
     up((under - over)/2)
     hepa_filter() {
@@ -803,7 +820,7 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
           screw_length = grill_size().z + 5;
           up(explode/2)
           %attach(["screw_hole_0", "screw_hole_1", "screw_hole_2", "screw_hole_3"], BOTTOM, overlap=screw_length)
-            recolor(screw_color) screw(
+            recolor(grill_screw_color) screw(
               spec = grill_screw,
               head = grill_screw_head,
               drive = grill_screw_drive,
