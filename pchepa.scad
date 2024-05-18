@@ -1686,6 +1686,11 @@ module base_label(h = 1, i = 0, anchor = CENTER, spin = 0, orient = UP) {
         fwd(18)
           txt(pchepa_version, size=6);
       }
+
+      else {
+        txt("undefined", size=8);
+        fwd(10) txt(str("base_", i), size=8);
+      }
     }
 
     children();
