@@ -293,6 +293,9 @@ clip_fit_test = [0.2, 0.05, 0.6];
 
 // Tune for a particular USB-C 12v power trigger module
 
+// Preview color; TODO would be nice to color the pcb separate from socket.
+power_module_color = "silver";
+
 // Measured size of the USB-C power module PCB.
 power_pcb_size = [10.8, 16.25, 1.5];
 
@@ -328,6 +331,7 @@ channel_plug_notch_size = [ 5, 3 ];
 
 /* [Power Bank] */
 
+power_bank_color = "#333333";
 power_bank_size = [ 62, 90.2, 22.5 ];
 power_bank_rounding = 9;
 power_bank_rounding_edges = "Y";
@@ -444,8 +448,10 @@ if (mode == 0) {
 
   else if (filter_count == 2) {
     left(base_od/2)
+    left(explode/2)
     assembly($idx = 0)
-    attach(RIGHT, LEFT) assembly($idx = 1);
+      right(explode)
+      attach(RIGHT, LEFT) assembly($idx = 1);
   }
 
   else {
@@ -469,17 +475,24 @@ else if (mode >= 10 && mode < 20) {
   recolor(base_color)
   base($idx = base_i, label = !$preview) recolor(undef) {
     %if (buddy) {
-
       if (base_i == 0) {
-        position("power_module") power_module();
-        position("power_channel") channel_plug(anchor=BOTTOM);
+        fwd(explode)
+        position("power_module")
+          recolor(power_module_color) power_module();
+        up(explode)
+        position("power_channel")
+          recolor(base_color) channel_plug(anchor=BOTTOM);
       }
 
       if (base_embed_power_bank) {
-        position("power_bank") power_bank();
+        translate(by * explode)
+        position("power_bank")
+          recolor(power_bank_color) power_bank();
       }
 
-      attach(TOP, BOTTOM, overlap=filter_recess) hepa_filter();
+      up(explode)
+      attach(TOP, BOTTOM, overlap=filter_recess)
+        hepa_filter();
     }
   }
 }
@@ -774,8 +787,6 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
 
   fan_color = "#666666";
   screw_color = "silver";
-  power_bank_color = "#333333";
-  power_module_color = "silver";
 
   attachable(anchor, spin, orient, size=[b.x, b.y, h]) {
     up((under - over)/2)
