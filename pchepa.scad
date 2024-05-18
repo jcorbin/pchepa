@@ -18,6 +18,9 @@ buddy = true;
 // Enables preview cutaway for some parts.
 cutaway = false;
 
+// Assembly explosion distance.
+explode = 50;
+
 // How big is your printer's printable area?
 build_plate_size = [250, 250];
 
@@ -556,9 +559,6 @@ else if (mode == 94) {
   preview_cutaway(dir=BOTTOM)
 
   if ($preview && buddy) {
-
-    explode = 50;
-
     up((2*cover_height + filter_height - 2*filter_recess)/2)
     cover($idx=0, anchor=TOP) {
       down(explode) {
@@ -772,53 +772,62 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
   under = b.z - filter_recess;
   h = filter_height + under + over;
 
+  fan_color = "#666666";
+  screw_color = "silver";
+  power_bank_color = "#333333";
+  power_module_color = "silver";
+
   attachable(anchor, spin, orient, size=[b.x, b.y, h]) {
     up((under - over)/2)
     hepa_filter() {
 
+      up(explode)
       attach(TOP, BOTTOM, overlap=filter_recess)
-        recolor(cover_color) cover($idx=i) {
-          attach(TOP, "vent_bottom")
-          recolor(grill_color) grill($idx=i)
-          recolor(undef) {
+      recolor(cover_color) cover($idx=i) recolor(undef) {
 
-            screw_length = grill_size().z + 5;
-            %attach(["screw_hole_0", "screw_hole_1", "screw_hole_2", "screw_hole_3"], BOTTOM, overlap=screw_length)
-              recolor("#333333")
-              screw(
-                spec = grill_screw,
-                head = grill_screw_head,
-                drive = grill_screw_drive,
-                thread = false, length = screw_length);
+        down(explode)
+        recolor(wrapwall_color) cover_walls(i);
 
-            %attach("vent_interior", TOP) recolor("#666666") pc_fan();
+        up(explode)
+        attach(TOP, "vent_bottom")
+        recolor(grill_color) grill($idx=i) recolor(undef) {
 
-            if (i == 0 && pwm_ctl_pcb_size.x*pwm_ctl_pcb_size.y*pwm_ctl_pcb_size.z > 0) {
-              %attach("pwm_pot_hole_interior", "pot_shaft_base", overlap=-$eps)
-                pwm_controller();
+          screw_length = grill_size().z + 5;
+          up(explode/2)
+          %attach(["screw_hole_0", "screw_hole_1", "screw_hole_2", "screw_hole_3"], BOTTOM, overlap=screw_length)
+            recolor(screw_color) screw(
+              spec = grill_screw,
+              head = grill_screw_head,
+              drive = grill_screw_drive,
+              thread = false, length = screw_length);
 
-              %attach("pwm_pot_hole_exterior", BOTTOM, overlap=-0.5)
-                recolor(grill_color) pwm_pot_knob();
-            }
+          down(explode/2)
+          %attach("vent_interior", TOP) recolor(fan_color) pc_fan();
+
+          if (i == 0 && pwm_ctl_pcb_size.x*pwm_ctl_pcb_size.y*pwm_ctl_pcb_size.z > 0) {
+            back(explode/2)
+            %attach("pwm_pot_hole_interior", "pot_shaft_base", overlap=-$eps)
+              pwm_controller();
+
+            fwd(explode/2)
+            %attach("pwm_pot_hole_exterior", BOTTOM, overlap=-0.5)
+              recolor(grill_color) pwm_pot_knob();
           }
         }
+      }
 
-      recolor(base_color)
+      down(explode)
       attach(BOTTOM, TOP, overlap=filter_recess)
-        base($idx=i, label=!$preview) recolor(undef) {
-          position(TOP+(i % 2 == 0 ? RIGHT : LEFT))
-          down(wrapwall_slot_depth)
-          zrot(i % 2 == 0 ? 0 : 180)
-          recolor(wrapwall_color)
-            wallmock(filter_height - 2*filter_recess + 2*wrapwall_slot_depth, anchor=RIGHT+BOTTOM);
-
+        recolor(base_color) base($idx=i, label=!$preview) recolor(undef) {
           if (i == 0) {
-            %position("power_module") recolor("silver") power_module();
-            position("power_channel") recolor(base_color) channel_plug(anchor=BOTTOM);
-          }
+            %position("power_module") recolor(power_module_color) power_module();
+            up(explode/2)
+              position("power_channel") recolor(base_color) channel_plug(anchor=BOTTOM);
 
-          if (base_embed_power_bank) {
-            %position("power_bank") recolor("#333333") power_bank();
+            if (base_embed_power_bank) {
+              right(explode/2)
+                %position("power_bank") recolor(power_bank_color) power_bank();
+            }
           }
         }
 
@@ -2077,31 +2086,6 @@ module base_power_port(
 
     children();
   }
-}
-
-module wallmock(h, anchor = CENTER, spin = 0, orient = UP) {
-  slot_t = (slot_od - slot_id)/2;
-  r = (slot_od - slot_t)/2;
-  r1 = r + wrapwall_thickness/2;
-  r2 = r - wrapwall_thickness/2;
-
-  extra = (base_od - slot_od)/2;
-  path = turtle([
-    "left", 180,
-    "move", r1 + extra,
-    "arcright", r1, 180,
-    "move", r1 + extra,
-
-    "right", 90, "move", wrapwall_thickness,
-    "right", 90,
-    "move", r2 + wrapwall_thickness + extra,
-    "arcleft", r2, 180,
-    "move", r2 + wrapwall_thickness + extra,
-    "right", 90, "move", wrapwall_thickness,
-  ], state=[r1 + extra/2, -r1]);
-
-  linear_sweep(path, h, anchor=anchor, spin=spin, orient=orient)
-    children();
 }
 
 function wallarc(
