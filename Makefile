@@ -17,12 +17,15 @@ $(MODELS): $(SCAD)
 	openscad $< $(shell grep '//@make ' $< | grep -- ' -o $@' | sed -r -e 's/^\/\/@make //')
 
 regen:
-	git diff --exit-code pchepa.scad
-	rm -f pchepa.scad && git checkout -f pchepa.scad
 	$(MAKE) clean
-	$(MAKE) all
+	$(MAKE) rebuild
 	git add $(MODELS)
 	git commit -m 'Regenerate models'
+
+rebuild:
+	git diff --exit-code pchepa.scad
+	rm -f pchepa.scad && git checkout -f pchepa.scad
+	$(MAKE) $(MODELS)
 
 GOBIN ?= $(shell go env GOPATH)/bin
 QRCODE=$(GOBIN)/qrcode
