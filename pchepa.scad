@@ -53,13 +53,14 @@ build_plate_size = [250, 250];
 //@make -o duo/wall_section_dovetails.stl -D mode=92 -D filter_count=2
 
 //@make -o test/power_module.stl -D mode=101 -D filter_count=2
-//@make -o test/wall.stl -D mode=102 -D filter_count=1
-//@make -o test/cover_hole.stl -D mode=103 -D filter_count=1
+//@make -o test/wall.stl -D mode=102 -D filter_count=2
+//@make -o test/cover_hole.stl -D mode=103 -D filter_count=2
 //@make -o test/joiner_clip.stl -D mode=104
-//@make -o test/power_bank_a.stl -D mode=105 -D base_embed_power_bank=true
-//@make -o test/power_bank_b.stl -D mode=106 -D base_embed_power_bank=true
+//@make -o test/power_bank_tunnel.stl -D mode=105 -D base_embed_power_bank=true
 //@make -o test/grill_ear.stl -D mode=107
 //@make -o test/pwm_ctl_mount.stl -D mode=108
+//@make -o test/base_label_a.stl -D mode=42 -D filter_count=2
+//@make -o test/base_label_b.stl -D mode=43 -D filter_count=2
 
 //@make -o parts/clip.stl -D mode=90
 //@make -o parts/base_channel_plug.stl -D mode=91
@@ -68,7 +69,7 @@ build_plate_size = [250, 250];
 //@make -o parts/wall_bender_duo.stl -D mode=94
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 40:Base Label A, 41:Base Label B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 93:PWM Knob, 94:Wall Bender, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Base Join Test A, 106:Base Join Test B, 107:Grill Ear Test, 108:PWM Contoller Test, 109:Power Bank]
+mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 40:Base Label A, 41:Base Label B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 93:PWM Knob, 94:Wall Bender, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 107:Grill Ear Test, 108:PWM Contoller Test, 109:Power Bank]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -558,17 +559,7 @@ else if (mode >= 30 && mode < 40) {
 /// mode[40-49] -- base labels
 
 else if (mode >= 40 && mode < 50) {
-  base_i = mode - 40;
-  size = base_size();
-  filter_at = [0, 0, size.z/2 - filter_recess];
-
-  recolor(base_label_color)
-  translate(filter_at) {
-    %cyl(d = filter_id, h=filter_lip_size.y, anchor=BOTTOM);
-    %cyl(d = filter_od, h=cover_height, anchor=TOP);
-    down(base_label_depth)
-      base_label(i = base_i, positive = true, anchor = BOTTOM);
-  }
+  base_label_demo(mode - 40);
 }
 
 /// mode[90-99] -- spare parts
@@ -658,13 +649,17 @@ else if (mode == 104) {
     orient=$preview ? UP : BACK);
 }
 
-else if (mode == 105 || mode == 106) {
-  $idx = mode - 106;
+else if (mode == 105) {
   pad = 5;
-  plate_xcut_idx(base_od/2 - power_bank_size.x/2 - pad)
-  preview_cutaway(dir=BOTTOM)
-  front_half(s=base_od*2.1, y=power_bank_size.y/2 + pad)
-    base(label = false);
+  x_cut = base_od/2 - power_bank_size.x/2 - pad;
+  y_cut = power_bank_size.y/2 + pad;
+  xcopies(n = 2, spacing = x_cut) {
+    plate_xcut_idx(x_cut)
+    preview_cutaway(dir=BOTTOM)
+    back(y_cut/2)
+    front_half(s=base_od*2.1, y=y_cut)
+      base(label = false);
+  }
 }
 
 else if (mode == 107) {
@@ -774,6 +769,38 @@ module preview_cut(v=UP, s=max(build_plate_size), t=0) {
       children();
   } else {
     children();
+  }
+}
+
+module base_label_demo(i = 0) {
+  size = base_size();
+  filter_at = [0, 0, size.z/2 - filter_recess];
+
+  mode = floor(i / filter_count);
+  j = i % filter_count;
+
+  module neg() {
+    recolor(base_color)
+      diff() cyl(d = filter_id, h=base_label_depth * 3, anchor=TOP)
+      tag("remove")
+        attach(TOP, BOTTOM, overlap=base_label_depth)
+        base_label(h = base_label_depth + $eps, i = j);
+  }
+
+  module pos() {
+    down(base_label_depth)
+    recolor(base_label_color)
+      base_label(i = j, positive = true, anchor = BOTTOM);
+  }
+
+  translate(filter_at) {
+    if (mode % 2 == 0) {
+      %down($eps) neg();
+      pos();
+    } else {
+      neg();
+      %up($eps) pos();
+    }
   }
 }
 
@@ -1084,7 +1111,8 @@ module wall_fit_test() {
 
   cover_size = cover_od/2 - cover_cut;
   base_size = base_od/2 - base_cut;
-  wall_size = wall_section(base_od - filter_od).x;
+  wall_len = 50;
+  wall_size = wall_section(wall_len).x;
 
   ydistribute(sizes=[
     cover_size,
@@ -1100,8 +1128,8 @@ module wall_fit_test() {
     back(base_cut)
       front_half(s=cut_size, y=-base_cut) base_plate();
 
-    zrot(90) wall_section(base_od - filter_od);
-    zrot(90) wall_section(base_od - filter_od);
+    zrot(90) wall_section(wall_len);
+    zrot(90) wall_section(wall_len);
   }
 }
 
