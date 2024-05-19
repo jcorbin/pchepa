@@ -21,11 +21,8 @@ $(MODELS): $(SCAD)
 ANIMATED_MODELS=$(patsubst %.png,%.gif,$(ANIM_MODELS))
 
 regen:
-	git diff --exit-code pchepa.scad
-	rm -f pchepa.scad && git checkout -f pchepa.scad
 	$(MAKE) clean
-	$(MAKE) all
-	$(MAKE) $(ANIMATED_MODELS)
+	$(MAKE) rebuild
 	git add $(STATIC_MODELS) $(ANIMATED_MODELS)
 	git commit -m 'Regenerate models'
 
