@@ -16,7 +16,7 @@ include <BOSL2/walls.scad>
 buddy = true;
 
 // Enables preview cutaway for some parts.
-cutaway = true;
+cutaway = false;
 
 // How big is your printer's printable area?
 build_plate_size = [250, 250];
