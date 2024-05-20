@@ -520,6 +520,12 @@ else if (mode >= 20 && mode < 30) {
       down(explode)
         attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
 
+      up(explode/4)
+      down(cover_heatset_hole.y)
+      up($eps)
+      attach(["screw_hole_0", "screw_hole_1", "screw_hole_2", "screw_hole_3"], BOTTOM)
+        heatset_insert();
+
       up(explode)
       attach(TOP, "vent_bottom")
       recolor(grill_color) grill($idx=cover_i) recolor(undef) {
@@ -824,6 +830,17 @@ module cover_walls(i = 0) {
     wallarc(wall_profile, 1/3, 2/3, anchor=LEFT+TOP);
 }
 
+module heatset_insert()
+  if (cover_heatset_hole.x * cover_heatset_hole.y > 0) {
+    screw_d = struct_val(screw_info(grill_screw), "diameter");
+    recolor("#b19a5b") tube(
+      od1 = cover_heatset_hole.x,
+      od2 = cover_heatset_hole.x + 1,
+      id = screw_d,
+      h = cover_heatset_hole.y
+    );
+  }
+
 module assembly(anchor = CENTER, spin = 0, orient = UP) {
   i = default($idx, 0);
 
@@ -843,6 +860,12 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
 
         down(explode)
         recolor(wrapwall_color) cover_walls(i);
+
+        up(explode/4)
+        down(cover_heatset_hole.y)
+        up($eps)
+        attach(["screw_hole_0", "screw_hole_1", "screw_hole_2", "screw_hole_3"], BOTTOM)
+          heatset_insert();
 
         up(explode)
         attach(TOP, "vent_bottom")
@@ -1602,8 +1625,16 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
     size = size,
     anchors = let (
       r = wall_d/2,
-      wallslot_floor = v_mul(size/2, BOTTOM+join_side) + UP*wrapwall_slot_depth
+      wallslot_floor = v_mul(size/2, BOTTOM+join_side) + UP*wrapwall_slot_depth,
+      cover_top = v_mul(size/2, TOP),
+      screw_holes_at = grid_copies(spacing = fan_screw_spacing, n = [ 2, 2 ], p = cover_top),
     ) [
+
+      each [
+        for (i = idx(screw_holes_at))
+        named_anchor(str("screw_hole_", i), screw_holes_at[i], UP)
+      ],
+
       named_anchor("wallslot_front", wallslot_floor + FRONT*r, join_side),
       named_anchor("wallslot_back", wallslot_floor + BACK*r, join_side),
       named_anchor("wallslot_apex", wallslot_floor + apex_side*(wall_d + wall_extra), apex_side)
