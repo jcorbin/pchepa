@@ -37,8 +37,8 @@ build_plate_size = [250, 250];
 //@make -o duo/wall_section.stl -D mode=92 -D filter_count=2
 
 //@make -o test/power_module.stl -D mode=101 -D filter_count=2
-//@make -o test/wall.stl -D mode=102 -D filter_count=1
-//@make -o test/cover_hole.stl -D mode=103 -D filter_count=1
+//@make -o test/wall.stl -D mode=102 -D filter_count=2
+//@make -o test/cover_hole.stl -D mode=103 -D filter_count=2
 //@make -o test/joiner_clip.stl -D mode=104
 
 //@make -o parts/duo_kit.stl -D mode=1 -D filter_count=2
