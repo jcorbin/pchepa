@@ -404,12 +404,17 @@ else if (mode >= 10 && mode < 20) {
 
 else if (mode >= 20 && mode < 30) {
   cover_i = mode - 20;
-  preview_cutaway(r=[0, 0, 22.5])
+  preview_cutaway(dir=FRONT)
   recolor(cover_color)
   cover($idx = cover_i, orient = $preview ? UP : DOWN) {
     %if (buddy) recolor(undef) {
       attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
-      attach(TOP, BOTTOM) pc_fan();
+
+      attach(TOP, "vent_bottom")
+      recolor(grill_color) grill($idx=cover_i)
+      recolor(undef) {
+        attach("vent_interior", TOP) pc_fan();
+      }
 
       if (filter_count > 1) {
         render() attach(RIGHT, RIGHT) cover();
