@@ -605,7 +605,8 @@ module wall_fit_test() {
 
   cover_size = cover_od/2 - cover_cut;
   base_size = base_od/2 - base_cut;
-  wall_size = wall_section(base_od - filter_od).x;
+  wall_len = 50;
+  wall_size = wall_section(wall_len).x;
 
   ydistribute(sizes=[
     cover_size,
@@ -621,8 +622,8 @@ module wall_fit_test() {
     back(base_cut)
       front_half(s=cut_size, y=-base_cut) base_plate();
 
-    zrot(90) wall_section(base_od - filter_od);
-    zrot(90) wall_section(base_od - filter_od);
+    zrot(90) wall_section(wall_len);
+    zrot(90) wall_section(wall_len);
   }
 }
 
