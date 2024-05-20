@@ -903,6 +903,7 @@ module pwm_pot_knob(
 
   attachable(anchor, spin, orient, d=base_d, h=h) {
     down(h/2)
+    render()
     difference() {
       conv_hull()
       cyl(d=base_d, h=base_h, chamfer2=chamfer, anchor=BOTTOM) {
@@ -2335,6 +2336,7 @@ module plate(h, d, extra=0, chamfer1=0, chamfer2=0, anchor=CENTER, spin=0, orien
     ]);
 
     attachable(anchor, spin, orient, size = [d + extra, d, h]) {
+      render()
       hull() path_sweep(profile, outline);
 
       children();
@@ -2426,6 +2428,7 @@ module grill(
     ]
   ) {
     plate_mirror_idx(grill_i)
+    render()
     grill_block(size=size, remove="screw hollow vent anchor window pwm_ctl") {
 
       if (grill_ear.x * grill_ear.y > 0) {
