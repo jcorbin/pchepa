@@ -279,6 +279,9 @@ base_power_bank_tunnel_chamfer = 4;
 
 /* [Joiner Clip Parameters] */
 
+// Preview color for joiner clips.
+clip_color = "#eeeeee";
+
 // Size of the joiner BOSL2 rabbit clips used to join base and cover plate pairs: [width, length, depth]
 clip_size = [14, 14, 3];
 
@@ -486,6 +489,13 @@ else if (mode >= 10 && mode < 20) {
   recolor(base_color)
   base($idx = base_i, label = !$preview) recolor(undef) {
     %if (buddy) {
+
+      recolor(clip_color)
+      attach([
+        for (i = [ base_i % 2 : 2 : (base_embed_power_bank ? 2*base_clips : base_clips)-1 ])
+        str("clip_socket_", i)
+      ], BOTTOM, overlap=clip_size.y - explode/4) clip(spin=90);
+
       if (base_i == 0) {
         fwd(explode)
         position("power_module")
@@ -525,6 +535,12 @@ else if (mode >= 20 && mode < 30) {
       up($eps)
       attach(["screw_hole_0", "screw_hole_1", "screw_hole_2", "screw_hole_3"], BOTTOM)
         heatset_insert();
+
+      recolor(clip_color)
+      attach([
+        for (i = [ cover_i % 2 : 2 : cover_clips-1 ])
+        str("clip_socket_", i)
+      ], BOTTOM, overlap=clip_size.y - explode/4) clip(spin=90);
 
       up(explode)
       attach(TOP, "vent_bottom")
@@ -867,6 +883,11 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
         attach(["screw_hole_0", "screw_hole_1", "screw_hole_2", "screw_hole_3"], BOTTOM)
           heatset_insert();
 
+        recolor(clip_color) attach([
+          for (i = [ i % 2 : 2 : cover_clips-1 ])
+          str("clip_socket_", i)
+        ], BOTTOM, overlap=clip_size.y - explode/4) clip(spin=90);
+
         up(explode)
         attach(TOP, "vent_bottom")
         recolor(grill_color) grill($idx=i) recolor(undef) {
@@ -890,6 +911,13 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
       down(explode)
       attach(BOTTOM, TOP, overlap=filter_recess)
         recolor(base_color) base($idx=i, label=!$preview) recolor(undef) {
+
+          recolor(clip_color)
+          attach([
+            for (i = [ i % 2 : 2 : (base_embed_power_bank ? 2*base_clips : base_clips)-1 ])
+            str("clip_socket_", i)
+          ], BOTTOM, overlap=clip_size.y - explode/4) clip(spin=90);
+
           if (i == 0) {
             %position("power_module") recolor(power_module_color) power_module();
             up(explode/2)
@@ -1628,11 +1656,23 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
       wallslot_floor = v_mul(size/2, BOTTOM+join_side) + UP*wrapwall_slot_depth,
       cover_top = v_mul(size/2, TOP),
       screw_holes_at = grid_copies(spacing = fan_screw_spacing, n = [ 2, 2 ], p = cover_top),
+
+      clips_at = filter_count > 1 && cover_clips > 0 ? ycopies(
+        l = (cover_od - 2*cover_overhang - 1.5 * clip_size.x),
+        n = cover_clips,
+        p = v_mul(size/2, TOP+join_side) + DOWN*clip_size.z*1.5
+      ) : []
+
     ) [
 
       each [
         for (i = idx(screw_holes_at))
         named_anchor(str("screw_hole_", i), screw_holes_at[i], UP)
+      ],
+
+      each [
+        for (i = idx(clips_at))
+        named_anchor(str("clip_socket_", i), clips_at[i], join_side)
       ],
 
       named_anchor("wallslot_front", wallslot_floor + FRONT*r, join_side),
@@ -1667,12 +1707,12 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
           cyl(h=cover_hole[1]+$eps, d=cover_hole[0]);
 
         if (filter_count > 1 && cover_clips > 0) {
-            down(clip_size.z * 1.5)
-            up(cover_height / 2)
-            ycopies(l=(cover_od - 2*cover_overhang - 1.5 * clip_size.x), n=cover_clips)
-              tag("socket")
-              attach(RIGHT, TOP, overlap=clip_size.y)
-              clip_socket();
+          down(clip_size.z * 1.5)
+          up(cover_height / 2)
+          ycopies(l=(cover_od - 2*cover_overhang - 1.5 * clip_size.x), n=cover_clips)
+            tag("socket")
+            attach(RIGHT, TOP, overlap=clip_size.y)
+            clip_socket();
         }
 
         if (filter_grip > 0) {
@@ -1791,6 +1831,28 @@ function base_size(h=undef) = let (
   default(h, dh)
 ];
 
+function base_clip_sockets(
+  size = base_size(),
+  overhang = base_overhang,
+  num_clips = base_clips,
+  p = undef
+) = let (
+
+  row_moves = zcopies(spacing=size.z > base_height
+    ? [
+      0 - 1.5*clip_size.z - wrapwall_slot_depth,
+      -size.z + 2*clip_size.z
+    ]
+    : [0 - size.z/2]),
+
+  col_moves = ycopies(l=(size.y - 2*overhang - 1.5 * clip_size.x), n=num_clips)
+
+) (filter_count < 2 || num_clips <= 0) ? [] : [
+  for (row = row_moves)
+  for (col = col_moves)
+  is_def(p) ? apply(row * col, p) : row * col
+];
+
 module base_plate(
   h = base_size().z,
   overhang = base_overhang,
@@ -1819,19 +1881,10 @@ module base_plate(
             wallslot(anchor=TOP+RIGHT, zflip=true);
         }
 
-        if (filter_count > 1 && num_clips > 0) {
-          zcopies(spacing=size.z > base_height
-            ? [
-              0 - 1.5*clip_size.z - wrapwall_slot_depth,
-              -size.z + 2*clip_size.z
-            ]
-            : [0 - size.z/2])
-          ycopies(l=(size.y - 2*overhang - 1.5 * clip_size.x), n=num_clips)
-            tag("socket")
-            left(clip_size.y/2)
-            position(RIGHT+TOP)
+        move_copies(base_clip_sockets(size, overhang = overhang, p = v_mul(size/2, RIGHT+TOP)))
+          tag("socket")
+          left(clip_size.y/2)
             clip_socket(orient=LEFT, spin=90);
-        }
 
         if (filter_grip > 0) {
           tag("grip")
@@ -1991,10 +2044,17 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
 
   join_side = base_i == 0 ? RIGHT : LEFT;
 
+  clips_at = base_clip_sockets(sz, p = v_mul(sz/2, join_side+TOP));
+
   attachable(
     anchor, spin, orient,
     size = sz,
     anchors = [
+
+      each [
+        for (i = idx(clips_at))
+        named_anchor(str("clip_socket_", i), clips_at[i], join_side)
+      ],
 
       each(base_i == 0 ? let (
         power_mod_offset = struct_val(power_deets, "mod_offset"),
