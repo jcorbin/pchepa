@@ -2,6 +2,14 @@
 
 - not yet happy with the mesh wall integrity under bend/strain, experimenting with different joinery for next
 
+# v1.0.5
+
+- revamped assembly preview, including parts explosion and animation
+- remade wallslot geometry to be a direct path extrusion,
+  should reduce any boundary artifacts similar to the plate remake in v1.0.2
+- many minor code improvements on the way to v1.1
+- dropped part kit model, slicing user can just add parts as needed
+
 # v1.0.4
 
 - revamped base label text to fit just inside the filter inner diameter;
