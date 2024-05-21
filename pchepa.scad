@@ -510,9 +510,7 @@ else if (mode >= 10 && mode < 20) {
           recolor(power_bank_color) power_bank();
       }
 
-      up(explode)
-      attach(TOP, BOTTOM, overlap=filter_recess)
-        hepa_filter();
+      up(explode) attach("filter", BOTTOM) hepa_filter();
 
     }
   }
@@ -527,8 +525,7 @@ else if (mode >= 20 && mode < 30) {
   cover($idx = cover_i, orient = $preview ? UP : DOWN) recolor(undef) {
     %if (buddy) {
 
-      down(explode)
-        attach(BOTTOM, TOP, overlap=filter_recess) hepa_filter();
+      down(explode) attach("filter", TOP) hepa_filter();
 
       up(explode/4)
       down(cover_heatset_hole.y)
@@ -1668,6 +1665,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
       ) : []
 
     ) [
+      named_anchor("filter", DOWN*(size.z/2 - filter_recess), DOWN),
 
       each [
         for (i = idx(screw_holes_at))
@@ -2050,6 +2048,7 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
     anchor, spin, orient,
     size = sz,
     anchors = [
+      named_anchor("filter", UP*(sz.z/2 - filter_recess), UP),
 
       each [
         for (i = idx(clips_at))
