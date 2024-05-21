@@ -419,7 +419,7 @@ module __customizer_limit__() {}
 
 pchepa_version = ""; // $gitvar$describe$
 
-filter_recess = filter_lip_size[1] + 2*filter_grip;
+filter_recess = filter_lip_size.y + 2*filter_grip;
 
 // So the slot od/id span needs to accomdate wrapwall_thickness, wrapwall_draft, and still provide enoough
 // surrounding wall thickness either side of that drafted wallslot channel
@@ -1628,13 +1628,13 @@ module pc_fan(anchor = CENTER, spin = 0, orient = UP) {
 module hepa_filter(anchor = CENTER, spin = 0, orient = UP) {
   attachable(anchor, spin, orient, d = filter_od, h = filter_height) {
     recolor("#aaaaaa") tube(
-      h=filter_height - 2*filter_lip_size[1] + 2*$eps,
-      od=filter_od - 2*filter_lip_size[0],
-      id=filter_id + 2*filter_lip_size[0]) {
+      h=filter_height - 2*filter_lip_size.y + 2*$eps,
+      od=filter_od - 2*filter_lip_size.x,
+      id=filter_id + 2*filter_lip_size.x) {
 
       attach([TOP, BOTTOM], BOTTOM)
         recolor("#333333")
-        tube(h=filter_lip_size[1], od=filter_od, id=filter_id);
+        tube(h=filter_lip_size.y, od=filter_od, id=filter_id);
 
     }
 
