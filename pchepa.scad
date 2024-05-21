@@ -752,7 +752,7 @@ module qrcode(file,
   attachable(anchor, spin, orient, size=sz) {
     intersection() {
       up(marg.z/2)
-      scale(v_div(to_size, from_size)) {
+      render() scale(v_div(to_size, from_size)) {
         if (positive) {
           elide = 10;
           down(range/2)
@@ -1928,7 +1928,7 @@ module base_label(
   anchor = CENTER, spin = 0, orient = UP
 ) {
   module txt(mess, size, center = true) {
-    text3d(mess,
+    render() text3d(mess,
       h = h,
       font = "Liberation Sans:style=Bold",
       size = size,
