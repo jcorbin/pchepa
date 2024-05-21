@@ -793,35 +793,47 @@ module preview_cut(v=UP, s=max(build_plate_size), t=0) {
 }
 
 module base_label_demo(i = 0) {
-  size = base_size();
-  filter_at = [0, 0, size.z/2 - filter_recess];
-
   mode = floor(i / filter_count);
   j = i % filter_count;
 
-  module neg() {
-    recolor(base_color)
-      diff() cyl(d = filter_id, h=base_label_depth * 3, anchor=TOP)
-      tag("remove")
-        attach(TOP, BOTTOM, overlap=base_label_depth)
-        base_label(h = base_label_depth + $eps, i = j);
-  }
+  od = filter_od + 2*filter_lip_size.x;
+  id = filter_id;
 
-  module pos() {
-    down(base_label_depth)
-    recolor(base_label_color)
-      base_label(i = j, positive = true, anchor = BOTTOM);
-  }
+  module neg(anchor = CENTER, spin = 0, orient = UP) {
+    attachable(anchor, spin, orient, d=od, h=4*base_label_depth) {
+      recolor(base_color)
 
-  translate(filter_at) {
-    if (mode % 2 == 0) {
-      %down($eps) neg();
-      pos();
-    } else {
-      neg();
-      %up($eps) pos();
+        cyl(d = od, h=2*base_label_depth, anchor=TOP)
+          attach(TOP, BOTTOM, overlap=$eps)
+          diff()
+          cyl(d = id, h=2*base_label_depth+$eps, anchor=TOP)
+            tag("remove")
+            attach(TOP, BOTTOM, overlap=base_label_depth)
+            base_label(i = j, h = base_label_depth + $eps);
+
+      children();
     }
   }
+
+  module pos(anchor = CENTER, spin = 0, orient = UP) {
+    attachable(anchor, spin, orient, d=id, h=base_label_depth) {
+      recolor(base_label_color)
+        base_label(i = j, positive = true);
+
+      children();
+    }
+  }
+
+  if ($preview) {
+    neg()
+      attach(TOP, BOTTOM, overlap=base_label_depth)
+      pos();
+  } else if (mode % 2 == 0) {
+    pos();
+  } else {
+    neg();
+  }
+
 }
 
 module cover_walls(i = 0) {
