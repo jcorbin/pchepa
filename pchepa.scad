@@ -68,7 +68,7 @@ build_plate_size = [250, 250];
 //@make -o parts/wall_bender_duo.stl -D mode=94
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 40:Base Label A, 41:Base Label B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 93:PWM Knob, 94:Wall Bender, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 106:Power Bank, 107:Grill Ear Test, 108:PWM Controller Test]
+mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 40:Label A, 41:Label B, 42:Label Plate A, 43:Label Plate B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 93:PWM Knob, 94:Wall Bender, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 106:Power Bank, 107:Grill Ear Test, 108:PWM Controller Test]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
