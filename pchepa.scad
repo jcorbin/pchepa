@@ -33,13 +33,12 @@ build_plate_size = [250, 250];
 
 //@make -o duo/base_a.stl -D mode=10 -D filter_count=2
 //@make -o duo/base_b.stl -D mode=11 -D filter_count=2
-//@make -o duo/base_label_a.stl -D mode=40 -D filter_count=2
-//@make -o duo/base_label_b.stl -D mode=41 -D filter_count=2
 
 //@make -o duo/base_bank_a.stl -D mode=10 -D filter_count=2 -D base_embed_power_bank=true
 //@make -o duo/base_bank_b.stl -D mode=11 -D filter_count=2 -D base_embed_power_bank=true
-//@make -o duo/base_bank_label_a.stl -D mode=40 -D filter_count=2 -D base_embed_power_bank=true
-//@make -o duo/base_bank_label_b.stl -D mode=41 -D filter_count=2 -D base_embed_power_bank=true
+
+//@make -o duo/base_label_a.stl -D mode=40 -D filter_count=2
+//@make -o duo/base_label_b.stl -D mode=41 -D filter_count=2
 
 //@make -o duo/cover_a.stl -D mode=20 -D filter_count=2
 //@make -o duo/cover_b.stl -D mode=21 -D filter_count=2
@@ -486,7 +485,7 @@ else if (mode >= 10 && mode < 20) {
 
   translate($preview ? bb*base_od/2 : [0, 0, 0])
   preview_cutaway(dir=by)
-  recolor(base_color) base($idx = base_i, label = !$preview) recolor(undef) {
+  recolor(base_color) base($idx = base_i, label = !$preview, anchor="filter") recolor(undef) {
     %if (buddy) {
 
       recolor(clip_color)
@@ -522,7 +521,7 @@ else if (mode >= 20 && mode < 30) {
   cover_i = mode - 20;
   preview_cutaway(dir=FRONT)
   recolor(cover_color)
-  cover($idx = cover_i, orient = $preview ? UP : DOWN) recolor(undef) {
+  cover($idx = cover_i, anchor = "filter", orient = $preview ? UP : DOWN) recolor(undef) {
     %if (buddy) {
 
       down(explode) attach("filter", TOP) hepa_filter();
@@ -829,9 +828,9 @@ module base_label_demo(i = 0) {
       attach(TOP, BOTTOM, overlap=base_label_depth)
       pos();
   } else if (mode % 2 == 0) {
-    pos();
+    pos(anchor=TOP);
   } else {
-    neg();
+    neg(anchor=TOP);
   }
 
 }
