@@ -1,16 +1,14 @@
 # PC fan driven HEPA filter -- [PCHEPA](https://github.com/jcorbin/pchepa)
 
-[Build Guide](build_guide.md) / [STLs on Thangs][duo_thangs] / [Bambu 3mf on MakerWorld][duo_makerworld]
-
-![Duo Portable With Top Open](duo/photos/grill_open.png)
-
-Primary inspiration is the [Exhalaron][exhalaron] by cleanairkits.com, but there's also a strong similarity to other
-"integrate a commodity HEPA filter and PC fan" makes before such as by [bigclive][bigclive_diy_hepa] and [greymanx][greymanx_diy_hepa].
+![Duo Portable Fully Assembled](duo/photos/front_complete.png)
 
 - Follow the [build guide](build_guide.md) to make your own
 - Read [CHANGELOG](CHANGELOG.md) for development status and release notes
 
-![Duo Portable Fully Assembled](duo/photos/front_complete.png)
+Primary inspiration is the [Exhalaron][exhalaron] by cleanairkits.com, but there's also a strong similarity to other
+"integrate a commodity HEPA filter and PC fan" makes before such as by [bigclive][bigclive_diy_hepa] and [greymanx][greymanx_diy_hepa].
+
+![Duo Portable With Top Open](duo/photos/grill_open.png)
 
 ## Design
 
@@ -128,9 +126,6 @@ Power Bank Fit Test
 ## License
 
 © 2024 by Joshua T Corbin licensed under [CC BY-SA 4.0][ccbysa4]
-
-[duo_makerworld]: https://makerworld.com/en/models/424917
-[duo_thangs]: https://than.gs/m/1050549
 
 [bigclive_diy_hepa]: https://www.youtube.com/watch?v=6Vmh2Ip2Vxg
 [exhalaron]: https://www.cleanairkits.com/products/exhalaron

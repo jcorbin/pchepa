@@ -2,10 +2,12 @@
 
 There are primarily 2 variants:
 1. a stationary variant that merely has a USB-C port in its base
-2. a portable variant that integrates a USB-C battery bank into a thicker base
+  - [Thangs STL models][duo_thangs]
+  - [MakerWorld 3MF Slicer Layouts][duo_makerworld]
 
-There are published slicer projects (3mf files) on MakerWorld, or STL filesets on Thangs:
-- Duo v1.0.1: [3MF Layouts][duo_makerworld] or [STL Models][duo_thangs]
+2. a portable variant that integrates a USB-C battery bank into a thicker base
+  - [Thangs STL models][duo_portable_thangs]
+  - [MakerWorld 3MF Slicer Layouts][duo_portable_makerworld]
 
 ## Suggested Tools
 
@@ -86,7 +88,10 @@ However if you're changing out parts, customizing things, or doubt your printer'
 All parts are designed to be printed without auto-generated supports; any parts that do require support,
 come with breakaway support structures builtin (e.g. every clip socket, and the battery bank tunnel).
 
-All of the recommended slicer settings, build plate layouts, and printer settings for a Bambu printer can be downloaded from [MakerWorld][duo_makerworld].
+All of the recommended slicer settings, build plate layouts, and printer settings for a Bambu printer can be downloaded from MakerWorld:
+
+- [stationary variant][duo_makerworld]
+- [portable variant][duo_portable_makerworld]
 
 General suggested slicer settings:
 - walls: 3 loops/perimeters
@@ -210,5 +215,7 @@ After the panels are in place, a heatgun may be used to help them accept their n
 
 [duo_makerworld]: https://makerworld.com/en/models/424917
 [duo_thangs]: https://than.gs/m/1050549
+[duo_portable_makerworld]: https://makerworld.com/en/models/472194
+[duo_portable_thangs]: https://than.gs/m/1065492
 
 [v1_user_guide]: https://github.com/jcorbin/pchepa/blob/main/user_guide/v1.md
