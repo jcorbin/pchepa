@@ -2,13 +2,15 @@
 
 [Build Guide](build_guide.md) / [STLs on Thangs][duo_thangs] / [Bambu 3mf on MakerWorld][duo_makerworld]
 
-![Duo Assembled With Top Open](duo/topdown_open.jpg)
+![Duo Portable With Top Open](duo/photos/grill_open.png)
 
 Primary inspiration is the [Exhalaron][exhalaron] by cleanairkits.com, but there's also a strong similarity to other
 "integrate a commodity HEPA filter and PC fan" makes before such as by [bigclive][bigclive_diy_hepa] and [greymanx][greymanx_diy_hepa].
 
 - Follow the [build guide](build_guide.md) to make your own
 - Read [CHANGELOG](CHANGELOG.md) for development status and release notes
+
+![Duo Portable Fully Assembled](duo/photos/front_complete.png)
 
 ## Design
 
@@ -20,6 +22,8 @@ So the build mainly involves 6 parts:
 - printed base plates under the filters
 - printed cover plates between the filters and fans
 - printed grill enclosure over/around the fans
+
+![Duo Portable All Parts Disassembled](duo/photos/all_parts_spread.png)
 
 Secondarily there can be a flexible mesh wall wrapped around the HEPA filter to
 protect it from impact. This wall can be printed in sections, or a suitable
