@@ -1,8 +1,9 @@
 # Errata
 
-- the mesh wall is currently in a state of tradeoff:
-  1. the alternating dovetail option is stronger, but nearly impossible to assemble
-  2. the thicker version alone (sans dovetail) does an okay job, certainly better than v1.0 thin walls
+- vertical integrity needs to be improved, especially for the portable variant
+  - currently the only source of vertical integration is the cover/base plate grip on the filters themselves...
+  - ...but this can come undone under a sudden shock, like can happen when you're walking around with it on a shoulder strap
+- the mesh wall could be stronger, in particular the dovetail joint option doesn't quite work yet
 - the chosen battery bank option works okay, but the disingenuous capacity rating on it leave a bad taste;
   other battery options would be welcome
 
@@ -77,6 +78,7 @@
 
 # Dev Status and TODOs
 
+- [ ] TODO fix vertical integrity, ideally without introducing additional parts
 - [ ] TODO try a hemi-loop mesh wall dovetail assembly
 - [ ] TODO support N-filter stacks with a joiner plate
 - [ ] TODO support N-fan stacks, but also take care, and support inter-fan spacing
