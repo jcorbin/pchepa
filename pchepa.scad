@@ -132,6 +132,9 @@ wrapwall_thickness = 1.6;
 // Mesh wrap wall slot depth cut into the base/cover plates.
 wrapwall_slot_depth = 5;
 
+// Mesh wrap wall triangular wedge at top/bottom edge.
+wrapwall_foot_size = [1.6, 3.2]; // 1x2 wrapwall_thickness
+
 // Mesh wrap wall slot fit tolerance for the channel cut into the base/cover plates.
 wrapwall_tolerance = 0.2;
 
@@ -2322,15 +2325,35 @@ module wallarc(
     children();
 }
 
-function wallslot(h=wrapwall_slot_depth) = let (
-  w2 = (slot_od - slot_id)/2,
-  w1 = w2 + 2*wrapwall_draft
+function wallslot(
+  h = wrapwall_slot_depth,
+  foot = wrapwall_foot_size,
+  tolerance = wrapwall_tolerance
+) = let (
+  sz = [slot_od/2 - slot_id/2, h],
+  r = sz/2,
+  dr = r.x + wrapwall_draft,
+  ft = scalar_vec2(foot),
+  f = r + ((ft.x*ft.y > 0) ? [ft.x + tolerance, -ft.y - tolerance] : [0, 0])
 ) [
-  // narrow down
-  [-w1/2, h/2],
-  [-w2/2, -h/2],
-  [w2/2, -h/2],
-  [w1/2, h/2]
+  [-dr, r.y],
+  each (f.x > r.x)
+    ? let (
+      t = line_intersection(
+        [[r.x, -f.y], [f.x, -r.y]],
+        [[dr, r.y], [r.x, -r.y]],
+        bounded1=[true, true],
+        bounded2=[true, true])
+    ) [
+      [-r.x, -r.y],
+      [f.x, -r.y],
+      t
+    ]
+    : [
+      [-r.x, -r.y],
+      [r.x, -r.y]
+    ],
+  [dr, r.y]
 ];
 
 module wallslot(
@@ -2345,7 +2368,7 @@ module wallslot(
   }
 
   else if (filter_count == 2) {
-    wallarc(wallslot(h), anchor = anchor, spin = spin, orient = orient)
+    wallarc(xflip(wallslot(h)), anchor = anchor, spin = spin, orient = orient)
       children();
   }
 
@@ -2374,9 +2397,18 @@ function wall_section(w=undef, h=undef) = [
   wrapwall_thickness
 ];
 
-function mesh_panel_profile(size = wall_section()) = let (
-  sz = [size.z, size.y]
-) square(sz, center=true);
+function mesh_panel_profile(size = wall_section(), foot = wrapwall_foot_size) = let (
+  sz = [size.z, size.y],
+  r = sz/2,
+  ft = scalar_vec2(foot),
+  f = r + ((ft.x*ft.y > 0) ? [ft.x, -ft.y] : [0, 0])
+) [
+  [-r.x, -r.y],
+  [f.x, -r.y],
+  each f.x != r.x ? [[r.x, -f.y], [r.x, f.y]] : [],
+  [f.x, r.y],
+  [-r.x, r.y]
+];
 
 module mesh_panel(size = wall_section(), anchor = CENTER, spin = 0, orient = UP) {
   attachable(anchor, spin, orient, size=size) {
