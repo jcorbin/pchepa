@@ -688,11 +688,18 @@ else if (mode == 94) {
 /// mode[100...] -- development aids and tests
 
 else if (mode == 100) {
-  pwm_controller()
+
+  // stroke(wallslot(), width=0.2);
+  // region(wallslot());
+  // wallslot()
+  // back_half(s=2.1*base_od) base_plate()
+  // cover($idx=0)
+  base($idx=0)
   {
-    // show_anchors();
+    // %show_anchors();
     // #cube($parent_size, center=true);
   }
+
 }
 
 else if (mode == 101) {
