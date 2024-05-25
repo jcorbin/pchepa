@@ -836,7 +836,6 @@ module base_label_demo(i = 0) {
 }
 
 module cover_walls(i = 0) {
-  // TODO explode
   wall_size = wall_section();
   wall_profile = square([wall_size.z, wall_size.y], center=true);
 
