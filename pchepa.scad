@@ -47,11 +47,12 @@ build_plate_size = [250, 250];
 //@make -o duo/grill_box_a.stl -D mode=30 -D filter_count=2
 //@make -o duo/grill_box_b.stl -D mode=31 -D filter_count=2
 
-//@make -o duo/wall_section.stl -D mode=92 -D filter_count=2 -D wrapwall_dovetail=[0,0,0]
-//@make -o duo/wall_section_dovetails.stl -D mode=92 -D filter_count=2
+//@make -o duo/wall_section.stl -D mode=92 -D filter_count=2
+//@make -o duo/wall_section_dovetails.stl -D mode=92 -D filter_count=2 -D wrapwall_dovetail=[5,3,15]
 
 //@make -o test/power_module.stl -D mode=101 -D filter_count=2
-//@make -o test/wall.stl -D mode=102 -D filter_count=2
+//@make -o test/wallslot.stl -D mode=102 -D filter_count=2
+//@make -o test/wall.stl -D mode=92 -D filter_count=2 -D wrapwall_length=50
 //@make -o test/cover_hole.stl -D mode=103 -D filter_count=2
 //@make -o test/joiner_clip.stl -D mode=104
 //@make -o test/power_bank_tunnel.stl -D mode=105 -D base_embed_power_bank=true
@@ -67,7 +68,7 @@ build_plate_size = [250, 250];
 //@make -o parts/wall_bender_duo.stl -D mode=94
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 40:Label A, 41:Label B, 42:Label Plate A, 43:Label Plate B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 93:PWM Knob, 94:Wall Bender, 100:Dev, 101:Power Module Fit Test, 102:Wall Fit Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 106:Power Bank, 107:Grill Ear Test, 108:PWM Controller Test]
+mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 40:Label A, 41:Label B, 42:Label Plate A, 43:Label Plate B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 93:PWM Knob, 94:Wall Bender, 100:Dev, 101:Power Module Fit Test, 102:Wallslot Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 106:Power Bank, 107:Grill Ear Test, 108:PWM Controller Test]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -136,8 +137,14 @@ wrapwall_section_limit = build_plate_size.x - 10;
 // Manual setting for how many sections the mesh wrap wall will be split into; overrides automatic division based on build_plate_size.
 wrapwall_sections = 0;
 
+// Manual setting for mesh wrap wall section length; overrides perimeter division logic.
+wrapwall_length = 0;
+
+// Manual setting for mesh wrap wall section height; overrides default derived from filter_height.
+wrapwall_height = 0;
+
 // Mesh wrap wall sections will use dovetail joiners of this dimension; [w, h, spacing] vector, set either w or h to 0 to disable dovetails.
-wrapwall_dovetail = [5, 3, 15];
+wrapwall_dovetail = 0;
 
 // Additional tolerance added to mesh wrap wall dovetail receptacles.
 wrapwall_dovetail_tolerance = 0.1;
@@ -449,6 +456,8 @@ power_channel_size = [
   2*power_channel_chamfer,
 ];
 
+wall_height = filter_height - 2*filter_recess + 2*wrapwall_slot_depth;
+
 // TODO pockets in the base for weights or battery bank
 
 /// mode[0-9] -- assemblies
@@ -594,7 +603,10 @@ else if (mode == 91) {
 }
 
 else if (mode == 92) {
-  wall_section();
+  wall_section(
+    w = wrapwall_length == 0 ? undef : wrapwall_length,
+    h = wrapwall_height == 0 ? undef : wrapwall_height
+  );
 }
 
 else if (mode == 93) {
@@ -656,7 +668,17 @@ else if (mode == 101) {
 }
 
 else if (mode == 102) {
-  wall_fit_test();
+  wallslot_test() {
+    if ($preview) {
+      up(1)
+      back(
+        $idx == 0 ? cover_overhang + 2*wrapwall_thickness :
+        $idx == 1 ? base_overhang + 2*wrapwall_thickness :
+        0)
+      position(FRONT+TOP)
+        wall_section(w=50, h=50, anchor=TOP+BACK, orient=BACK);
+    }
+  }
 }
 
 else if (mode == 103) {
@@ -838,8 +860,7 @@ module base_label_demo(i = 0) {
 }
 
 module cover_walls(i = 0) {
-  wall_size = wall_section();
-  wall_profile = square([wall_size.z, wall_size.y], center=true);
+  wall_profile = mesh_panel_profile();
 
   translate((wrapwall_thickness/2 + explode) * (i == 0 ? FWD : BACK))
   position(i == 0 ? "wallslot_front" : "wallslot_back")
@@ -1167,34 +1188,53 @@ module cover_hole_test(anchor = CENTER, spin = 0, orient = UP) {
   }
 }
 
-module wall_fit_test() {
-  cut_size = 2.1*base_od;
-  extra = wrapwall_thickness*8 + clip_size.y;
+module wallslot_test(spacing = 2, cut_margin = wrapwall_thickness*8 + clip_size.y) {
+  module cover_part(anchor = BOTTOM, spin = 0, orient = UP) {
+    ycut = cover_od/2 - cover_overhang - cut_margin;
+    xcut = abs(circle_line_intersection(
+      cp = [0, 0], d = cover_od,
+      line = [[-1, ycut], [1, ycut]])[0].x);
+    size = [
+      cover_od/2 + xcut + cover_extra,
+      cover_od/2 - ycut,
+      cover_height
+    ];
+    attachable(anchor, spin, orient, size=size) {
+      right(cover_od/2 + cover_extra/2 - size.x/2)
+      back(size.y/2)
+      back(ycut)
+        front_half(s=2.1*cover_od, y=-ycut)
+        cover($idx=0, orient=DOWN);
+      children();
+    }
+  }
 
-  cover_cut = cover_od/2 - cover_overhang - extra;
-  base_cut = base_od/2 - base_overhang - extra;
+  module base_part(anchor = BOTTOM, spin = 0, orient = UP) {
+    ycut = base_od/2 - base_overhang - cut_margin;
+    xcut = abs(circle_line_intersection(
+      cp = [0, 0], d = base_od,
+      line = [[-1, ycut], [1, ycut]])[0].x);
+    size = [
+      base_od/2 + xcut,
+      base_od/2 - ycut,
+      base_size().z
+    ];
+    attachable(anchor, spin, orient, size=size) {
+      left(base_od/2 - size.x/2)
+      back(size.y/2)
+      back(ycut)
+        front_half(s=2.1*base_od, y=-ycut)
+        base_plate();
+      children();
+    }
+  }
 
-  cover_size = cover_od/2 - cover_cut;
-  base_size = base_od/2 - base_cut;
-  wall_len = 50;
-  wall_size = wall_section(wall_len).x;
+  cover_part() {
+    let ($idx = 0) children();
 
-  ydistribute(sizes=[
-    cover_size,
-    base_size,
-    wall_size,
-    wall_size,
-  ]) {
-    back(cover_size/2)
-    back(cover_cut)
-      front_half(s=cut_size, y=-cover_cut) cover($idx=0, orient=DOWN);
-
-    back((base_od/2 - base_cut)/2)
-    back(base_cut)
-      front_half(s=cut_size, y=-base_cut) base_plate();
-
-    zrot(90) wall_section(wall_len);
-    zrot(90) wall_section(wall_len);
+    attach(BACK, BACK, overlap=-spacing)
+    base_part()
+      let ($idx = 1) children();
   }
 }
 
@@ -1711,8 +1751,11 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
         if (wrapwall_thickness > 0) {
           tag("wallslot")
-          down($eps) position(BOTTOM+RIGHT)
-            wallslot(anchor=BOTTOM+RIGHT);
+          down($eps)
+          position(BOTTOM+RIGHT)
+          up(wrapwall_slot_depth/2)
+          left((wall_d + wall_extra)/2)
+            zflip() wallslot();
         }
 
         tag("screw")
@@ -1888,7 +1931,9 @@ module base_plate(
           tag("wallslot")
           up($eps)
           position(TOP+RIGHT)
-            wallslot(anchor=TOP+RIGHT, zflip=true);
+          down(wrapwall_slot_depth/2)
+          left((wall_d + wall_extra)/2)
+            wallslot();
         }
 
         move_copies(base_clip_sockets(size, overhang = overhang, p = v_mul(size/2, RIGHT+TOP)))
@@ -2280,32 +2325,30 @@ module wallarc(
     children();
 }
 
-module wallslot(h=undef, zflip = false, anchor = CENTER, spin = 0, orient = UP) {
-  slot_h = default(h, wrapwall_slot_depth + $eps);
-  w2 = (slot_od - slot_id)/2;
-  w1 = w2 + 2*wrapwall_draft;
-  dg = sqrt(slot_h^2 + wrapwall_draft^2);
-  t1 = acos(wrapwall_draft / dg);
-  t2 = 90 - t1;
+function wallslot(h=wrapwall_slot_depth) = let (
+  w2 = (slot_od - slot_id)/2,
+  w1 = w2 + 2*wrapwall_draft
+) [
+  // narrow down
+  [-w1/2, h/2],
+  [-w2/2, -h/2],
+  [w2/2, -h/2],
+  [w1/2, h/2]
+];
 
-  profile = apply(zflip ? yflip() : ident(3), turtle([
-    "move", w2,
-    "right", t1,
-    "move", dg,
-    "right", 90 + t2,
-    "move", w1,
-    "right", t1 + 2*t2,
-    "move", dg,
-  ], state=[-w2/2, slot_h/2]));
+module wallslot(
+  h = wrapwall_slot_depth + $eps,
+  anchor = CENTER, spin = 0, orient = UP
+) {
 
   if (filter_count == 1) {
-    // TODO use profile
-    tube(h = slot_h, id = slot_id, od = slot_od, anchor = anchor, spin = spin, orient = orient)
+    // TODO use wallslot(h) profile
+    tube(h = h, id = slot_id, od = slot_od, anchor = anchor, spin = spin, orient = orient)
       children();
   }
 
   else if (filter_count == 2) {
-    wallarc(profile, anchor = anchor, spin = spin, orient = orient)
+    wallarc(wallslot(h), anchor = anchor, spin = spin, orient = orient)
       children();
   }
 
@@ -2328,47 +2371,62 @@ function wall_sections() = wrapwall_sections > 0
   ? wrapwall_sections
   : even_ceil(ceil(wall_perim() / wrapwall_section_limit));
 
-function wall_section(w=undef) = [
+function wall_section(w=undef, h=undef) = [
   default(w, wall_perim() / wall_sections() - 2*wrapwall_tolerance),
-  filter_height - 2*filter_recess + 2*wrapwall_slot_depth - 2*wrapwall_tolerance,
+  default(h, wall_height - 2*wrapwall_tolerance),
   wrapwall_thickness
 ];
 
-module wall_section(w=undef, dovetail = true, anchor = CENTER, spin = 0, orient = UP) {
-  dovetail_area = dovetail ? wrapwall_dovetail.x * wrapwall_dovetail.y : 0;
-  extra = dovetail_area > 0
-    ? [wrapwall_dovetail.y, 0, 0]
-    : [0, 0, 0];
+function mesh_panel_profile(size = wall_section()) = let (
+  sz = [size.z, size.y]
+) square(sz, center=true);
 
-  wall_size = wall_section(w);
-  attachable(anchor, spin, orient, size = wall_size + extra) {
-    translate(-extra/2)
-    diff() cube(wall_size, center=true) {
-      if (dovetail_area > 0) {
-        tag("keep")
-        attach(RIGHT, BOTTOM, overlap=$eps)
-        xcopies(l=wall_size.y - wrapwall_dovetail.x, spacing=wrapwall_dovetail.z)
-        zrot($idx % 2 == 0 ? 0 : 180)
-          dovetail("male",
-            h = wrapwall_dovetail.y + $eps,
-            width = wrapwall_dovetail.x,
-            back_width = wrapwall_dovetail.x - wrapwall_thickness,
-            thickness=wall_size.z);
-
-        tag("remove")
-        attach(LEFT, TOP, overlap=wrapwall_dovetail.y + wrapwall_dovetail_tolerance)
-        xcopies(l=wall_size.y - wrapwall_dovetail.x, spacing=wrapwall_dovetail.z)
-        zrot($idx % 2 == 0 ? 0 : 180)
-          dovetail("female",
-            h = wrapwall_dovetail.y + wrapwall_dovetail_tolerance + $eps,
-            width = wrapwall_dovetail.x + 2*wrapwall_dovetail_tolerance,
-            back_width = wrapwall_dovetail.x + 2*wrapwall_dovetail_tolerance - wrapwall_thickness,
-            thickness=wall_size.z);
-
-      }
-    };
-
+module mesh_panel(size = wall_section(), anchor = CENTER, spin = 0, orient = UP) {
+  attachable(anchor, spin, orient, size=size) {
+    rotate([0, -90, 0])
+    linear_sweep(mesh_panel_profile(size), h = size.x, center=true);
     children();
+  }
+}
+
+module wall_section(
+  w = undef, h = undef,
+  dovetail = wrapwall_dovetail,
+  anchor = CENTER, spin = 0, orient = UP
+) {
+  wall_size = wall_section(w, h);
+  dove_size = scalar_vec3(dovetail);
+
+  module dist_walldoves() {
+    xcopies(l = wall_size.y - dove_size.x, spacing = dove_size.z)
+    zrot($idx % 2 == 0 ? 0 : 180)
+      children();
+  }
+
+  if (dove_size.x * dove_size.y > 0) {
+    attachable(anchor, spin, orient, size = wall_size + RIGHT*dove_size.y) {
+      left(dove_size.y/2)
+      diff() mesh_panel(wall_size) {
+        attach(RIGHT, BOTTOM, overlap=$eps)
+        tag("keep")
+        dist_walldoves() dovetail("male",
+          h = dove_size.y + $eps,
+          width = dove_size.x,
+          back_width = dove_size.x - wrapwall_thickness,
+          thickness = wall_size.z);
+
+        attach(LEFT, TOP, overlap=dove_size.y + wrapwall_dovetail_tolerance)
+        tag("remove")
+        dist_walldoves() dovetail("female",
+          h = dove_size.y + wrapwall_dovetail_tolerance + $eps,
+          width = dove_size.x + 2*wrapwall_dovetail_tolerance,
+          back_width = dove_size.x + 2*wrapwall_dovetail_tolerance - wrapwall_thickness,
+          thickness = wall_size.z + 2*$eps);
+      }
+      children();
+    }
+  } else {
+    mesh_panel(wall_size, anchor=anchor, spin=spin, orient=orient) children();
   }
 }
 
