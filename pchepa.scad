@@ -133,7 +133,7 @@ wrapwall_draft = 0.4;
 // Auotmatic determination of mesh wall section length, by dividing the total perimeter evenly.
 wrapwall_section_limit = build_plate_size.x - 10;
 
-// Manual setting for how many sections the mesh wrap wall will be split into; overrides wrapwall_section_limit perimeter division.
+// Manual setting for how many sections the mesh wrap wall will be split into; overrides automatic division based on build_plate_size.
 wrapwall_sections = 0;
 
 // Mesh wrap wall sections will use dovetail joiners of this dimension; [w, h, spacing] vector, set either w or h to 0 to disable dovetails.
