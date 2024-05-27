@@ -450,19 +450,19 @@ pchepa_version = ""; // $gitvar$describe$
 
 filter_recess = filter_lip_size.y + 2*filter_grip;
 
-slot_inner_wall = 3*wrapwall_thickness; // extra before slot_id
+slot_inner_wall = 1.5*wrapwall_thickness; // extra before slot_id
 slot_outer_wall = wrapwall_thickness; // extra after slot_od
 
 slot_width = wrapwall_thickness > 0 ? wrapwall_thickness + 2*wrapwall_tolerance : 0;
-slot_id = filter_od + filter_extra_space + slot_inner_wall;
-slot_od = slot_id + slot_width + slot_outer_wall;
+slot_id = filter_od + filter_extra_space + 2*slot_inner_wall;
+slot_od = slot_id + 2*slot_width;
 
 wall_d = slot_id/2 + slot_od/2;
 
-common_od = slot_od;
+common_od = slot_od + 2*slot_outer_wall;
 
 cover_od = common_od + 2*max(cover_overhang, cover_underhang);
-base_od = common_od + 2*(base_overhang + wrapwall_thickness);
+base_od = common_od + 2*base_overhang;
 
 cover_extra = filter_count < 2 ? 0 : base_od - cover_od; // FIXME why not /2 like the others
 slot_extra = filter_count < 2 ? 0 : (base_od - slot_od)/2;
