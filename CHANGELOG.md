@@ -7,6 +7,16 @@
 - the chosen battery bank option works okay, but the disingenuous capacity rating on it leave a bad taste;
   other battery options would be welcome
 
+# v1.1.1
+
+- remade wall section and slot shapes based on X-oriented extrusion of a profile
+  - the wall profile remains a simple square, while the slot is still a drafted trapezoid...
+  - ...for now, but this makes it easy to evolve their shapes to include a triangular foot to provide vertical holding strength
+  - broke up the wall vs slot test models, as this makes printing them easier
+- parameterize cover notch placement, since it's about to move position in next minor revision
+- clarified internal cover/base common diameter
+  - there's a lot slightly off with slot/wall diameter maths/metrics that v1.2 will fix, but doing so will break plate size/fit slightly
+
 # v1.1.0
 
 - added power bank cavity and access tunnel inside of a thicker base plate variant
