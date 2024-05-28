@@ -248,20 +248,20 @@ cover_heatset_hole = [4.4, 5.3];
 cover_port = [40, 20];
 
 // Access notch cutout around the filter recess of cover plate.
-cover_notch = [20, 20, 12];
+cover_notch = [20, 20, 30];
 
 // Rounding radius for any cover notch cutout.
 cover_notch_rounding = 5;
 
-// Which cover notch cuboid edges should be rounded; NOTE notch cube is oriented so that it's local Z is along the cover_notch_side vector.
+// Which cover notch cuboid edges should be rounded; default is only Z-aligned edges; NOTE notch cube is oriented so that it's local Z is along the cover_notch_side vector.
 cover_notch_rounding_edges = [
-  [0, 0, 1, 1], // yz -- +- -+ ++
-  [0, 0, 1, 1], // xz
+  [0, 0, 0, 0], // yz -- +- -+ ++
+  [0, 0, 0, 0], // xz
   [1, 1, 1, 1], // xy
 ];
 
 // Placement vector for cover notch; unit is outer wallslot radius.
-cover_notch_side = LEFT;
+cover_notch_side = RIGHT;
 
 // Placement, along the Y axis of the inner cover plate edge, of any wire pass through holes
 cover_port_at = [-48, 48];
@@ -297,6 +297,22 @@ base_power_bank_tunnel_inset = 1;
 
 // Corner and mouth flare chamfering on the power bank access tunnel.
 base_power_bank_tunnel_chamfer = 4;
+
+// Access notch cutout around the filter recess of base plate.
+base_notch = [20, 20, 30];
+
+// Rounding radius for any base notch cutout.
+base_notch_rounding = 5;
+
+// Which base notch cuboid edges should be rounded; default is only Z-aligned edges; NOTE notch cube is oriented so that it's local Z is along the base_notch_side vector.
+base_notch_rounding_edges = [
+  [0, 0, 0, 0], // yz -- +- -+ ++
+  [0, 0, 0, 0], // xz
+  [1, 1, 1, 1], // xy
+];
+
+// Placement vector for the base notch; unit is outer wallslot radius.
+base_notch_side = RIGHT;
 
 /* [Base Label Parameters] */
 
@@ -1905,7 +1921,7 @@ module base_plate(
     ]
   ) {
     tag_scope("base_plate")
-    diff(remove="filter wallslot socket", keep="grip support")
+    diff(remove="filter wallslot socket notch", keep="grip support")
       plate(h=size.z, d=size.x, chamfer2=overhang) {
         tag("filter")
           attach(TOP, BOTTOM, overlap=filter_recess)
@@ -1927,6 +1943,7 @@ module base_plate(
 
         if (filter_grip > 0) {
           tag("grip")
+          zrot(360/16)
           zrot_copies(n = 8)
           down(filter_grip)
           up(size.z/2)
@@ -1934,6 +1951,16 @@ module base_plate(
           xrot(180)
             teardrop(h = 2*filter_grip, r = filter_grip);
         }
+
+        if (base_notch.x * base_notch.y * base_notch.z > 0) {
+          tag("notch")
+          up(size.z/2)
+          translate(base_notch_side*slot_od/2)
+            cuboid(base_notch, orient=base_notch_side,
+              rounding=base_notch_rounding,
+              edges=base_notch_rounding_edges);
+        }
+
       };
 
     children();
