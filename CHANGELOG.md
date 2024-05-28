@@ -7,6 +7,19 @@
 - the chosen battery bank option works okay, but the disingenuous capacity rating on it leave a bad taste;
   other battery options would be welcome
 
+# v1.2.0-test1
+
+- Mesh walls now serve as primary vertical integration,
+  holding the base and cover plates together rigidly,
+  in addition to the filter snap fit itself.
+  This was done by adding a triangular foot to the top/bottom of mesh wall sections,
+  with corresponding shape in each plate slot channel.
+- Moved the cover cover notch to the inner side of the filter diameter, added a corresponding notch to the base plate.
+  With the mesh wall foot, notch is no longer useful to remove/install wall sections externally,
+  and otherwise only presented a snag hazard to sliding wall sections.
+  Now the new notch placements only help with filter installation from the interior only.
+- **NOTE**: because of these changes, and many minor improvements to plate diameter maths along the way, v1.2 plates will not be compatible with v1.1 parts.
+
 # v1.1.2
 
 - switched [sqadqr](https://github.com/xypwn/scadqr) for native qr generation
