@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
-set -x
 
 desc=$(git describe --tags)
 last_version=${desc%%-*}
 
 get_next_version() {
-  sed -e "/^# ${last_version}/q" <CHANGELOG.md \
-    | head -n-1 | grep -om1 '# v..*' | grep -o 'v.*'
+  if [ $(git cat-file -t "${last_version}") != 'tag' ]; then
+    echo "${last_version}"
+  else
+    sed -e "/^# ${last_version}/q" <CHANGELOG.md \
+      | head -n-1 | grep -om1 '# v..*' | grep -o 'v.*'
+  fi
 }
 
 regen_changelog() {
   while IFS= read -r line; do
-    if [[ $line =~ ^##*\ \ #v ]]; then
+    if [[ $line =~ ^##*\ \ *v ]]; then
       echo "# ${next_version:-vNEXT}"
       echo
       echo '```git log --pretty=oneline'
@@ -22,6 +25,23 @@ regen_changelog() {
     fi
     echo "$line"
   done <CHANGELOG.md
+}
+
+get_changes() {
+  {
+    while IFS= read -r line; do
+      if [[ $line =~ ^##*\ \ *$next_version ]]; then
+        echo "${next_version}"
+        break
+      fi
+    done
+    while IFS= read -r line; do
+      if [[ $line =~ ^# ]]; then
+        break
+      fi
+      echo "$line"
+    done
+  } <CHANGELOG.md
 }
 
 edit_changelog() {
@@ -36,14 +56,36 @@ edit_changelog() {
 }
 
 prep_next_version() {
+  next_version=$(get_next_version)
   [ -n "$next_version" ]
+  if [ $(git cat-file -t "${next_version}") = 'tag' ]; then
+    echo "ERROR: ${next_version} already released" >&1
+    exit 1
+  fi
+
   git tag -f "$next_version"
-  make -j2 regen
+  make -j6 regen
   git tag -f "$next_version"
 }
 
-edit_changelog
-prep_next_version
+case "$1" in
 
-# TODO cut release by tag promotion
-# git tag -a -f "$next_version" $next_version
+ed|edit)
+  edit_changelog
+  ;;
+
+prep|regen)
+  prep_next_version
+  ;;
+
+pub|tag)
+  next_version=$(get_next_version)
+  [ -n "$next_version" ]
+  if [ $(git cat-file -t "${next_version}") = 'tag' ]; then
+    echo "ERROR: ${next_version} already released" >&1
+    exit 1
+  fi
+  get_changes | git tag -F - -f "${next_version}" "${next_version}"
+  ;;
+
+esac
