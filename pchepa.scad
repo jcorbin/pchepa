@@ -242,11 +242,21 @@ cover_heatset_hole = [4.4, 5.3];
 // Size of wiring pass through hole(s) in the cover plate; set either dimension to zero to disable.
 cover_port = [40, 20];
 
-// Access notch cutout on the underside of cover, aides mesh wall and filter removal; will be positioned on the bottom surface of cover, centered at the aapex of filter od.
-cover_notch = [12, 20, 20];
+// Access notch cutout around the filter recess of cover plate.
+cover_notch = [20, 20, 12];
 
 // Rounding radius for any cover notch cutout.
 cover_notch_rounding = 5;
+
+// Which cover notch cuboid edges should be rounded; NOTE notch cube is oriented so that it's local Z is along the cover_notch_side vector.
+cover_notch_rounding_edges = [
+  [0, 0, 1, 1], // yz -- +- -+ ++
+  [0, 0, 1, 1], // xz
+  [1, 1, 1, 1], // xy
+];
+
+// Placement vector for cover notch; unit is outer wallslot radius.
+cover_notch_side = LEFT;
 
 // Placement, along the Y axis of the inner cover plate edge, of any wire pass through holes
 cover_port_at = [-48, 48];
@@ -1796,14 +1806,12 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
         if (cover_notch.x * cover_notch.y * cover_notch.z > 0) {
           tag("notch")
-            down(cover_notch.z/2)
-            left(slot_od/2)
-              cuboid(cover_notch,
-                rounding=cover_notch_rounding, edges=[
-                  [1, 1, 1, 1], // yz -- +- -+ ++
-                  [1, 0, 1, 0], // xz
-                  [1, 0, 1, 0], // xy
-                ]);
+          down(size.z/2)
+          translate(cover_notch_side*slot_od/2)
+            cuboid(cover_notch,
+              orient=cover_notch_side,
+              rounding=cover_notch_rounding,
+              edges=cover_notch_rounding_edges);
         }
 
       }
