@@ -78,7 +78,7 @@
 
 # Dev Status and TODOs
 
-- [ ] TODO fix vertical integrity, ideally without introducing additional parts
+- [testing] WIP rigidly integrate cover+base plate assembly by using top/bottom feet on each mesh wall section
 - [ ] TODO try a hemi-loop mesh wall dovetail assembly
 - [ ] TODO support N-filter stacks with a joiner plate
 - [ ] TODO support N-fan stacks, but also take care, and support inter-fan spacing
