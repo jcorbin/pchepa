@@ -1,3 +1,6 @@
 [submodule "BOSL2"]
 	path = BOSL2
 	url = https://github.com/BelfrySCAD/BOSL2
+[submodule "scadqr"]
+	path = scadqr
+	url = https://github.com/xypwn/scadqr

@@ -10,7 +10,7 @@ all: $(MODELS) $(ANIMATED_MODELS)
 clean:
 	rm -f $(MODELS)
 
-$(SCAD): init user_guide/v1.qr.png
+$(SCAD): init
 
 BOSL2/std.scad:
 	git submodule update --init
@@ -35,15 +35,6 @@ rebuild:
 	rm -f pchepa.scad && git checkout -f pchepa.scad
 	$(MAKE) $(MODELS)
 	$(MAKE) $(ANIMATED_MODELS)
-
-GOBIN ?= $(shell go env GOPATH)/bin
-QRCODE=$(GOBIN)/qrcode
-
-$(QRCODE):
-	go install github.com/skip2/go-qrcode/qrcode@latest
-
-%.qr.png: %.link $(QRCODE)
-	$(QRCODE) -d '$(shell head -n1 $<)' >$@
 
 init: BOSL2/std.scad
 	git config filter.git_scad_vars.smudge >/dev/null || git config --local include.path ../.gitconfig

@@ -3,6 +3,8 @@ include <BOSL2/joiners.scad>
 include <BOSL2/screws.scad>
 include <BOSL2/walls.scad>
 
+include <scadqr/qr.scad>
+
 // original inspiration <https://www.cleanairkits.com/products/exhalaron>
 // cites <https://www.mdpi.com/2075-5309/11/8/329>
 // looks similar to <https://www.printables.com/model/386124> -- minimal single
@@ -764,46 +766,6 @@ function camera_arg() = str( "--camera=",
     $vpt.x, ",", $vpt.y, ",", $vpt.z, ",",
     $vpr.x, ",", $vpr.y, ",", $vpr.z, ",",
     $vpd);
-
-module qrcode(file,
-  size = undef,
-  dat_size = 256,
-  range = 100,
-  convexity = 5,
-  margin = 0,
-  positive = false,
-  anchor = CENTER, spin = 0, orient = UP
-) {
-  dsize = scalar_vec2(dat_size);
-  from_size = [dsize.x, dsize.y, range];
-  to_size = default(scalar_vec3(size), from_size);
-  marg = scalar_vec3(margin);
-  sz = to_size + [ 2*marg.x, 2*marg.y, marg.z ];
-  attachable(anchor, spin, orient, size=sz) {
-    intersection() {
-      up(marg.z/2)
-      render() scale(v_div(to_size, from_size)) {
-        if (positive) {
-          elide = 10;
-          down(range/2)
-          zrot(-90)
-            difference() {
-              surface(file = file, center = true, convexity = convexity);
-              down(elide) cube([dsize.x, dsize.y, 2*elide], center=true);
-            }
-        } else {
-          down(range/2)
-          zrot(-90)
-            surface(file = file, center = true, convexity = convexity);
-        }
-      }
-
-      cube(sz, center=true);
-    }
-
-    children();
-  }
-}
 
 module build_plate(size=build_plate_size, anchor = CENTER, spin = 0, orient = UP) {
   size = scalar_vec3(size, 1);
@@ -2004,24 +1966,17 @@ module base_label(
     down(h/2)
     union() {
       if (i == 0) {
-        qr_res = 256;
-        qr_border = 8;
         qr_size = 60;
-        border = qr_size * qr_border / qr_res;
 
-        back(qr_size/2 + border + 1 + 4)
+        back(qr_size/2 + 1 + 4)
           txt("PCHEPA", size=8);
-        fwd(qr_size/2 + border + 1 + 3 + 4)
+        fwd(qr_size/2 + 1 + 3 + 4)
           txt(pchepa_version, size=6);
 
-        qrcode("user_guide/v1.qr.png",
-          size = [qr_size, qr_size, h],
-          dat_size = qr_res,
-          margin = [border, border, 0],
-          range = 100,
-          positive = positive,
-          anchor = TOP, orient = DOWN
-        );
+        qr("https://is.gd/izikah",
+           // shortened "https://github.com/jcorbin/pchepa/blob/main/user_guide/v1.md"
+           width = qr_size, height = qr_size, thickness = h,
+           center = true);
       }
 
       else if (i == 1) {
