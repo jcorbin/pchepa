@@ -295,6 +295,17 @@ base_power_bank_tunnel_inset = 1;
 // Corner and mouth flare chamfering on the power bank access tunnel.
 base_power_bank_tunnel_chamfer = 4;
 
+/* [Base Label Parameters] */
+
+// URL text for the base plate label
+label_project_url = "https://github.com/jcorbin/pchepa";
+
+// QR Code URL for the base plate label.
+label_qr_url = "https://is.gd/izikah"; // shortened "https://github.com/jcorbin/pchepa/blob/main/user_guide/v1.md"
+
+// Replacement filter description for the base plate label.
+label_filter_name = "Nyemo H12 / TT-AP006";
+
 /* [Joiner Clip Parameters] */
 
 // Preview color for joiner clips.
@@ -1973,19 +1984,16 @@ module base_label(
         fwd(qr_size/2 + 1 + 3 + 4)
           txt(pchepa_version, size=6);
 
-        qr("https://is.gd/izikah",
-           // shortened "https://github.com/jcorbin/pchepa/blob/main/user_guide/v1.md"
-           width = qr_size, height = qr_size, thickness = h,
-           center = true);
+        qr(label_qr_url, width = qr_size, height = qr_size, thickness = h, center = true);
       }
 
       else if (i == 1) {
         back(24)
           txt("Replacement Filter:", size=6);
         back(12)
-          txt("Nyemo H12 / TT-AP006", size=6);
+          txt(label_filter_name, size=6);
         fwd(6)
-          txt("https://github.com/jcorbin/pchepa", size=5);
+          txt(label_project_url, size=5);
         fwd(18)
           txt(pchepa_version, size=6);
       }
