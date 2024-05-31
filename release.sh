@@ -14,17 +14,24 @@ get_next_version() {
 }
 
 regen_changelog() {
-  while IFS= read -r line; do
-    if [[ $line =~ ^##*\ \ *v ]]; then
-      echo "# ${next_version:-vNEXT}"
-      echo
-      echo '```git log --pretty=oneline'
-      git log "$last_version".. --pretty=oneline
-      echo '```'
-      echo
-    fi
-    echo "$line"
-  done <CHANGELOG.md
+  {
+    while IFS= read -r line; do
+      if [[ $line =~ ^##*\ \ *v ]]; then
+        echo "# ${next_version:-vNEXT}"
+        echo
+        echo '```git log --pretty=oneline'
+        git log "$last_version".. --pretty=oneline
+        echo '```'
+        echo
+        echo "$line"
+        break
+      fi
+      echo "$line"
+    done
+    while IFS= read -r line; do
+      echo "$line"
+    done
+  } <CHANGELOG.md
 }
 
 get_changes() {
