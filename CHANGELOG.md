@@ -7,6 +7,15 @@
 - the chosen battery bank option works okay, but the disingenuous capacity rating on it leave a bad taste;
   other battery options would be welcome
 
+# v1.1.2
+
+- switched [sqadqr](https://github.com/xypwn/scadqr) for native qr generation
+- pulled out label text/qr particulars into customizer parameters
+- internal git repository cleanups:
+  - fixed bosl2 submodule url
+  - evicted all model and image assets into git-lfs blos storage
+  - minor fix to release script
+
 # v1.1.1
 
 - remade wall section and slot shapes based on X-oriented extrusion of a profile
