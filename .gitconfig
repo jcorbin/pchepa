@@ -1,3 +1,9 @@
 [filter "git_scad_vars"]
   clean = ./git_scad_vars.sh clean
   smudge = ./git_scad_vars.sh smudge
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
