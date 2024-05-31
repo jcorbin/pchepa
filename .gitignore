@@ -1,6 +1,8 @@
 *.stl
 *.3mf
 
+!pchepa_*-v*.3mf
+
 !duo/*.stl
 !parts/*.stl
 !test/*.stl
