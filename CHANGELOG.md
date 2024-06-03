@@ -7,6 +7,14 @@
 - the chosen battery bank option works okay, but the disingenuous capacity rating on it leave a bad taste;
   other battery options would be welcome
 
+# v1.2.0-test2
+
+- Moved base labels to their bottom surface (against the build plate);
+  this allows them so be seen without disassembling,
+  plus should have overall higher surface quality artifacts.
+- Added varying wall section modes for: no dovetail, only female dovetails, only male dovetails, and both dovetail edges;
+  this allows assembling a "hemi-loop" for the mesh wall, which should provide stronger join around the bend.
+
 # v1.2.0-test1
 
 - Mesh walls now serve as primary vertical integration,
@@ -14,7 +22,7 @@
   in addition to the filter snap fit itself.
   This was done by adding a triangular foot to the top/bottom of mesh wall sections,
   with corresponding shape in each plate slot channel.
-- Moved the cover cover notch to the inner side of the filter diameter, added a corresponding notch to the base plate.
+- Moved the cover notch to the inner side of the filter diameter, added a corresponding notch to the base plate.
   With the mesh wall foot, notch is no longer useful to remove/install wall sections externally,
   and otherwise only presented a snag hazard to sliding wall sections.
   Now the new notch placements only help with filter installation from the interior only.
