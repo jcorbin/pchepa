@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
+set -x
 
 desc=$(git describe --tags)
-last_version=${desc%%-*}
+last_version=${desc%-*-g*}
 
 get_next_version() {
-  if [ $(git cat-file -t "${last_version}") != 'tag' ]; then
+  t=$(git cat-file -t "${last_version}" || echo '')
+  if [ "$t" != 'tag' ]; then
     echo "${last_version}"
   else
     sed -e "/^# ${last_version}/q" <CHANGELOG.md \
@@ -65,7 +67,8 @@ edit_changelog() {
 prep_next_version() {
   next_version=$(get_next_version)
   [ -n "$next_version" ]
-  if [ $(git cat-file -t "${next_version}") = 'tag' ]; then
+  t=$(git cat-file -t "${next_version}" || echo '')
+  if [ "$t" = 'tag' ]; then
     echo "ERROR: ${next_version} already released" >&1
     exit 1
   fi
@@ -88,7 +91,8 @@ prep|regen)
 pub|tag)
   next_version=$(get_next_version)
   [ -n "$next_version" ]
-  if [ $(git cat-file -t "${next_version}") = 'tag' ]; then
+  t=$(git cat-file -t "${next_version}" || echo '')
+  if [ "$t" = 'tag' ]; then
     echo "ERROR: ${next_version} already released" >&1
     exit 1
   fi
