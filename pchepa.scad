@@ -39,8 +39,8 @@ build_plate_size = [250, 250];
 //@make -o duo/base_bank_a.stl -D mode=10 -D filter_count=2 -D base_embed_power_bank=true
 //@make -o duo/base_bank_b.stl -D mode=11 -D filter_count=2 -D base_embed_power_bank=true
 
-//@make -o duo/base_label_a.stl -D mode=40 -D filter_count=2
-//@make -o duo/base_label_b.stl -D mode=41 -D filter_count=2
+//@make -o duo/base_label_a.stl -D mode=40 -D label_bottom=true -D filter_count=2
+//@make -o duo/base_label_b.stl -D mode=41 -D label_bottom=true -D filter_count=2
 
 //@make -o duo/cover_a.stl -D mode=20 -D filter_count=2
 //@make -o duo/cover_b.stl -D mode=21 -D filter_count=2
@@ -62,8 +62,11 @@ build_plate_size = [250, 250];
 //@make -o test/power_bank_tunnel.stl -D mode=105 -D base_embed_power_bank=true
 //@make -o test/grill_ear.stl -D mode=107
 //@make -o test/pwm_ctl_mount.stl -D mode=108
-//@make -o test/base_label_plate_a.stl -D mode=42 -D filter_count=2
-//@make -o test/base_label_plate_b.stl -D mode=43 -D filter_count=2
+
+//@make -o test/label_a.stl -D mode=40 -D filter_count=2
+//@make -o test/label_b.stl -D mode=41 -D filter_count=2
+//@make -o test/label_plate_a.stl -D mode=42 -D filter_count=2
+//@make -o test/label_plate_b.stl -D mode=43 -D filter_count=2
 
 //@make -o parts/clip.stl -D mode=90
 //@make -o parts/base_channel_plug.stl -D mode=91
@@ -327,6 +330,9 @@ label_qr_url = "https://is.gd/izikah"; // shortened "https://github.com/jcorbin/
 // Replacement filter description for the base plate label.
 label_filter_name = "Nyemo H12 / TT-AP006";
 
+// Option to attach label to bottom face rather than top face.
+label_bottom = false;
+
 /* [Joiner Clip Parameters] */
 
 // Preview color for joiner clips.
@@ -540,7 +546,7 @@ else if (mode >= 10 && mode < 20) {
 
   translate($preview ? bb*base_od/2 : [0, 0, 0])
   preview_cutaway(dir=by)
-  recolor(base_color) base($idx = base_i, label = !$preview, anchor="filter") recolor(undef) {
+  recolor(base_color) base($idx = base_i, label = true, anchor=BOTTOM) recolor(undef) {
     %if (buddy) {
 
       recolor(clip_color)
@@ -860,12 +866,21 @@ module base_label_demo(i = 0) {
     }
   }
 
+  module maybe_flip() {
+    if (label_bottom) {
+      xflip() children();
+    } else {
+      children();
+    }
+  }
+
+  maybe_flip()
   if ($preview) {
     neg()
       attach(TOP, BOTTOM, overlap=base_label_depth)
       pos();
   } else if (mode % 2 == 0) {
-    pos(anchor=TOP);
+    pos(anchor=label_bottom ? BOTTOM : TOP);
   } else {
     neg(anchor=TOP);
   }
@@ -2157,7 +2172,7 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
 
       if (label) {
         tag("label")
-        attach("filter", BOTTOM, overlap=base_label_depth)
+        attach(BOTTOM, BOTTOM, overlap=base_label_depth)
         plate_mirror_idx(base_i)
           base_label(h = base_label_depth + $eps, i = base_i);
       }
