@@ -49,12 +49,14 @@ build_plate_size = [250, 250];
 //@make -o duo/grill_box_a.stl -D mode=30 -D filter_count=2
 //@make -o duo/grill_box_b.stl -D mode=31 -D filter_count=2
 
-//@make -o duo/wall_section.stl -D mode=92 -D filter_count=2
-//@make -o duo/wall_section_dovetails.stl -D mode=92 -D filter_count=2 -D wrapwall_dovetail=[5,3,15]
+//@make -o duo/wall_0.stl -D mode=50 -D filter_count=2
+//@make -o duo/wall_1.stl -D mode=51 -D filter_count=2
+//@make -o duo/wall_2.stl -D mode=52 -D filter_count=2
+//@make -o duo/wall_3.stl -D mode=53 -D filter_count=2
 
 //@make -o test/power_module.stl -D mode=101 -D filter_count=2
 //@make -o test/wallslot.stl -D mode=102 -D filter_count=2
-//@make -o test/wall.stl -D mode=92 -D filter_count=2 -D wrapwall_length=50
+//@make -o test/wall.stl -D mode=50 -D filter_count=2 -D wrapwall_length=50
 //@make -o test/cover_hole.stl -D mode=103 -D filter_count=2
 //@make -o test/joiner_clip.stl -D mode=104
 //@make -o test/power_bank_tunnel.stl -D mode=105 -D base_embed_power_bank=true
@@ -73,7 +75,7 @@ build_plate_size = [250, 250];
 //@make -o parts/wall_bender_duo.stl -D mode=94
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 40:Label A, 41:Label B, 42:Label Plate A, 43:Label Plate B, 90:Rabbit Clip, 91:Base Channel Plug, 92:Wall Section, 93:PWM Knob, 94:Wall Bender, 100:Dev, 101:Power Module Fit Test, 102:Wallslot Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 106:Power Bank, 107:Grill Ear Test, 108:PWM Controller Test]
+mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 40:Label A, 41:Label B, 42:Label Plate A, 43:Label Plate B, 50:Wall 0, 51:Wall 1, 52:Wall 2, 53:Wall 3, 90:Rabbit Clip, 91:Base Channel Plug, 93:PWM Knob, 94:Wall Bender, 100:Dev, 101:Power Module Fit Test, 102:Wallslot Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 106:Power Bank, 107:Grill Ear Test, 108:PWM Controller Test]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -149,7 +151,7 @@ wrapwall_length = 0;
 wrapwall_height = 0;
 
 // Mesh wrap wall sections will use dovetail joiners of this dimension; [w, h, spacing] vector, set either w or h to 0 to disable dovetails.
-wrapwall_dovetail = 0;
+wrapwall_dovetail = [5, 3, 15];
 
 // Additional tolerance added to mesh wrap wall dovetail receptacles.
 wrapwall_dovetail_tolerance = 0.1;
@@ -621,6 +623,18 @@ else if (mode >= 40 && mode < 50) {
   base_label_demo(mode - 40);
 }
 
+/// mode[50-59] -- wall sections
+
+else if (mode >= 50 && mode < 59) {
+  wall_i = mode - 50;
+  wall_section(
+    w = wrapwall_length == 0 ? undef : wrapwall_length,
+    h = wrapwall_height == 0 ? undef : wrapwall_height,
+    left_dovetail = is_bit_set(wall_i, 0),
+    right_dovetail = is_bit_set(wall_i, 1)
+  );
+}
+
 /// mode[90-99] -- spare parts
 
 else if (mode == 90) {
@@ -629,13 +643,6 @@ else if (mode == 90) {
 
 else if (mode == 91) {
   channel_plug();
-}
-
-else if (mode == 92) {
-  wall_section(
-    w = wrapwall_length == 0 ? undef : wrapwall_length,
-    h = wrapwall_height == 0 ? undef : wrapwall_height
-  );
 }
 
 else if (mode == 93) {
@@ -778,6 +785,10 @@ else if (mode == 108) {
 }
 
 /// implementation
+
+function is_bit_set(val, idx) =
+  let(pow2 = [1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768])
+  floor(val / pow2[idx%8]) % 2 == 1;
 
 function camera_arg() = str( "--camera=",
     $vpt.x, ",", $vpt.y, ",", $vpt.z, ",",
@@ -2378,10 +2389,13 @@ module mesh_panel(size = wall_section(), anchor = CENTER, spin = 0, orient = UP)
 module wall_section(
   w = undef, h = undef,
   dovetail = wrapwall_dovetail,
+  left_dovetail = true,
+  right_dovetail = true,
   anchor = CENTER, spin = 0, orient = UP
 ) {
   wall_size = wall_section(w, h);
   dove_size = scalar_vec3(dovetail);
+  any_dovetails = left_dovetail || right_dovetail;
 
   module dist_walldoves() {
     xcopies(l = wall_size.y - dove_size.x, spacing = dove_size.z)
@@ -2389,25 +2403,31 @@ module wall_section(
       children();
   }
 
-  if (dove_size.x * dove_size.y > 0) {
+  if (any_dovetails && dove_size.x * dove_size.y > 0) {
     attachable(anchor, spin, orient, size = wall_size + RIGHT*dove_size.y) {
-      left(dove_size.y/2)
+      left(right_dovetail ? dove_size.y/2 : 0)
       diff() mesh_panel(wall_size) {
-        attach(RIGHT, BOTTOM, overlap=$eps)
-        tag("keep")
-        dist_walldoves() dovetail("male",
-          h = dove_size.y + $eps,
-          width = dove_size.x,
-          back_width = dove_size.x - wrapwall_thickness,
-          thickness = wall_size.z);
 
-        attach(LEFT, TOP, overlap=dove_size.y + wrapwall_dovetail_tolerance)
-        tag("remove")
-        dist_walldoves() dovetail("female",
-          h = dove_size.y + wrapwall_dovetail_tolerance + $eps,
-          width = dove_size.x + 2*wrapwall_dovetail_tolerance,
-          back_width = dove_size.x + 2*wrapwall_dovetail_tolerance - wrapwall_thickness,
-          thickness = wall_size.z + 2*$eps);
+        if (left_dovetail) {
+          attach(LEFT, TOP, overlap=dove_size.y + wrapwall_dovetail_tolerance)
+          tag("remove")
+          dist_walldoves() dovetail("female",
+            h = dove_size.y + wrapwall_dovetail_tolerance + $eps,
+            width = dove_size.x + 2*wrapwall_dovetail_tolerance,
+            back_width = dove_size.x + 2*wrapwall_dovetail_tolerance - wrapwall_thickness,
+            thickness = wall_size.z + 2*$eps);
+        }
+
+        if (right_dovetail) {
+          attach(RIGHT, BOTTOM, overlap=$eps)
+          tag("keep")
+          dist_walldoves() dovetail("male",
+            h = dove_size.y + $eps,
+            width = dove_size.x,
+            back_width = dove_size.x - wrapwall_thickness,
+            thickness = wall_size.z);
+        }
+
       }
       children();
     }
