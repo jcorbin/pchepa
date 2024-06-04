@@ -56,7 +56,7 @@ build_plate_size = [250, 250];
 
 //@make -o test/power_module.stl -D mode=101 -D filter_count=2
 //@make -o test/wallslot.stl -D mode=102 -D filter_count=2
-//@make -o test/wall.stl -D mode=92 -D filter_count=2 -D wrapwall_length=50
+//@make -o test/wall.stl -D mode=50 -D filter_count=2 -D wrapwall_length=50
 //@make -o test/cover_hole.stl -D mode=103 -D filter_count=2
 //@make -o test/joiner_clip.stl -D mode=104
 //@make -o test/power_bank_tunnel.stl -D mode=105 -D base_embed_power_bank=true
