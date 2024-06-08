@@ -1,10 +1,21 @@
 # Errata
 
-- vertical integrity needs to be improved, especially for the portable variant
-  - currently the only source of vertical integration is the cover/base plate grip on the filters themselves...
-  - ...but this can come undone under a sudden shock, like can happen when you're walking around with it on a shoulder strap
 - the chosen battery bank option works okay, but the disingenuous capacity rating on it leave a bad taste;
   other battery options would be welcome
+
+# v1.2.0
+
+- Mesh walls now serve as primary vertical integration,
+  holding the base and cover plates together rigidly,
+  in addition to the filter snap fit itself.
+  This was done by adding a triangular foot to the top/bottom of mesh wall sections,
+  with corresponding shape in each plate slot channel.
+- Moved the cover notch to the inner side of the filter diameter, added a corresponding notch to the base plate.
+  With the mesh wall foot, notch is no longer useful to remove/install wall sections externally,
+  and otherwise only presented a snag hazard to sliding wall sections.
+  Now the new notch placements only help with filter installation from the interior only.
+- **NOTE**: because of these changes, and many minor improvements to plate diameter maths along the way, v1.2 plates will not be compatible with v1.1 parts.
+- total cost is down marginally ( -2 hours print time and -$3 bom cost )
 
 # v1.1.3
 
@@ -110,7 +121,6 @@
 
 # Dev Status and TODOs
 
-- [testing] WIP rigidly integrate cover+base plate assembly by using top/bottom feet on each mesh wall section
 - [ ] TODO support N-filter stacks with a joiner plate
 - [ ] TODO support N-fan stacks, but also take care, and support inter-fan spacing
 - [ ] TODO support scaling down to single-stack assembly
