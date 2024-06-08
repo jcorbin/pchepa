@@ -519,7 +519,7 @@ else if (mode >= 10 && mode < 20) {
 
   translate($preview ? bb*base_od/2 : [0, 0, 0])
   preview_cutaway(dir=by)
-  recolor(base_color) base($idx = base_i, label = !$preview, anchor="filter") recolor(undef) {
+  recolor(base_color) base($idx = base_i, label = true, anchor="filter") recolor(undef) {
     %if (buddy) {
 
       recolor(clip_color)
