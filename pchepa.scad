@@ -39,8 +39,8 @@ build_plate_size = [250, 250];
 //@make -o duo/base_bank_a.stl -D mode=10 -D filter_count=2 -D base_embed_power_bank=true
 //@make -o duo/base_bank_b.stl -D mode=11 -D filter_count=2 -D base_embed_power_bank=true
 
-//@make -o duo/base_label_a.stl -D mode=40 -D filter_count=2
-//@make -o duo/base_label_b.stl -D mode=41 -D filter_count=2
+//@make -o duo/base_label_a.stl -D mode=40 -D label_bottom=true -D filter_count=2
+//@make -o duo/base_label_b.stl -D mode=41 -D label_bottom=true -D filter_count=2
 
 //@make -o duo/cover_a.stl -D mode=20 -D filter_count=2
 //@make -o duo/cover_b.stl -D mode=21 -D filter_count=2
@@ -525,7 +525,7 @@ else if (mode >= 10 && mode < 20) {
 
   translate($preview ? bb*base_od/2 : [0, 0, 0])
   preview_cutaway(dir=by)
-  recolor(base_color) base($idx = base_i, label = true, anchor="filter") recolor(undef) {
+  recolor(base_color) base($idx = base_i, label = true, anchor=BOTTOM) recolor(undef) {
     %if (buddy) {
 
       recolor(clip_color)
@@ -2131,7 +2131,7 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
 
       if (label) {
         tag("label")
-        attach("filter", BOTTOM, overlap=base_label_depth)
+        attach(BOTTOM, BOTTOM, overlap=base_label_depth)
         plate_mirror_idx(base_i)
           base_label(h = base_label_depth + $eps, i = base_i);
       }
