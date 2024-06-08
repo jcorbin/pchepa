@@ -60,8 +60,11 @@ build_plate_size = [250, 250];
 //@make -o test/power_bank_tunnel.stl -D mode=105 -D base_embed_power_bank=true
 //@make -o test/grill_ear.stl -D mode=107
 //@make -o test/pwm_ctl_mount.stl -D mode=108
-//@make -o test/base_label_plate_a.stl -D mode=42 -D filter_count=2
-//@make -o test/base_label_plate_b.stl -D mode=43 -D filter_count=2
+
+//@make -o test/label_a.stl -D mode=40 -D filter_count=2
+//@make -o test/label_b.stl -D mode=41 -D filter_count=2
+//@make -o test/label_plate_a.stl -D mode=42 -D filter_count=2
+//@make -o test/label_plate_b.stl -D mode=43 -D filter_count=2
 
 //@make -o parts/clip.stl -D mode=90
 //@make -o parts/base_channel_plug.stl -D mode=91
