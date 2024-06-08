@@ -8,6 +8,10 @@
 
 # v1.1.3
 
+- reworked duo 3mf project
+  - all base variants and wall variants in one project, no portable-vs-stationary difference
+  - spread out joiner clip placement so that there are some on each base plate to catch some flush
+  - include all 4 wall section variants
 - moved base labels to their bottom surface (against the build plate);
   this allows them so be seen without disassembling,
   plus should have overall higher surface quality artifacts.
