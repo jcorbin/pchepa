@@ -309,6 +309,9 @@ label_qr_url = "https://is.gd/izikah"; // shortened "https://github.com/jcorbin/
 // Replacement filter description for the base plate label.
 label_filter_name = "Nyemo H12 / TT-AP006";
 
+// Option to attach label to bottom face rather than top face.
+label_bottom = false;
+
 /* [Joiner Clip Parameters] */
 
 // Preview color for joiner clips.
@@ -833,12 +836,21 @@ module base_label_demo(i = 0) {
     }
   }
 
+  module maybe_flip() {
+    if (label_bottom) {
+      xflip() children();
+    } else {
+      children();
+    }
+  }
+
+  maybe_flip()
   if ($preview) {
     neg()
       attach(TOP, BOTTOM, overlap=base_label_depth)
       pos();
   } else if (mode % 2 == 0) {
-    pos(anchor=TOP);
+    pos(anchor=label_bottom ? BOTTOM : TOP);
   } else {
     neg(anchor=TOP);
   }
