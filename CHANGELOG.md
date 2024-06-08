@@ -3,9 +3,18 @@
 - vertical integrity needs to be improved, especially for the portable variant
   - currently the only source of vertical integration is the cover/base plate grip on the filters themselves...
   - ...but this can come undone under a sudden shock, like can happen when you're walking around with it on a shoulder strap
-- the mesh wall could be stronger, in particular the dovetail joint option doesn't quite work yet
 - the chosen battery bank option works okay, but the disingenuous capacity rating on it leave a bad taste;
   other battery options would be welcome
+
+# v1.1.3
+
+- moved base labels to their bottom surface (against the build plate);
+  this allows them so be seen without disassembling,
+  plus should have overall higher surface quality artifacts.
+- added varying wall section modes for: no dovetail, only female dovetails, only male dovetails, and both dovetail edges;
+  this allows assembling a "hemi-loop" for the mesh wall, which can provide stronger join around the bend, at the tradeoff of being harder to assemble
+- renamed test label part model files
+- minor improvements to release script and base label preview mode
 
 # v1.1.2
 
@@ -98,7 +107,6 @@
 # Dev Status and TODOs
 
 - [testing] WIP rigidly integrate cover+base plate assembly by using top/bottom feet on each mesh wall section
-- [ ] TODO try a hemi-loop mesh wall dovetail assembly
 - [ ] TODO support N-filter stacks with a joiner plate
 - [ ] TODO support N-fan stacks, but also take care, and support inter-fan spacing
 - [ ] TODO support scaling down to single-stack assembly
