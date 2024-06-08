@@ -178,6 +178,22 @@ A good amount seems to be 60% tri-hexagon with a 90° direction.
 
 You'll need 6 wall sections in total; 3 of them should cover one half of the filter, with a seam aligned with the base/cover/grill seam.
 
+### (optional) Dovetailed Seam Variants
+
+To help improve mesh wall seam integrity around the bend, a dovetail "hinge" option is available.
+The dovetail shape has a slight Z-taper with alternating up/down direction between adjacent dovetails.
+Once assembled, this alternating direction causes the dovetail seam to hold together like a low range of motion hinge.
+
+However assembling each dovetail seam can be tricky:
+- do **not** force together dovetails in the Z direction (by laying one on top the other and just pressing)
+- instead you'll need to weave together each seam, starting out between a pair of dovetails, and then working one dovetail at a time outwards
+
+The wall section model files come in 4 variations:
+- `wall_0` -- no dovetails
+- `wall_1` -- left/female dovetail only
+- `wall_2` -- right/male dovetail only
+- `wall_3` -- both left and right dovetails
+
 #### (optional) Pre-Bend Wall Bender and Heatgun
 
 If you can print a higher temperature plastic like ABS or PETG,
