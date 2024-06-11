@@ -54,6 +54,11 @@ build_plate_size = [250, 250];
 //@make -o duo/wall_2.stl -D mode=52 -D filter_count=2
 //@make -o duo/wall_3.stl -D mode=53 -D filter_count=2
 
+//@make -o duo/wall_noft_0.stl -D mode=50 -D filter_count=2 -D wrapwall_foot_size=[0,0]
+//@make -o duo/wall_noft_1.stl -D mode=51 -D filter_count=2 -D wrapwall_foot_size=[0,0]
+//@make -o duo/wall_noft_2.stl -D mode=52 -D filter_count=2 -D wrapwall_foot_size=[0,0]
+//@make -o duo/wall_noft_3.stl -D mode=53 -D filter_count=2 -D wrapwall_foot_size=[0,0]
+
 //@make -o test/power_module.stl -D mode=101 -D filter_count=2
 //@make -o test/wallslot.stl -D mode=102 -D filter_count=2
 //@make -o test/wall.stl -D mode=50 -D filter_count=2 -D wrapwall_length=50
