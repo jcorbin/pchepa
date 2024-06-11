@@ -21,8 +21,8 @@ There are primarily 2 variants:
 ## Material Cost Estimates
 
 Assuming filament cost of $14.99/kg:
-1. stationary costs about $91.61
-2. portable costs about $135.36
+1. stationary costs about $89.57
+2. portable costs about $133.32
 
 Breakdown:
 - 3d printed parts:
@@ -30,7 +30,7 @@ Breakdown:
   2. portable needs 1.23kg of filament and around 35 hours of print time over 13 prints
 - commodity parts:
   - fans and filters cost around $58
-  - mechanical hardware and electronics cost around $20 per unit
+  - mechanical hardware and electronics cost around $18 per unit
     (pwm controller, usb pd trigger, various wires, metric bolts and heatset inserts)
   - portable costs another $39.31 for a usb battery bank, patch cable, and carrying strap
 
@@ -45,11 +45,11 @@ you'll likely spend more up front, and then have a lot of spare parts on hand.
 | Filter [Nyemo TT-AP006 2-pack][amaz_nyemo]          | $25.99    | 1           | $25.99     | $25.99         |
 |                                                     |           |             |            |                |
 | Controller: [Taidacent 2510-4P][amaz_taidacent_pwm] |  $9.88    | 1           |  $9.88     |  $9.88         |
-| Fan Cabling: [Noctua NA-SYC1][amaz_noctua_na_syc1]  |  $9.95    | 1/2         |  $9.95     |  $4.98         |
-| [USBC 12v PD Trigger][amaz_12_pd_trigger]           | $12.99    | 1/6         | $12.99     |  $2.17         |
+| Fan Cabling: [PWM fan splitter][amaz_fan_split_x10] | $24.99    | 1/10        | $24.99     |  $2.50         |
 | [M3x35 flat head screws][amaz_m3_bolts]             |  $8.59    | 8/40        |  $8.59     |  $1.72         |
 | [M3x4x5 heatset inserts][amaz_m3_heatsets]          |  $7.99    | 8/100       |  $7.99     |  $0.64         |
-| [JST ZH wire kit][amaz_jst_zh_kit]                  | $17.99    | 6/283       | $17.99     |  $0.39         |
+| [USBC 15v PD Trigger][amaz_15v_pd_trigger]          |  $9.99    | 1/5         |  $9.99     |  $2.00         |
+| [JST ZH 2p male/female pair][amaz_jst_zh_2p_10pair] |  $9.99    | 1/10        |  $9.99     |  $1.00         |
 |                                                     |           |             |            |                |
 | Battery: [USUIE 12V USB-C][amaz_usuie_12v_bank]     | $25.99    | 1           | $25.99     | $25.99         |
 | [Shoulder Strap][amaz_shoulder_strap]               |  $9.99    | 1           |  $9.99     |  $9.99         |
@@ -217,11 +217,11 @@ With a fresh unbent wall panel, do this along the flat front/back edge and then 
 
 After the panels are in place, a heatgun may be used to help them accept their new shape.
 
-[amaz_12_pd_trigger]: https://www.amazon.com/gp/product/B0953G14Q2
-[amaz_jst_zh_kit]: https://www.amazon.com/gp/product/B0C6WY7DZM
+[amaz_15v_pd_trigger]: https://www.amazon.com/gp/product/B09GVN9RZ3
+[amaz_fan_split_x10]: https://www.amazon.com/dp/B0C6XDFRZF
+[amaz_jst_zh_2p_10pair]: https://www.amazon.com/dp/B0CNX4CJY4
 [amaz_m3_bolts]: https://www.amazon.com/gp/product/B01C3KUMSY
 [amaz_m3_heatsets]: https://www.amazon.com/Printing-M3x4x5mm-Threaded-Embedment-Automotive/dp/B0BTYF2MMD
-[amaz_noctua_na_syc1]: https://www.amazon.com/Noctua-NA-SYC1-Y-Cables-Fans-Black/dp/B00KG8K5CY
 [amaz_noctua_nf_p12]: https://www.amazon.com/gp/product/B07CG2PGY6
 [amaz_nyemo]: https://www.amazon.com/gp/product/B08Z32BDJY
 [amaz_shoulder_strap]: https://www.amazon.com/dp/B07P3LCZXN
