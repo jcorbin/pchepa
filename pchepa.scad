@@ -77,10 +77,12 @@ build_plate_size = [250, 250];
 //@make -o parts/base_channel_plug.stl -D mode=91
 //@make -o parts/base_bank_channel_plug.stl -D mode=91 -D base_embed_power_bank=true
 //@make -o parts/pwm_knob.stl -D mode=93
-//@make -o parts/wall_bender_duo.stl -D mode=94
+
+//@make -o parts/wall_bender.stl -D mode=94
+//@make -o parts/wall_bender_brace.stl -D mode=95
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 40:Label A, 41:Label B, 42:Label Plate A, 43:Label Plate B, 50:Wall 0, 51:Wall 1, 52:Wall 2, 53:Wall 3, 90:Rabbit Clip, 91:Base Channel Plug, 93:PWM Knob, 94:Wall Bender, 100:Dev, 101:Power Module Fit Test, 102:Wallslot Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 106:Power Bank, 107:Grill Ear Test, 108:PWM Controller Test]
+mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 40:Label A, 41:Label B, 42:Label Plate A, 43:Label Plate B, 50:Wall 0, 51:Wall 1, 52:Wall 2, 53:Wall 3, 90:Rabbit Clip, 91:Base Channel Plug, 93:PWM Knob, 94:Wall Bender, 95:Wall Bender Brace, 100:Dev, 101:Power Module Fit Test, 102:Wallslot Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 106:Power Bank, 107:Grill Ear Test, 108:PWM Controller Test]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -673,34 +675,24 @@ else if (mode == 93) {
   pwm_pot_knob();
 }
 
-else if (mode == 94) {
-  preview_cutaway(dir=BOTTOM)
-
-  if ($preview && buddy) {
-    up((2*cover_height + filter_height - 2*filter_recess)/2)
-    cover($idx=0, anchor=TOP) {
-      down(explode) {
-
-        color("red") cover_walls();
-
-        position(BOTTOM+RIGHT)
-        recolor("yellow")
-          wall_bender(anchor = RIGHT+TOP);
-
-        attach(BOTTOM, TOP, overlap=filter_recess)
-        hepa_filter()
-          down(explode)
-          zrot(180) // XXX y tho
-          attach(BOTTOM, BOTTOM, overlap=filter_recess)
-            cover($idx=0);
-
-      }
-
-    }
-  } else {
+else if (mode == 94 || mode == 95) {
+  preview_cutaway(dir=BACK)
+  let (
+    is_brace = mode == 95,
+    od = slot_id - 4*wrapwall_draft,
+    id = filter_od,
+    md = id/2 + od/2,
+    w = od - id,
+    h = is_brace ? 20 : filter_height - 2*filter_recess,
+    outline = wallarc(d=md, adj=2.5), // TODO why adj tho
+    foot_w = 25,
+    foot_c = 5
+  )
     recolor("yellow")
-      wall_bender(anchor = BOTTOM);
-  }
+    path_sweep(
+      shape = square([w, h], center=true),
+      path = is_brace ? outline : wallarc_add_feet(outline, foot_w, foot_c),
+      anchor = BOTTOM);
 }
 
 /// mode[100...] -- development aids and tests
@@ -2500,41 +2492,21 @@ module wall_section(
   }
 }
 
-module wall_bender(
-  h = filter_height - 2*filter_recess,
-  anchor = CENTER, spin = 0, orient = UP
-) {
-  foot_w = 25;
-  foot_c = 5; // chamfer
-  foot_s = foot_c/sqrt(2); // linear setback for chamfer
+function wallarc_add_feet(outline, w, chamfer=1) = let (
+  setback = chamfer/sqrt(2), // linear setback for chamfer
+  first = outline[0],
+  last = outline[len(outline)-1]
+) [
+  first + w * BACK, // back foot endpoint
+  first + setback * BACK, // back foot chamfer end
+  first + setback * LEFT, // back leg chamfer start
 
-  od = slot_id - 4*wrapwall_draft;
-  id = filter_od;
-  md = id/2 + od/2;
-  w = od - id;
-  profile = square([w, h], center=true);
+  each slice(outline, 1, -2), // ... U arc body
 
-  outline = wallarc(d=md, adj=2.5); // TODO y tho
-  path = let (
-    first = outline[0],
-    last = outline[len(outline)-1]
-  ) [
-    first + foot_w * BACK, // back foot endpoint
-    first + foot_s * BACK, // back foot chamfer end
-    first + foot_s * LEFT, // back leg chamfer start
-
-    each slice(outline, 1, -2), // ... U arc body
-
-    last + foot_s * LEFT, // front leg chamfer start
-    last + foot_s * FWD, // front foot chamfer end
-    last + foot_w * FWD, // front foot endpoint
-  ];
-
-  path_sweep(
-    shape = profile, path = path,
-    anchor = anchor, spin = spin, orient = orient)
-    children();
-}
+  last + setback * LEFT, // front leg chamfer start
+  last + setback * FWD, // front foot chamfer end
+  last + w * FWD, // front foot endpoint
+];
 
 module plate(h, d, extra=0, chamfer1=0, chamfer2=0, anchor=CENTER, spin=0, orient=UP) {
   r = d/2 - 1/1024;
