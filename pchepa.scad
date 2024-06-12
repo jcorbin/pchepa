@@ -44,6 +44,7 @@ build_plate_size = [250, 250];
 
 //@make -o duo/cover_a.stl -D mode=20 -D filter_count=2
 //@make -o duo/cover_b.stl -D mode=21 -D filter_count=2
+//@make -o duo/cover_grommet.stl -D mode=29 -D filter_count=2
 
 //@make -o duo/grill_box_basic.stl -D mode=30 -D filter_count=2 -D grill_ear=[0,0] -D grill_window=[24,46] -D pwm_ctl_pcb_size=[0,0,0]
 //@make -o duo/grill_box_a.stl -D mode=30 -D filter_count=2
@@ -82,7 +83,7 @@ build_plate_size = [250, 250];
 //@make -o parts/wall_bender_brace.stl -D mode=95
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 40:Label A, 41:Label B, 42:Label Plate A, 43:Label Plate B, 50:Wall 0, 51:Wall 1, 52:Wall 2, 53:Wall 3, 90:Rabbit Clip, 91:Base Channel Plug, 93:PWM Knob, 94:Wall Bender, 95:Wall Bender Brace, 100:Dev, 101:Power Module Fit Test, 102:Wallslot Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 106:Power Bank, 107:Grill Ear Test, 108:PWM Controller Test]
+mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 29:Cover Port Grommet, 30:Grill Box A, 31:Grill Box B, 40:Label A, 41:Label B, 42:Label Plate A, 43:Label Plate B, 50:Wall 0, 51:Wall 1, 52:Wall 2, 53:Wall 3, 90:Rabbit Clip, 91:Base Channel Plug, 93:PWM Knob, 94:Wall Bender, 95:Wall Bender Brace, 100:Dev, 101:Power Module Fit Test, 102:Wallslot Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 106:Power Bank, 107:Grill Ear Test, 108:PWM Controller Test]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -256,9 +257,6 @@ cover_clips = 4;
 // Size of the cover heatset inserts in [diameter, height]; set either to zero to instead use a screw-into-plastic hole.
 cover_heatset_hole = [4.4, 5.3];
 
-// Size of wiring pass through hole(s) in the cover plate; set either dimension to zero to disable.
-cover_port = [40, 20];
-
 // Access notch cutout around the filter recess of cover plate.
 cover_notch = [20, 20, 30];
 
@@ -275,8 +273,22 @@ cover_notch_rounding_edges = [
 // Placement vector for cover notch; unit is outer wallslot radius.
 cover_notch_side = RIGHT;
 
+/* [Cover Plate Wire Ports] */
+
+// Size of wiring pass through hole(s) in the cover plate; set either dimension to zero to disable.
+cover_port = [40, 20];
+
 // Placement, along the Y axis of the inner cover plate edge, of any wire pass through holes
 cover_port_at = [-48, 48];
+
+// Reduce size of grommet part by this much from the cover plate hole.
+cover_port_grommet_tolerance = 0.2;
+
+// Thickness of grommet tube walls and height of the upper lip.
+cover_port_grommet_wall = 1;
+
+// Width of grommet lips and height of the lower lip.
+cover_port_grommet_lip = 3;
 
 /* [Filter Base Parameters] */
 
@@ -581,12 +593,13 @@ else if (mode >= 10 && mode < 20) {
 
 /// mode[20-29] -- tops (i.e. filter/fan integration cover)
 
-else if (mode >= 20 && mode < 30) {
+else if (mode >= 20 && mode < 29) {
   cover_i = mode - 20;
   preview_cutaway(dir=FRONT)
   recolor(cover_color)
   cover($idx = cover_i, anchor = "filter", orient = $preview ? UP : DOWN) recolor(undef) {
     %if (buddy) {
+      away = $idx % 2 == 0 ? RIGHT : LEFT;
 
       down(explode) attach("filter", TOP) hepa_filter();
 
@@ -600,6 +613,10 @@ else if (mode >= 20 && mode < 30) {
         for (i = [ cover_i % 2 : 2 : cover_clips-1 ])
         str("clip_socket_", i)
       ], BOTTOM, overlap=clip_size.y - explode/4) clip(spin=90);
+
+      translate(away*(explode/4))
+      position(["port1", "port2"])
+        cover_port_grommet(orient=DOWN);
 
       up(explode)
       attach(TOP, "vent_bottom")
@@ -622,6 +639,10 @@ else if (mode >= 20 && mode < 30) {
       }
     }
   }
+}
+
+else if (mode == 29) {
+  cover_port_grommet();
 }
 
 /// mode[30-39] -- fan grills
@@ -939,6 +960,11 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
           for (i = [ i % 2 : 2 : cover_clips-1 ])
           str("clip_socket_", i)
         ], BOTTOM, overlap=clip_size.y - explode/4) clip(spin=90);
+
+        away = i % 2 == 0 ? RIGHT : LEFT;
+        translate(away*(explode/2))
+        position(i % 2 == 0 ? "port1" : "port2")
+          cover_port_grommet(orient=DOWN);
 
         up(explode)
         attach(TOP, "vent_bottom")
@@ -1716,6 +1742,53 @@ module hepa_filter(anchor = CENTER, spin = 0, orient = UP) {
   }
 }
 
+module cover_port_grommet(anchor = CENTER, spin = 0, orient = UP) {
+  if (cover_port.x * cover_port.y > 0) {
+    tol = scalar_vec3(cover_port_grommet_tolerance);
+    wall = scalar_vec3(cover_port_grommet_wall);
+    lip = scalar_vec3(cover_port_grommet_lip);
+
+    port_chamfer = min(cover_port/4);
+    port_size = [cover_port.x, cover_port.y, cover_height];
+
+    tube_size = port_size + [-2*tol.x, -2*tol.y, wall.z];
+
+    lip_size = [
+      port_size.x + 2*lip.x,
+      port_size.y + 2*lip.y
+    ];
+
+    lh1 = wall.z;
+    lh2 = max(lip.x, lip.y);
+
+    hole_size = [
+      tube_size.x - 2*wall.x,
+      tube_size.y - 2*wall.y,
+      lh1 + tube_size.z + lh2
+    ];
+
+    attachable(anchor, spin, orient, [ lip_size.x, lip_size.y, hole_size.z ]) {
+      recolor(clip_color)
+      diff()
+      tag("remove") cuboid(hole_size + [ 0, 0, 2*$eps ], chamfer=port_chamfer, edges="Z")
+        tag("")
+        down(lh2/2 - lh1/2)
+        cuboid(tube_size, chamfer=port_chamfer, edges="Z") {
+          attach(BOTTOM, BOTTOM, overlap=wall.z/2)
+            cuboid([lip_size.x, lip_size.y, lh1], chamfer=port_chamfer, edges="Z");
+          attach(TOP, BOTTOM, overlap=wall.z/2)
+            prismoid(
+              size2=lip_size,
+              size1=[tube_size.x, tube_size.y],
+              h=lh2,
+              chamfer=port_chamfer);
+        }
+
+      children();
+    }
+  }
+}
+
 module cover(anchor = CENTER, spin = 0, orient = UP) {
   cover_i = $idx;
   join_side = cover_i == 0 ? RIGHT : LEFT;
@@ -1741,6 +1814,14 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
     ) [
       named_anchor("filter", DOWN*(size.z/2 - filter_recess), DOWN),
 
+      each(cover_port.x * cover_port.y > 0 ? [
+        for (i = idx(cover_port_at)) let (
+          yat = cover_port_at[i],
+          loc = join_side*size.x/2 + BACK*yat
+        )
+        named_anchor(str("port", i+1), loc, DOWN)
+      ] : []),
+
       each [
         for (i = idx(screw_holes_at))
         named_anchor(str("screw_hole_", i), screw_holes_at[i], UP)
@@ -1758,7 +1839,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
   ) {
 
     plate_mirror_idx(cover_i)
-    diff(remove="flow filter wallslot screw socket channel port notch", keep="grip support")
+    diff(remove="filter flow notch port screw socket wallslot", keep="grip support")
       plate(
         h=cover_height, d=cover_od, extra=cover_extra,
         chamfer1=cover_underhang, chamfer2=cover_overhang) {
