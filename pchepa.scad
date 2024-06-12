@@ -1760,7 +1760,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
   ) {
 
     plate_mirror_idx(cover_i)
-    diff(remove="flow filter wallslot screw socket channel port notch", keep="grip support")
+    diff(remove="filter flow notch port screw socket wallslot", keep="grip support")
       plate(
         h=cover_height, d=cover_od, extra=cover_extra,
         chamfer1=cover_underhang, chamfer2=cover_overhang) {
