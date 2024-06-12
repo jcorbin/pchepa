@@ -292,6 +292,31 @@ mid_overhang = 4;
 // Lower chamfer size of the mid plate, additional radial space as needed.
 mid_underhang = 4;
 
+// How many joiner clips to use in the mid plate.
+mid_clips = 4;
+
+// Size of wiring pass through hole(s) in the mid plate; set either dimension to zero to disable.
+mid_port = [40, 20];
+
+// Placement, along the Y axis of the inner mid plate edge, of any wire pass through holes
+mid_port_at = [-48, 48];
+
+// Access notch cutout around the filter recess of mid plate.
+mid_notch = [20, 20, 30];
+
+// Rounding radius for any mid notch cutout.
+mid_notch_rounding = 5;
+
+// Which mid notch cuboid edges should be rounded; default is only Z-aligned edges; NOTE notch cube is oriented so that it's local Z is along the mid_notch_side vector.
+mid_notch_rounding_edges = [
+  [0, 0, 0, 0], // yz -- +- -+ ++
+  [0, 0, 0, 0], // xz
+  [1, 1, 1, 1], // xy
+];
+
+// Placement vector for mid notch; unit is outer wallslot radius.
+mid_notch_side = RIGHT;
+
 /* [Filter Base Parameters] */
 
 // Base plate preview color.
@@ -1750,6 +1775,7 @@ module hepa_filter(anchor = CENTER, spin = 0, orient = UP) {
   }
 }
 
+// TODO use in base
 module filter_seat(anchor = CENTER, spin = 0, orient = UP) {
   h = filter_recess + $eps;
   d = filter_od + 2*filter_tolerance;
@@ -1876,22 +1902,73 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 module mid_plate(anchor = CENTER, spin = 0, orient = UP) {
   mid_i = $idx;
 
+  // join_side = mid_i == 0 ? RIGHT : LEFT;
+  // apex_side = mid_i == 0 ? LEFT : RIGHT;
+
   size = [mid_od + mid_extra, mid_od, mid_height];
   attachable(
     anchor, spin, orient,
     size
+    // anchors = [ TODO like cover ]
   ) {
     plate_mirror_idx(mid_i)
-    diff(remove="filter flow")
+    diff(remove="filter flow notch port socket wallslot", keep="grip support")
       plate(
         h=mid_height, d=mid_od, extra=mid_extra,
         chamfer1=mid_underhang, chamfer2=mid_overhang) {
 
+        // TODO factor out common module with cover
         tag("flow")
           attach(TOP, TOP, overlap=cover_height+$eps)
           cyl(h=cover_height+2*$eps, d=fan_id);
 
         attach([BOTTOM, TOP], TOP, overlap=filter_recess) filter_seat();
+
+        // TODO radial support walls down
+
+        // TODO notches
+        // if (cover_notch.x * cover_notch.y * cover_notch.z > 0) {
+        //   tag("notch")
+        //   down(size.z/2)
+        //   translate(cover_notch_side*slot_od/2)
+        //     cuboid(cover_notch,
+        //       orient=cover_notch_side,
+        //       rounding=cover_notch_rounding,
+        //       edges=cover_notch_rounding_edges);
+        // }
+
+        // TODO ports
+        // if (cover_port.x * cover_port.y > 0) {
+        //   port_chamfer = min(cover_port/4);
+        //   port_size = [cover_port.x, cover_port.y, cover_height];
+        //   tag("port")
+        //     ycopies(cover_port_at)
+        //     left(port_size[0] / 2)
+        //     attach(TOP + RIGHT, TOP + LEFT)
+        //     up($eps)
+        //     xrot(90)
+        //       cuboid(port_size + [0, 0, 2*$eps], chamfer=port_chamfer, edges="Z");
+        // }
+
+        // TODO clip sockets
+        // if (filter_count > 1 && cover_clips > 0) {
+        //   down(clip_size.z * 1.5)
+        //   up(cover_height / 2)
+        //   ycopies(l=(cover_od - 2*cover_overhang - 1.5 * clip_size.x), n=cover_clips)
+        //     tag("socket")
+        //     attach(RIGHT, TOP, overlap=clip_size.y)
+        //     clip_socket();
+        // }
+
+        // TODO wallslot up and down
+        // if (wrapwall_thickness > 0) {
+        //   tag("wallslot")
+        //   down($eps)
+        //   position(BOTTOM+RIGHT)
+        //   up(wrapwall_slot_depth/2)
+        //   left((wall_d + wall_extra/2)/2)
+        //     zflip() wallslot();
+        // }
 
       }
 
