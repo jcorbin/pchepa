@@ -689,7 +689,7 @@ else if (mode >= 10 && mode < 20) {
 
 else if (mode >= 20 && mode < 29) {
   cover_i = mode - 20;
-  preview_cutaway(dir=FRONT)
+  preview_cutaway(dir=BACK)
   recolor(cover_color)
   cover($idx = cover_i, anchor = "filter", orient = $preview ? UP : DOWN) recolor(undef) {
     %if (buddy) {
@@ -743,7 +743,7 @@ else if (mode == 29) {
 
 else if (mode >= 30 && mode < 40) {
   grill_i = mode - 30;
-  preview_cutaway(dir=FRONT)
+  preview_cutaway(dir=BACK)
   recolor(grill_color)
   grill($idx = grill_i, orient=$preview ? UP : DOWN) recolor(undef) {
     %if (buddy) {
