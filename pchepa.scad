@@ -259,6 +259,9 @@ cover_heatset_hole = [4.4, 5.3];
 // Size of wiring pass through hole(s) in the cover plate; set either dimension to zero to disable.
 cover_port = [40, 20];
 
+// Placement, along the Y axis of the inner cover plate edge, of any wire pass through holes
+cover_port_at = [-48, 48];
+
 // Access notch cutout around the filter recess of cover plate.
 cover_notch = [20, 20, 30];
 
@@ -274,9 +277,6 @@ cover_notch_rounding_edges = [
 
 // Placement vector for cover notch; unit is outer wallslot radius.
 cover_notch_side = RIGHT;
-
-// Placement, along the Y axis of the inner cover plate edge, of any wire pass through holes
-cover_port_at = [-48, 48];
 
 /* [Filter Base Parameters] */
 
