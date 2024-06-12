@@ -496,9 +496,8 @@ common_od = slot_od + 2*slot_outer_wall;
 cover_od = common_od + 2*max(cover_overhang, cover_underhang);
 base_od = common_od + 2*base_overhang;
 
-cover_extra = filter_count < 2 ? 0 : base_od - cover_od; // FIXME why not /2 like the others
-slot_extra = filter_count < 2 ? 0 : (base_od - slot_od)/2;
-wall_extra = (base_od - wall_d)/2;
+cover_extra = filter_count < 2 ? 0 : base_od - cover_od;
+wall_extra = filter_count < 2 ? 0 : base_od - wall_d;
 
 cover_hole = cover_heatset_hole.x * cover_heatset_hole.y > 0
   ? cover_heatset_hole
@@ -1754,7 +1753,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
 
       named_anchor("wallslot_front", wallslot_floor + FRONT*r, join_side),
       named_anchor("wallslot_back", wallslot_floor + BACK*r, join_side),
-      named_anchor("wallslot_apex", wallslot_floor + apex_side*(wall_d + wall_extra), apex_side)
+      named_anchor("wallslot_apex", wallslot_floor + apex_side*(wall_d + wall_extra/2), apex_side)
     ]
   ) {
 
@@ -1777,7 +1776,7 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
           down($eps)
           position(BOTTOM+RIGHT)
           up(wrapwall_slot_depth/2)
-          left((wall_d + wall_extra)/2)
+          left((wall_d + wall_extra/2)/2)
             zflip() wallslot();
         }
 
@@ -1953,7 +1952,7 @@ module base_plate(
           up($eps)
           position(TOP+RIGHT)
           down(wrapwall_slot_depth/2)
-          left((wall_d + wall_extra)/2)
+          left((wall_d + wall_extra/2)/2)
             wallslot();
         }
 
