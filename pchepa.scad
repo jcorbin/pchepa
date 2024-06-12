@@ -1928,6 +1928,25 @@ module cover_port_grommet(anchor = CENTER, spin = 0, orient = UP) {
   }
 }
 
+// TODO use in base
+module filter_seat(anchor = CENTER, spin = 0, orient = UP) {
+  h = filter_recess + $eps;
+  d = filter_od + 2*filter_tolerance;
+  tag("filter") cyl(d=d, h=h) {
+    if (filter_grip > 0) {
+      tag("grip")
+      zrot(360/16)
+      zrot_copies(n = 8)
+      left(filter_od/2)
+      position(BOTTOM)
+      up(filter_grip)
+        teardrop(h = 2*filter_grip, r = filter_grip);
+    }
+
+    children();
+  }
+}
+
 module cover(anchor = CENTER, spin = 0, orient = UP) {
   cover_i = $idx;
   join_side = cover_i == 0 ? RIGHT : LEFT;
@@ -1987,9 +2006,8 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
           attach(TOP, TOP, overlap=cover_height+$eps)
           cyl(h=cover_height+2*$eps, d=fan_id);
 
-        tag("filter")
-          attach(BOTTOM, TOP, overlap=filter_recess)
-          cyl(h=filter_recess+$eps, d=filter_od + 2*filter_tolerance);
+        attach(BOTTOM, TOP, overlap=filter_recess)
+          filter_seat();
 
         if (wrapwall_thickness > 0) {
           tag("wallslot")
@@ -2012,16 +2030,6 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
             tag("socket")
             attach(RIGHT, TOP, overlap=clip_size.y)
             clip_socket();
-        }
-
-        if (filter_grip > 0) {
-          tag("grip")
-          zrot(360/16)
-          zrot_copies(n = 8)
-          up(filter_grip)
-          left(filter_od/2)
-          down(cover_height/2)
-            teardrop(h = 2*filter_grip, r = filter_grip);
         }
 
         if (cover_port.x * cover_port.y > 0) {
