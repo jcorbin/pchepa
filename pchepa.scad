@@ -82,7 +82,7 @@ build_plate_size = [250, 250];
 //@make -o parts/wall_bender_brace.stl -D mode=95
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 40:Label A, 41:Label B, 42:Label Plate A, 43:Label Plate B, 50:Wall 0, 51:Wall 1, 52:Wall 2, 53:Wall 3, 90:Rabbit Clip, 91:Base Channel Plug, 93:PWM Knob, 94:Wall Bender, 95:Wall Bender Brace, 100:Dev, 101:Power Module Fit Test, 102:Wallslot Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 106:Power Bank, 107:Grill Ear Test, 108:PWM Controller Test]
+mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 30:Grill Box A, 31:Grill Box B, 40:Label A, 41:Label B, 42:Label Plate A, 43:Label Plate B, 50:Wall 0, 51:Wall 1, 52:Wall 2, 53:Wall 3, 60:Mid Plate A, 61:Mid Plate B, 90:Rabbit Clip, 91:Base Channel Plug, 93:PWM Knob, 94:Wall Bender, 95:Wall Bender Brace, 100:Dev, 101:Power Module Fit Test, 102:Wallslot Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 106:Power Bank, 107:Grill Ear Test, 108:PWM Controller Test]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -277,6 +277,20 @@ cover_notch_rounding_edges = [
 
 // Placement vector for cover notch; unit is outer wallslot radius.
 cover_notch_side = RIGHT;
+
+/* [Filter Mid Plate Parameters] */
+
+// Mid plate preview color.
+mid_color = "#4390e0";
+
+// Overall Z thickness of the mid plate between filter layers.
+mid_height = 24;
+
+// Upper chamfer size of the mid plate, additional radial space as needed.
+mid_overhang = 4;
+
+// Lower chamfer size of the mid plate, additional radial space as needed.
+mid_underhang = 4;
 
 /* [Filter Base Parameters] */
 
@@ -496,9 +510,11 @@ wall_d = slot_id/2 + slot_od/2;
 common_od = slot_od + 2*slot_outer_wall;
 
 cover_od = common_od + 2*max(cover_overhang, cover_underhang);
+mid_od = common_od + 2*max(mid_overhang, mid_underhang);
 base_od = common_od + 2*base_overhang;
 
 cover_extra = filter_count < 2 ? 0 : base_od - cover_od;
+mid_extra = filter_count < 2 ? 0 : base_od - mid_od;
 wall_extra = filter_count < 2 ? 0 : base_od - wall_d;
 
 cover_hole = cover_heatset_hole.x * cover_heatset_hole.y > 0
@@ -658,6 +674,15 @@ else if (mode >= 50 && mode < 59) {
     left_dovetail = is_bit_set(wall_i, 0),
     right_dovetail = is_bit_set(wall_i, 1)
   );
+}
+
+/// mode[50-59] -- mid plates
+
+else if (mode >= 60 && mode < 69) {
+  mid_i = mode - 60;
+  preview_cutaway(dir=BACK)
+  recolor(mid_color)
+    mid_plate($idx = mid_i);
 }
 
 /// mode[90-99] -- spare parts
@@ -1841,6 +1866,32 @@ module cover(anchor = CENTER, spin = 0, orient = UP) {
               rounding=cover_notch_rounding,
               edges=cover_notch_rounding_edges);
         }
+
+      }
+
+    children();
+  }
+}
+
+module mid_plate(anchor = CENTER, spin = 0, orient = UP) {
+  mid_i = $idx;
+
+  size = [mid_od + mid_extra, mid_od, mid_height];
+  attachable(
+    anchor, spin, orient,
+    size
+  ) {
+    plate_mirror_idx(mid_i)
+    diff(remove="filter flow")
+      plate(
+        h=mid_height, d=mid_od, extra=mid_extra,
+        chamfer1=mid_underhang, chamfer2=mid_overhang) {
+
+        tag("flow")
+          attach(TOP, TOP, overlap=cover_height+$eps)
+          cyl(h=cover_height+2*$eps, d=fan_id);
+
+        attach([BOTTOM, TOP], TOP, overlap=filter_recess) filter_seat();
 
       }
 
