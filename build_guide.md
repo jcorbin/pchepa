@@ -1,4 +1,4 @@
-# Build v1.1
+# Build v1.2
 
 There are primarily 2 variants:
 1. a stationary variant that merely has a USB-C port in its base
@@ -21,20 +21,20 @@ There are primarily 2 variants:
 ## Material Cost Estimates
 
 Assuming filament cost of $14.99/kg:
-1. stationary costs about $89.57
-2. portable costs about $133.32
+1. stationary costs about $88.29
+2. portable costs about $132.04
 
 Breakdown:
 - 3d printed parts:
-  1. stationary needs 930g of filament and around 27 hours of print time over 13 prints
-  2. portable needs 1.23kg of filament and around 35 hours of print time over 13 prints
+  1. stationary needs 893g of filament and around 25 hours of print time over 12 prints
+  2. portable needs 1.15kg of filament and around 33 hours of print time over 12 prints
 - commodity parts:
   - fans and filters cost around $58
   - mechanical hardware and electronics cost around $18 per unit
     (pwm controller, usb pd trigger, various wires, metric bolts and heatset inserts)
   - portable costs another $39.31 for a usb battery bank, patch cable, and carrying strap
 
-NOTE: due to most electronic and mechanical parts coming in kits/packs,
+**NOTE** due to most electronic and mechanical parts coming in kits/packs,
 you'll likely spend more up front, and then have a lot of spare parts on hand.
 
 ## BOM
@@ -55,29 +55,27 @@ you'll likely spend more up front, and then have a lot of spare parts on hand.
 | [Shoulder Strap][amaz_shoulder_strap]               |  $9.99    | 1           |  $9.99     |  $9.99         |
 | [USB-C 1ft patch cable][amaz_usbc_patch]            |  $9.99    | 1/3         |  $9.99     |  $3.33         |
 |                                                     |           |             |            |                |
-| Sunlu PLA                                           | $14.99    | 1.226kg/1kg | $14.99     | $18.38         |
+| Sunlu PLA                                           | $14.99    | 1.141kg/1kg | $14.99     | $17.10         |
 
 ## Printed Parts
 
 | Name           | Amount  | Time | Quantity |
 | -------------- | ------- | ---- | -------- |
-| Cover A&B      | 123.19g | 3:05 | 2        |
-| Grill Box A    |  93.25g | 3:33 | 1        |
-| Grill Box B    |  91.84g | 3:27 | 1        |
-| Base A         | 168.39g | 4:21 | 1        |
-| Base B         | 160.45g | 3:55 | 1        |
-| Battery Base A | 317.96g | 8:17 | 1        |
-| Battery Base B | 307.83g | 7:52 | 1        |
-| Mesh Wall      |  26.76g | 0:46 | 6        |
-| Rabbit Clips   |   8.45g | 0:27 | 1        |
+| Cover A&B      | 121.51g | 3:06 | 2        |
+| Grill Box A    |  91.13g | 3:30 | 1        |
+| Grill Box B    |  89.75g | 3:24 | 1        |
+| Base A         | 154.10g | 4:04 | 1        |
+| Base B         | 150.61g | 3:51 | 1        |
+| Battery Base A | 281.37g | 7:27 | 1        |
+| Battery Base B | 272.28g | 6:58 | 1        |
+| Mesh Wall      |  27.39g | 0:47 | 6        |
 
 - Common parts:
-  - Cover: 246.38g , 6:10
-  - Grill: 185.09g , 7:00
-  - Mesh Wall: 160.56g , 4:36
-  - Rabbit Clips: 8.45g , 0:27
-- Stationary Base: 328.84g , 8:16
-- Battery Base: 625.79g , 16:09
+  - Cover: 243.02g , 6:12
+  - Grill: 180.88g , 6:54
+  - Mesh Wall: 164.34g , 4:42
+- Stationary Base: 304.71g , 7:55
+- Battery Base: 553.65g , 14:25
 
 ## Guide
 
@@ -102,8 +100,10 @@ Most parts come in an A (left) and B (right) side version; the A side is primary
 
 ### 1. Print Cover A
 
-Also print several the joiner clips along with each cover plate, placing them inside the filter ring of the cover plate.
-The stationary variant needs 8 clips total, while the portable variant needs 12 (4 more).
+Also print 2 joiner clips along with each cover plate, placing them inside the filter ring of the cover plate.
+**NOTE** joiner clips are best printed as "pure walls": 0 top/bottom layers, and enough wall perimeters so that they're all wall, no infill.
+
+Use a spudger, flathead screw driver, or similar to knock the tiny support fin out of each clip socket.
 
 Once printed add 4 heatset inserts.
 
@@ -119,22 +119,27 @@ Plug the Y-splitter cable into the PWM pcb's header; it should comfortably clear
 
 Mount the grill/fan/cover with 4 M3x35 bolts. The fan's wire should pass through the back hemi-octagonal cover port.
 
-NOTE: you can manage most of the fan's wire length by orienting the fan to wrap its wire around itself;
+**NOTE** you can manage most of the fan's wire length by orienting the fan to wrap its wire around itself;
 i.e. place the corner where the fan wire exits farthest away from the cover/grill center.
 
 The Y-splitter cable and fan lead can then connect below the cover plate ( what will eventually be interstitial space between both filter cylinders ).
 
-NOTE: if you have a small zip tie on hand, add one to secure the JST power leads to the Y-splitter cable close to the PWM controller;
+**NOTE** if you have a small zip tie on hand, add one to secure the JST power leads to the Y-splitter cable close to the PWM controller;
 this can help relieve any strain that may otherwise rip a wire off the PWM pcb.
 
 ### 3. Print Base A
 
 Print the A side of whichever base variant you want ( use the thicker "with battery tunnel" one for a portable filter ).
 Also print the corresponding channel plug part.
+Also print 2-4 joiner clips along with each base plate ( 2 for the stationary base, 4 for the battery variant ).
 
-NOTE: if you want the QR code to read, you'll need to do a multi-color print; the easiest way to do this is to import both the `base` STL and corresponding `base_label` STL as simultaneous parts of one assembly.
+**NOTE** if you want the QR code to read, you'll need to do a multi-color print; the easiest way to do this is to import both the `base` STL and corresponding `base_label` STL as simultaneous parts of one assembly.
 
 Prepare the USB-C PD trigger by soldering on a pair of JST header wires of the **opposite gender** as used for the PWM pcb in step 2.
+
+Remove support material:
+- as with the cover plate above, each clip socket has a tiny support fin
+- the battery bank version has a support framework inside its tunnel; a spudger slid down its interior gap should be able to pop most if out whole
 
 Install the pd trigger into the base port cavity.
 Use a small spudger or other non-metal poke/pry tool to press the module forward once it has bottomed out inside the channel.
@@ -143,42 +148,65 @@ Insert the channel plug behind the pd trigger.
 The pd trigger should slide forward far enough that the plug can fully seat behind it,
 preventing the pd trigger from moving when plug/unplugged.
 
-### 4. (optional) Test!
+### 4. Print A Side Wall Sections
 
-At this point you should have half of a working filter, assemble all of the A side components around one HEPA filter cylinder.
-
-The fit for the HEPA filter's lip should require flexing its plastic ring to insert/remove;
-this is another point where a spudger can help, but you should also be able to make it work simply by manual flexing.
-
-### 5. Print Joiner Clips
-
-You'll need 8-12 joiner clips ( 8 for the stationary version, 4 more for the thicker portable battery base ).
-
-As a reminder, these work best when sliced as "pure walls": 0 top/bottom layers, and enough wall perimeters so that they're all wall, no infill.
-
-### 6. (optional) Print 3 Wall Sections
-
-You may choose to printout 3 wall sections to complete your half-build first, or you may move on to B-side completion before building the wall.
-
-See step 8 below for notes on wall printing, bending, and installation.
-
-### 7. Print and Assemble B Side
-
-Print the B side of the cover, grill, and base plates.
-
-Assemble the cover/fan/grill similarly to step 2 above, but sans PWM controller.
-
-Join the cover/base plates together using the rabbit clips from step 5.
-
-### 8. Print Wall Sections
+You'll need 3 wall sections for each A/B side half of the filter.
 
 These rely on a slicer trick: print them with 0 top/bottom layers, and a high level of sparse infill.
 You may choose any infill pattern and density that you like the look of.
 A good amount seems to be 60% tri-hexagon with a 90° direction.
 
-You'll need 6 wall sections in total; 3 of them should cover one half of the filter, with a seam aligned with the base/cover/grill seam.
+The basic wall section is flat and simply sits loosely in the plates' perimeter channel ( model file `wall_noft_0.stl` ).
+This panel has the advantage of easiest installation and later removal for maintenance.
 
-### (optional) Dovetailed Seam Variants
+However if you're building a portable ( battery bank integrated ) variant, a much better option is to use wall sections with a triangular "foot" along their top/bottom edge.
+This provides a rigid grip between the cover and base plates, rather than only relying on the plate-filter grip to provide vertical integration.
+
+**NOTE** without rigidity from these wall panels, the portable filter can **rapidly disassemble itself** when being carried around roughly; a moderate amount of physical shock is enough to cause the filter grips to release.
+
+The with-foot wall sections can only be installed by sliding them into the channels of a cover/base plate pair; flexing them into place, or later easy removal of them is not possible.
+
+Finally there is an experimental dovetail option to improve the seam between adjacent wall sections; see section 8 below for details.
+
+### 5. Assemble A Side
+
+Insert the HEPA filter cylinder into the cover plate, using its interior perimeter notch to help flex its ring into place. Then repeat this by inserting the filter cylinder into the base plate to complete the A-side main assembly.
+
+Now you can install wall panels:
+- if using the variant(s) with feet, slide them in from the open channel notches on the flat side of the filter
+- the `noft` variant(s) can also be slide like this, or you may choose to flex them into place 
+
+Sliding wall panels through the plate channels, especially the with-feet variant, will go better if you walk it along the channel by pressing on its top/bottom edges alternately.
+
+If you have a heatgun, use it to help the wall panels accept their needed curve.
+This process can be made easier by printing out a wall bender arch to support the heated panels from the inside while forming;
+however these are best printed in higher temperature plastic like ABS.
+This will also introduce quite a bit more steps as you'll need:
+1. install the panels with the bender
+2. form them with heat, wait for cooling
+3. uninstall them to remove the bender
+
+### 6. Print and Assemble B Side
+
+Print the B side of the cover, grill, and base plates similarly to the A side ones above.
+
+Assemble the cover/fan/grill similarly to step 2 above, but sans PWM controller.
+
+Print another 3 wall sections and install as above.
+
+### 7. Join A/B Side Assemblies
+
+Install all joiner clips ( be sure to remove the tiny support fin from inside each socket ).
+
+Place the battery bank into its socket in either half.
+
+**NOTE** be sure to connect the JST connector between the A side base and cover.
+
+Join both half by setting them both on the same flat surface: align the clips, make sure the wiring won't be pinched, then press together.
+
+### 8. (optional) Dovetailed Seam Variants
+
+**NOTE** dovetails seams to not work well with the rigid foot variants; while it's not impossible to slide a dovetailed "hemi-loop" (3-section run connected by dovetails) into place... doing so without a seam popping apart is very difficult.
 
 To help improve mesh wall seam integrity around the bend, a dovetail "hinge" option is available.
 The dovetail shape has a slight Z-taper with alternating up/down direction between adjacent dovetails.
@@ -189,33 +217,11 @@ However assembling each dovetail seam can be tricky:
 - instead you'll need to weave together each seam, starting out between a pair of dovetails, and then working one dovetail at a time outwards
 
 The wall section model files come in 4 variations:
-- `wall_0` -- no dovetails
-- `wall_1` -- left/female dovetail only
-- `wall_2` -- right/male dovetail only
-- `wall_3` -- both left and right dovetails
-
-#### (optional) Pre-Bend Wall Bender and Heatgun
-
-If you can print a higher temperature plastic like ABS or PETG,
-and if you've got a heatgun (or maybe a hair dryer in a pinch),
-then consider printing out the optional wall bender model.
-The wall bender print takes about 184g of filament and 4 hours ( on my bambu machine ) for reference.
-
-To use the wall bender, simply use a pair of cover/base plates snapped onto one filter, then place wall bender around filter.
-The assembled unit can then sit curved end up.
-
-New unbent wall sections can then be inserted by sliding them into the end slot channels.
-Once in place use a heatgun to soften wall sections, pressing them into the wall bender underneath.
-
-#### Wall Section Installation
-
-Fully assemble the filter with its HEPA filter cylinders; don't forget to connect the JST power connectors.
-
-To install each wall section, first insert it into the base channel, then flex the wall panel to get the top edge into the cover channel.
-
-With a fresh unbent wall panel, do this along the flat front/back edge and then slide the section into place.
-
-After the panels are in place, a heatgun may be used to help them accept their new shape.
+- `wall_0.stl` -- no dovetails
+- `wall_1.stl` -- left/female dovetail only
+- `wall_2.stl` -- right/male dovetail only
+- `wall_3.stl` -- both left and right dovetails
+- there are 4 similar files named `wall_noft_*.stl`, these are probably the ones you want as dovetail with foot is very difficult to assemble
 
 [amaz_15v_pd_trigger]: https://www.amazon.com/gp/product/B09GVN9RZ3
 [amaz_fan_split_x10]: https://www.amazon.com/dp/B0C6XDFRZF
