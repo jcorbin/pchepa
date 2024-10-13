@@ -28,8 +28,8 @@ build_plate_size = [250, 250];
 
 /* [Part Selection] */
 
-//@make -o duo/render.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 -D base_embed_power_bank=true --imgsize=1024,768 --camera=-48.4318,49.2886,16.9119,81.6,0,39.2,1279.49
-//@make -o duo/as_explode.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 -D base_embed_power_bank=true --imgsize=1024,768 --animate=40 -D explode='50*$t' --camera=-48.4318,49.2886,16.9119,81.6,0,39.2,1279.49
+//@make -o duo/render.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 -D base_embed_battery_holder=true --imgsize=1024,768 --camera=-48.4318,49.2886,16.9119,81.6,0,39.2,1279.49
+//@make -o duo/as_explode.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 -D base_embed_battery_holder=true --imgsize=1024,768 --animate=40 -D explode='50*$t' --camera=-48.4318,49.2886,16.9119,81.6,0,39.2,1279.49
 
 //@make -o user_guide/power_bank_ports.png --colorscheme='Tomorrow Night' -D mode=108 --camera=-1.47908,-49.6462,2.79803,84.4,0,351.6,172.84
 
@@ -38,6 +38,13 @@ build_plate_size = [250, 250];
 
 //@make -o duo/base_bank_a.stl -D mode=10 -D filter_count=2 -D base_embed_power_bank=true
 //@make -o duo/base_bank_b.stl -D mode=11 -D filter_count=2 -D base_embed_power_bank=true
+
+//@make -o duo/base_batt_a.stl -D mode=10 -D filter_count=2 -D base_embed_battery_holder=true
+//@make -o duo/base_batt_b.stl -D mode=11 -D filter_count=2 -D base_embed_battery_holder=true
+
+//@make -o duo/batt_house.stl -D mode=70
+//@make -o duo/batt_house_lid.stl -D mode=71
+//@make -o duo/batt_house_exit.stl -D mode=72
 
 //@make -o duo/base_label_a.stl -D mode=40 -D label_bottom=true -D filter_count=2
 //@make -o duo/base_label_b.stl -D mode=41 -D label_bottom=true -D filter_count=2
@@ -66,6 +73,7 @@ build_plate_size = [250, 250];
 //@make -o test/cover_hole.stl -D mode=103 -D filter_count=2
 //@make -o test/joiner_clip.stl -D mode=104
 //@make -o test/power_bank_tunnel.stl -D mode=105 -D base_embed_power_bank=true
+//@make -o test/batt_house_tunnel.stl -D mode=105 -D base_embed_battery_holder=true
 //@make -o test/grill_ear.stl -D mode=107
 //@make -o test/pwm_ctl_mount.stl -D mode=108
 
@@ -83,7 +91,7 @@ build_plate_size = [250, 250];
 //@make -o parts/wall_bender_brace.stl -D mode=95
 
 // Which part to model: base / cover / grill / wall / etc...
-mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 29:Cover Port Grommet, 30:Grill Box A, 31:Grill Box B, 40:Label A, 41:Label B, 42:Label Plate A, 43:Label Plate B, 50:Wall 0, 51:Wall 1, 52:Wall 2, 53:Wall 3, 90:Rabbit Clip, 91:Base Channel Plug, 93:PWM Knob, 94:Wall Bender, 95:Wall Bender Brace, 100:Dev, 101:Power Module Fit Test, 102:Wallslot Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 106:Power Bank, 107:Grill Ear Test, 108:PWM Controller Test]
+mode = 0; // [0:Full Assembly, 1:Assembly A, 2:Assembly B, 10:Base Plate A, 11:Base Plate B, 20:Cover Plate A, 21:Cover Plate B, 29:Cover Port Grommet, 30:Grill Box A, 31:Grill Box B, 40:Label A, 41:Label B, 42:Label Plate A, 43:Label Plate B, 50:Wall 0, 51:Wall 1, 52:Wall 2, 53:Wall 3, 70:Battery Housing, 71:Battery Housing Lid, 72:Battery Wire Guard, 90:Rabbit Clip, 91:Base Channel Plug, 93:PWM Knob, 94:Wall Bender, 95:Wall Bender Brace, 100:Dev, 101:Power Module Fit Test, 102:Wallslot Test, 103:Cover Hole Test, 104:Clip Tolerance Test, 105:Power Bank Tunnel, 106:Power Bank, 107:Grill Ear Test, 108:PWM Controller Test]
 
 // How many filter/fan pairs to use ; NOTE currently 2 is the only value that has been tested to work well ; TODO support 1 and 3
 filter_count = 2; // [1, 2]
@@ -140,7 +148,7 @@ clip_size = [14, 14, 3];
 // Minimum amout of vertical padding to leave above/below clip sockets.
 clip_pad = 1;
 
-// The snap parameter gives the depth of the clip sides, which controls how easy the clip is to insert and remove.  
+// The snap parameter gives the depth of the clip sides, which controls how easy the clip is to insert and remove.
 clip_snap = 0.75;
 
 // Thickness of the curved line that forms the clip.
@@ -342,6 +350,9 @@ base_embed_power_bank = false;
 // Enable a cavity to install a usb pd trigger into, with cable ascent channel.
 base_embed_power_port = false;
 
+// Enable a cavity to install our desigend battery holder housing with cable ascent channel aligned with its exit.
+base_embed_battery_holder = false;
+
 // Height under the power bank from base plate bottom; needs to be able to accomodate a row of joiner clips.
 base_power_bank_lift = 2*clip_pad + clip_size.z;
 
@@ -481,6 +492,57 @@ pwm_ctl_pot_offset = 0.6;
 
 pwm_ctl_led_win = [4, 1, 1];
 
+/* [Battery Housing] */
+
+// TODO cite part
+
+batt_housing_tolerance = 0.5;
+
+batt_housing_wall = 1;
+
+batt_housing_clearance = 10;
+
+batt_pcb_size = [ 42.4, 88.6, 1.2 ];
+
+batt_holder_size = [ 42.4, 78.2, 21.5 ];
+
+batt_holder_setback = 5.5;
+
+batt_pcb_mount_hole_d = 3.5;
+
+batt_housing_mount_hole_d = 3;
+
+batt_usb_socket_size = [ 9, 6.8, 3.3 ];
+
+batt_usb_socket_clearance = [18, 2];
+
+batt_usb_socket_rounding = 1;
+
+batt_housing_color = "grey";
+
+// NOTE offsets from pcb edge
+batt_holder_mount_at = [
+  [-1.1, -1.1], // front left
+  [ 1.1, -1.1], // front right
+  [-1.1,  1.5], // back left
+  [ 1.1,  1.5], // back right
+];
+
+batt_window_size = 2;
+
+batt_windows_at = [
+  [-13, -4],
+  [ 13, -4]
+];
+
+batt_side_size = [70, 32];
+
+batt_exit_size = 6;
+
+batt_slot_size = 2;
+
+batt_slot_lift = 6;
+
 /* [Geometry Detail] */
 
 // Fragment minimum angle.
@@ -591,6 +653,30 @@ else if (mode >= 10 && mode < 20) {
           position("power_bank")
             recolor(power_bank_color) power_bank();
         }
+
+        if (base_embed_battery_holder)
+        attach("battery_cavity_bottom", BOTTOM)
+          translate(by * min(batt_holder_size.x*2, 2*explode))
+          battery_housing() {
+
+            back(max(0, explode - $parent_size.x/2))
+            up(2*max(0, explode - $parent_size.x/2))
+            attach(TOP, "under")
+              battery_housing_lid();
+
+            up(max(0, explode - $parent_size.x/2))
+            attach("mount", "mount")
+              battery_holder_mockup()
+
+              up(max(0, explode - $parent_size.x/2)/2)
+              position(["batt1", "batt2"])
+                recolor("orange")
+                cyl(d=18, h=65, rounding=1, orient=FRONT);
+
+            back(min(batt_exit_size*2, max(0, explode - batt_exit_size/2)))
+            position(BACK)
+              battery_exit_channel(anchor=FRONT, orient=DOWN);
+          }
       }
 
       up(explode) attach("filter", BOTTOM) hepa_filter();
@@ -683,6 +769,28 @@ else if (mode >= 50 && mode < 59) {
     left_dovetail = is_bit_set(wall_i, 0),
     right_dovetail = is_bit_set(wall_i, 1)
   );
+}
+
+/// mode[70-79] -- battery pack parts
+
+else if (mode == 70) {
+  preview_cutaway(LEFT)
+  battery_housing()
+    if ($preview)
+    attach("mount", "mount")
+    battery_holder_mockup();
+}
+
+else if (mode == 71) {
+  preview_cutaway(FRONT)
+  battery_housing_lid(orient=$preview ? UP : DOWN)
+    if ($preview)
+    attach("under", TOP)
+    battery_housing();
+}
+
+else if (mode == 72) {
+  battery_exit_channel();
 }
 
 /// mode[90-99] -- spare parts
@@ -1011,7 +1119,15 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
                 position("power_channel") recolor(base_color) channel_plug(anchor=BOTTOM);
             }
 
-            if (base_embed_power_bank) {
+            if (base_embed_battery_holder) {
+              right(explode/2)
+              attach("battery_cavity_bottom", BOTTOM)
+                battery_housing() {
+                  attach(TOP, "under") battery_housing_lid();
+                  position(BACK) battery_exit_channel(anchor=FRONT, orient=DOWN);
+                }
+
+            } else if (base_embed_power_bank) {
               right(explode/2)
                 position("power_bank") recolor(power_bank_color) power_bank();
             }
@@ -1987,7 +2103,10 @@ module power_module(tolerance=0, profile=false, anchor = CENTER, spin = 0, orien
 
 function base_size(h=undef) = let (
   power_height =
-    base_embed_power_bank
+    base_embed_battery_holder
+      ? struct_val(battery_housing_lid(), "size").z
+      + 2*power_module_tolerance
+    : base_embed_power_bank
       ? power_bank_size.z
       + 2*base_power_bank_tunnel_chamfer
       - 2*base_power_bank_tunnel_inset
@@ -2244,6 +2363,20 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
         named_anchor("power_channel", power_chan_loc, UP)
       ] : []),
 
+      each(base_embed_battery_holder ? let (
+        ztol = power_module_tolerance,
+        bh_info = battery_housing_lid(),
+        bh_size = struct_val(bh_info, "size"),
+        bh_chan_size = struct_val(bh_info, "chan_size"),
+        loc = v_mul(FRONT+join_side+BOTTOM, sz/2)
+          + UP*base_power_bank_lift
+          + BACK*base_overhang
+          + BACK*bh_size.y/2
+      ) [
+        named_anchor("battery_cavity", loc + UP*( bh_size.z/2 + ztol), UP),
+        named_anchor("battery_cavity_bottom", loc, UP),
+      ] : []),
+
       each(base_embed_power_bank ? let (
         power_bank_loc = v_mul(join_side+BOTTOM, sz/2) + UP*base_power_bank_lift + UP*power_bank_size.z/2
       ) [
@@ -2253,7 +2386,7 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
     ]
   ) {
     plate_mirror_idx(base_i)
-    diff(remove="battery label port", keep="support") base_plate() {
+    diff(remove="battery label port channel tunnel", keep="support") base_plate() {
 
       // USB C port and wire channel
       if (base_embed_power_port && base_i == 0) {
@@ -2271,7 +2404,57 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
           base_label(h = base_label_depth + $eps, i = base_i);
       }
 
-      if (base_embed_power_bank) {
+      if (base_embed_battery_holder) {
+        tolerance = [
+          power_module_tolerance*2,
+          power_module_tolerance,
+          power_module_tolerance
+        ];
+
+        bh_info = battery_housing_lid();
+        bh_size = struct_val(bh_info, "size") + 2*tolerance;
+        bh_chamfer = struct_val(bh_info, "chamfer");
+        bh_chan_size = struct_val(bh_info, "chan_size");
+
+        tag("battery")
+        up(base_power_bank_lift)
+        back(base_overhang)
+        position(FRONT+RIGHT+BOTTOM)
+        cuboid(anchor=FRONT+BOTTOM, bh_size) {
+
+          position(LEFT) support_walls(anchor=LEFT,
+            [bh_size.x/2, bh_size.y, bh_size.z],
+            gap=[ [support_gap, 0], support_every/2, support_gap ]);
+
+          tag("channel")
+          fwd($eps) position(BACK+BOTTOM) cuboid(anchor=FRONT+BOTTOM,
+            [bh_chan_size.x, bh_chan_size.y + $eps, sz.z], chamfer=bh_chan_size.x/4, edges=[
+              [0, 0, 0, 0], // yz -- +- -+ ++
+              [0, 0, 0, 0], // xz
+              [0, 0, 1, 1], // xy
+            ]);
+
+          tunnel_size = [
+            bh_size.x - 6*bh_chamfer,
+            base_overhang + 2*$eps,
+            bh_size.z
+          ];
+
+          tag("tunnel")
+          back($eps) position(FRONT+BOTTOM) cuboid(anchor=BACK+BOTTOM,
+            size=tunnel_size,
+            chamfer=base_overhang, edges=[
+              [0, 0, 0, 0], // yz -- +- -+ ++
+              [1, 1, 1, 1], // xz
+              [0, 0, 0, 0], // xy
+            ])
+            right(base_overhang)
+            position(LEFT) support_walls(anchor=LEFT,
+              [tunnel_size.x/2 - base_overhang, tunnel_size.y, tunnel_size.z], gap=support_gap);
+
+        }
+
+      } else if (base_embed_power_bank) {
         tolerance = power_module_tolerance;
         tag("battery")
         up(base_power_bank_lift)
@@ -2284,6 +2467,7 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
             left(support_cube.x/2)
               support_walls(support_cube, gap = [ [support_gap, 0], support_every/2, support_gap ]);
 
+            tag("tunnel")
             attach(FRONT, BOTTOM, overlap=$eps)
             base_power_bank_tunnel(
               tunnel_l,
@@ -2805,6 +2989,343 @@ module grill(
           tag("pwm_ctl")
             pwm_controller(anchor="pot_shaft_base", orient=DOWN, tolerance=pwm_ctl_tolerance, cut=grill_thickness);
         }
+      }
+
+    }
+
+    children();
+  }
+}
+
+module battery_holder_mockup(anchor = CENTER, spin = 0, orient = UP) {
+  // capacitor cans are the high points needing clearance, model them as some dummy cyls spread around
+  dummy_size = [ 6.2, 8 ];
+  dummy_at = [
+    [ -9, -9 ],
+    [  9, -9 ],
+    [ -9,  9 ],
+    [  9,  9 ]
+  ];
+
+  size = [
+    batt_pcb_size.x,
+    batt_pcb_size.y,
+    batt_pcb_size.z + batt_holder_size.z + dummy_size.y
+  ];
+
+  pcb_mount_bounds = [batt_pcb_size.x, batt_pcb_size.y] - scalar_vec2(batt_pcb_mount_hole_d);
+  pcb_mount_hole_at = [
+    for (at = batt_holder_mount_at)
+    [ -sign(at.x) * pcb_mount_bounds.x/2,
+      -sign(at.y) * pcb_mount_bounds.y/2
+    ] + at ];
+
+  mount_loc = [0, 0, -size.z/2 + dummy_size.y];
+
+  holder_loc = 
+    mount_loc
+      + UP*batt_pcb_size.z
+      + FWD*size.y/2
+      + BACK*batt_holder_setback
+      + BACK*(batt_holder_size.y/2)
+      + UP*(batt_holder_size.z/2);
+
+  batt_spacing = 20;
+
+  attachable(anchor, spin, orient, size=size, anchors=[
+    named_anchor("mount", mount_loc, DOWN),
+    named_anchor("batt1", holder_loc + LEFT*batt_spacing/2, UP),
+    named_anchor("batt2", holder_loc + RIGHT*batt_spacing/2, UP)
+  ]) {
+    diff(remove="mount_hole", keep="holder socket dummy")
+    up(dummy_size.y/2 - batt_holder_size.z/2)
+    recolor("green")
+    cube(batt_pcb_size, center=true) {
+
+      tag("mount_hole")
+      move_copies(pcb_mount_hole_at)
+        cyl(d=batt_pcb_mount_hole_d, h=2*batt_pcb_size.z);
+
+      // battery holder on top
+      tag("holder")
+      back(batt_holder_setback)
+      fwd((batt_pcb_size.y - batt_holder_size.y)/2)
+      attach(TOP, BOTTOM)
+        recolor("#222222")
+        diff() cuboid(batt_holder_size, anchor=BOTTOM,
+          rounding=10, edges=[
+            [0, 0, 0, 0], // yz -- +- -+ ++
+            [0, 0, 1, 1], // xz
+            [0, 0, 0, 0], // xy
+          ])
+            tag("remove")
+            attach(TOP, BOTTOM, overlap=batt_holder_size.z-1)
+            cuboid(batt_holder_size - [2, 2, 1] + [0, 0, $eps]);
+
+      // usb input socket up front
+      tag("socket")
+      back(batt_usb_socket_size.y/2)
+      fwd(1)
+      position(BOTTOM+FRONT)
+        recolor("silver")
+        cuboid(batt_usb_socket_size, rounding=batt_usb_socket_rounding, edges="Y", anchor=TOP);
+
+      // dummy components for clearance
+      attach(BOTTOM, BOTTOM)
+      move_copies(dummy_at)
+        recolor("silver")
+        cyl(d=dummy_size.x, h=dummy_size.y, anchor=TOP);
+
+      // TODO model indicator led placement
+
+      // TODO model output wire exit
+
+    }
+
+    children();
+  }
+}
+
+module battery_exit_channel(anchor = CENTER, spin = 0, orient = UP) {
+  bh_info = battery_housing_lid();
+  bh_size = struct_val(bh_info, "size");
+  bh_chan_size = struct_val(bh_info, "chan_size");
+
+  wall = 1;
+
+  size = [bh_chan_size.x, bh_chan_size.y, bh_size.z];
+  inner_size = size - [2*wall, wall, 0];
+
+  chamfer = batt_exit_size/4;
+  chamfer_edges = [
+    [0, 0, 0, 0], // yz -- +- -+ ++
+    [0, 0, 0, 0], // xz
+    [0, 0, 1, 1], // xy
+  ];
+
+  attachable(anchor, spin, orient, size=size) {
+    diff()
+    recolor(batt_housing_color)
+    cuboid(size, chamfer=chamfer, edges=chamfer_edges) {
+
+      tag("remove")
+      fwd(wall+$eps)
+      attach(TOP, BOTTOM, overlap=size.z+$eps)
+        cuboid(inner_size + [0, $eps, 2*$eps], chamfer=chamfer, edges=chamfer_edges);
+
+      cut_h = batt_slot_lift + batt_exit_size;
+      tag("remove")
+      down(cut_h)
+      fwd($eps)
+      position(TOP+FRONT)
+        cuboid(anchor=BOTTOM+FRONT, size=[
+            size.x+2*$eps,
+            size.y-chamfer+$eps,
+            cut_h+$eps,
+          ], chamfer=chamfer, edges = [
+            [0, 1, 0, 0], // yz -- +- -+ ++
+            [0, 0, 0, 0], // xz
+            [0, 0, 0, 0], // xy
+          ]);
+
+    }
+
+    children();
+  }
+}
+
+function battery_housing_lid() = let (
+  housing_size = battery_housing(),
+  tols = [ 0, 0, 0 ],
+  walls = [ 2*batt_housing_wall, 0, batt_housing_wall ],
+  size = housing_size + tols + walls
+) [
+  [ "housing_size", housing_size ],
+  [ "tols", tols ],
+  [ "walls", walls ],
+  [ "size", size ],
+  [ "chamfer", batt_housing_wall/2 ],
+  [ "chamfer_edges", [
+    [0, 0, 1, 1], // yz -- +- -+ ++
+    [0, 0, 1, 1], // xz
+    [1, 1, 1, 1], // xy
+  ] ],
+  [ "chan_size", [ batt_exit_size, batt_exit_size/4*5 ] ],
+];
+
+module battery_housing_lid(anchor = CENTER, spin = 0, orient = UP) {
+  info = battery_housing_lid();
+  housing_size = struct_val(info, "housing_size");
+  tols = struct_val(info, "tols");
+  walls = struct_val(info, "walls");
+  chamfer = struct_val(info, "chamfer");
+  chamfer_edges = struct_val(info, "chamfer_edges");
+  size = struct_val(info, "size");
+
+  attachable(anchor, spin, orient, size=size, anchors=[
+    named_anchor("under", UP * size.z/2 + DOWN * (tols.z + walls.z), DOWN)
+  ]) {
+    diff(remove="housing", keep="rail")
+    recolor(batt_housing_color) cuboid(size, chamfer=chamfer, edges=chamfer_edges) {
+
+      // main space for housing part
+      down((walls.z + $eps)/2)
+      tag("housing")
+      cuboid([
+        housing_size.x + tols.x,
+        size.y + 2*$eps,
+        housing_size.z + tols.z + $eps
+      ], chamfer=batt_housing_wall/2, edges=[
+        [0, 0, 0, 0], // yz -- +- -+ ++
+        [0, 0, 1, 1], // xz
+        [0, 0, 0, 0], // xy
+      ]);
+
+      // side rails to grip into housing slots
+      tag("rail")
+      up(batt_slot_lift) position(BOTTOM)
+      xcopies(spacing=housing_size.x+tols.x, n=2)
+      translate(($idx == 0 ? LEFT : RIGHT)*$eps)
+      half_of($idx == 1 ? LEFT : RIGHT, s=2*max(size))
+      cyl(
+        d=batt_slot_size + batt_housing_tolerance,
+        h=size.y - 4*batt_housing_wall - 2*batt_housing_tolerance,
+        $fn=4, orient=FRONT);
+
+    }
+
+    children();
+  }
+}
+
+function battery_housing() =
+  batt_pcb_size +
+  [ 0, 0, batt_holder_size.z ] +
+  [ 0, 0, batt_housing_clearance ] +
+  [ 0, 0, batt_housing_wall ] +
+  2*[
+    batt_housing_tolerance + batt_housing_wall,
+    batt_housing_tolerance + batt_housing_wall,
+    0];
+
+module battery_housing(anchor = CENTER, spin = 0, orient = UP) {
+  size = battery_housing();
+
+  // room for the pcb and its top-mounted battery holder
+  over_size = [
+    batt_pcb_size.x + 2*batt_housing_tolerance,
+    batt_pcb_size.y + 2*batt_housing_tolerance,
+    batt_pcb_size.z + batt_holder_size.z + batt_housing_tolerance
+  ];
+
+  // under-pcb cavity for component clearance
+  under_size = [
+    batt_pcb_size.x + 2*batt_housing_tolerance - 2*batt_housing_wall,
+    batt_pcb_size.y + 2*batt_housing_tolerance - 2*batt_housing_wall - 3*batt_pcb_mount_hole_d,
+    batt_housing_clearance
+  ];
+
+  mount_hole_size = [
+    batt_housing_mount_hole_d,
+    batt_housing_clearance
+  ];
+
+  mount_bounds = [batt_pcb_size.x, batt_pcb_size.y] - scalar_vec2(mount_hole_size.x);
+  mount_hole_at = [ for (at = batt_holder_mount_at)
+    [ -sign(at.x) * mount_bounds.x/2,
+      -sign(at.y) * mount_bounds.y/2
+    ] + at ];
+
+  cut_h = (size.y - under_size.y)/2;
+
+  socket_under_size = [
+    batt_usb_socket_clearance.x,
+    cut_h,
+    batt_usb_socket_clearance.y
+  ];
+
+  batt_exit_at = [0, -batt_housing_clearance/2];
+
+  attachable(anchor, spin, orient, size=size, anchors=[
+    named_anchor("mount", [0, 0, size.z/2-over_size.z], UP)
+  ]) {
+    diff(remove="batt_side exit mount_hole over slot socket under window")
+    recolor(batt_housing_color) cuboid(size, chamfer=batt_housing_wall/2) {
+
+      // main cavity carving
+      position(TOP) down(over_size.z) {
+        tag("over")
+          cuboid(over_size + [0, 0, batt_housing_wall + $eps], chamfer=batt_housing_wall/2, anchor=BOTTOM);
+
+        tag("under")
+        down(under_size.z)
+          cuboid(under_size + [0, 0, $eps], anchor=BOTTOM,
+            chamfer=batt_housing_wall/2, edges=[
+              [1, 1, 0, 0], // yz -- +- -+ ++
+              [1, 1, 0, 0], // xz
+              [1, 1, 1, 1], // xy
+            ]);
+
+        tag("mount_hole")
+        down(mount_hole_size.y)
+        move_copies(mount_hole_at)
+          cyl(d=mount_hole_size.x, h=mount_hole_size.y + $eps, anchor=BOTTOM);
+      }
+
+      // side slots for lid rails
+      tag("slot")
+      up(batt_slot_lift) position(BOTTOM)
+      xcopies(spacing=size.x, n=2) cyl(
+        d=batt_slot_size,
+        h=size.y - 4*batt_housing_wall,
+        $fn=4, orient=FRONT);
+
+      // side cuts to make battery swap easier
+      tag("batt_side")
+      xcopies(spacing=[
+        -(size.x - batt_housing_wall)/2,
+         (size.x - batt_housing_wall)/2
+      ])
+      attach(TOP, BOTTOM, overlap=batt_side_size.y/2)
+        cuboid([
+          3*batt_housing_wall,
+          batt_side_size.x,
+          batt_side_size.y
+        ], rounding=batt_side_size.y/2, edges="X");
+
+      // front face feature cuts
+      position(FRONT+TOP) down(over_size.z) {
+        // usb-c socket itself
+        tag("socket")
+        fwd(1)
+          cuboid(batt_usb_socket_size + [0, 3, 0] + scalar_vec3(batt_housing_tolerance),
+            rounding=batt_usb_socket_rounding, edges="Y", anchor=TOP+FRONT);
+
+        // clearence for smd components that flank usb-c socket
+        tag("under")
+        back(batt_housing_wall)
+        back(batt_housing_tolerance)
+        up($eps)
+          cuboid(socket_under_size + [0, 0, $eps], anchor=TOP+FRONT,
+            chamfer=batt_housing_wall/2, edges=[
+              [0, 0, 0, 0], // yz -- +- -+ ++
+              [0, 0, 0, 0], // xz
+              [1, 1, 0, 0], // xy
+            ]);
+
+        // viewing windows for indicator leds
+        tag("window")
+        move_copies([for (at = batt_windows_at) [at.x, 0, at.y]])
+        fwd($eps)
+          cyl(d=batt_window_size, h=cut_h + 2*$eps, orient=FRONT, anchor=TOP);
+      }
+
+      // back face feature cuts
+      position(BACK+TOP) down(over_size.z) {
+        // cable exit port
+        tag("exit")
+        translate([batt_exit_at.x, $eps, batt_exit_at.y])
+          cyl(d=batt_exit_size, h=cut_h + 2*$eps, orient=BACK, anchor=TOP);
       }
 
     }
