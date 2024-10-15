@@ -365,8 +365,6 @@ clip_fit_test = [0.2, 0.05, 0.6];
 
 /* [Power Module] */
 
-// Tune for a particular USB-C 12v power trigger module
-
 // Preview color; TODO would be nice to color the pcb separate from socket.
 power_module_color = "silver";
 
