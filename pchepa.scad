@@ -129,6 +129,32 @@ support_wall_width = 2.4;
 // Enable to show support walls in preview, otherwise only active in production renders.
 $support_preview = false;
 
+/* [Joiner Clip Parameters] */
+
+// Preview color for joiner clips.
+clip_color = "#eeeeee";
+
+// Size of the joiner BOSL2 rabbit clips used to join base and cover plate pairs: [width, length, depth]
+clip_size = [14, 14, 3];
+
+// Minimum amout of vertical padding to leave above/below clip sockets.
+clip_pad = 1;
+
+// The snap parameter gives the depth of the clip sides, which controls how easy the clip is to insert and remove.  
+clip_snap = 0.75;
+
+// Thickness of the curved line that forms the clip.
+clip_thick = 1.6;
+
+// The clip "ears" are made over-wide by the compression value. A nonzero compression helps make the clip secure in its socket.
+clip_compress = 1.0;
+
+// Extra space in the socket for easier insertion.
+clip_tolerance = 0.35;
+
+// Clip fit test tolerance range: [start, step, end]
+clip_fit_test = [0.2, 0.05, 0.6];
+
 /* [Wraparound Wall Metrics] */
 
 // Mesh wrap wall preview color.
@@ -301,7 +327,7 @@ base_label_depth = 0.5;
 // Base label preview color.
 base_label_color = "white";
 
-// Overall Z thickness of the base plate under the filter.
+// Overall Z thickness of the base plate under the filter. When embedding a battery solution, this is merely a minimum constraint.
 base_height = 20;
 
 // Chamfer size of the base plate, additional radial space as needed.
@@ -314,7 +340,7 @@ base_clips = 4;
 base_embed_power_bank = false;
 
 // Height under the power bank from base plate bottom; needs to be able to accomodate a row of joiner clips.
-base_power_bank_lift = 12;
+base_power_bank_lift = 2*clip_pad + clip_size.z;
 
 // Tunnel shrink radius in front of the power bank main cavity.
 base_power_bank_tunnel_inset = 1;
@@ -351,29 +377,6 @@ label_filter_name = "Nyemo H12 / TT-AP006";
 
 // Option to attach label to bottom face rather than top face.
 label_bottom = false;
-
-/* [Joiner Clip Parameters] */
-
-// Preview color for joiner clips.
-clip_color = "#eeeeee";
-
-// Size of the joiner BOSL2 rabbit clips used to join base and cover plate pairs: [width, length, depth]
-clip_size = [14, 14, 3];
-
-// The snap parameter gives the depth of the clip sides, which controls how easy the clip is to insert and remove.  
-clip_snap = 0.75;
-
-// Thickness of the curved line that forms the clip.  
-clip_thick = 1.6;
-
-// The clip "ears" are made over-wide by the compression value. A nonzero compression helps make the clip secure in its socket.
-clip_compress = 1.0;
-
-// Extra space in the socket for easier insertion.
-clip_tolerance = 0.35;
-
-// Clip fit test tolerance range: [start, step, end]
-clip_fit_test = [0.2, 0.05, 0.6];
 
 /* [Power Module] */
 
@@ -1976,13 +1979,20 @@ module power_module(tolerance=0, profile=false, anchor = CENTER, spin = 0, orien
 }
 
 function base_size(h=undef) = let (
-  dh = base_embed_power_bank
-    ? base_overhang
-    + power_bank_size.z
-    + 2*base_power_bank_tunnel_chamfer
-    - 2*base_power_bank_tunnel_inset
-    + base_power_bank_lift
-    : base_height
+  power_height =
+    base_embed_power_bank
+      ? power_bank_size.z
+      + 2*base_power_bank_tunnel_chamfer
+      - 2*base_power_bank_tunnel_inset
+    : 0,
+
+  need_height =
+    filter_recess
+    + clip_pad
+    + power_height
+    + base_power_bank_lift,
+
+  dh = max(base_height, need_height)
 ) [
   base_od,
   base_od,
@@ -1997,10 +2007,12 @@ function base_clip_sockets(
 ) = let (
   row_moves = zcopies(spacing=size.z > base_height
     ? [
-      0 - 1.5*clip_size.z - wrapwall_slot_depth,
-      -size.z + 2*clip_size.z
+      0 - clip_pad - clip_size.z/2,
+      -size.z + clip_pad + clip_size.z/2
     ] : [0 - size.z/2]),
-  col_moves = ycopies(l=(size.y - 2*overhang - 1.5 * clip_size.x), n=num_clips)
+  col_moves = ycopies(
+    l = (size.y - 2*overhang - 2*wrapwall_foot_size.x - 3*wrapwall_thickness - 1.5 * clip_size.x),
+    n = num_clips)
 ) (filter_count < 2 || num_clips <= 0) ? [] : [
   for (row = row_moves)
   for (col = col_moves)
