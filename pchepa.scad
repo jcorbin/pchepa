@@ -1942,7 +1942,7 @@ module base_plate(
   ) {
     tag_scope("base_plate")
     diff(remove="filter wallslot socket notch", keep="grip support")
-      plate(h=size.z, d=size.x, chamfer2=overhang) {
+      plate(h=size.z, d=size.x, chamfer2=overhang, chamfer1=0.5) {
         tag("filter")
           attach(TOP, BOTTOM, overlap=filter_recess)
           cyl(h=filter_recess+$eps, d=filter_od + 2*filter_tolerance);
