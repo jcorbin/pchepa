@@ -1565,6 +1565,7 @@ module support_walls(
 
     translate((pre_gap - post_gap)/2) {
 
+      if (len(actual_at_y) > 0)
       ycopies(spacing=actual_at_y)
       right(xfoot[0] > 0 ? (xfoot[0] - $eps)/2 : 0)
       left(xfoot[1] > 0 ? (xfoot[1] - $eps)/2 : 0)
@@ -1578,6 +1579,7 @@ module support_walls(
           spin = 90,
           width = [ythick[$idx], wid.y]);
 
+      if (len(actual_at_x) > 0)
       xcopies(spacing=actual_at_x)
         support_wall(
           h = isize.z,
