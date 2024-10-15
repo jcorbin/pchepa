@@ -2153,7 +2153,7 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
     ]
   ) {
     plate_mirror_idx(base_i)
-    diff(remove="port label bank", keep="support") base_plate() {
+    diff(remove="battery label port", keep="support") base_plate() {
 
       // USB C port and wire channel
       if (base_i == 0) {
@@ -2173,10 +2173,10 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
 
       if (base_embed_power_bank) {
         tolerance = power_module_tolerance;
-        tag("bank")
+        tag("battery")
         up(base_power_bank_lift)
         up(power_bank_size.z/2)
-        position(RIGHT+BOTTOM) {
+        position(RIGHT+BOTTOM)
           power_bank(blank=true, tolerance=tolerance, anchor=CENTER) {
             tunnel_l = (sz.y - (power_bank_size.y))/2 + 2*$eps;
 
@@ -2198,7 +2198,6 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
 
               }
           }
-        }
       }
 
     }
