@@ -33,8 +33,8 @@ build_plate_size = [250, 250];
 
 //@make -o user_guide/power_bank_ports.png --colorscheme='Tomorrow Night' -D mode=108 --camera=-1.47908,-49.6462,2.79803,84.4,0,351.6,172.84
 
-//@make -o duo/base_a.stl -D mode=10 -D filter_count=2
-//@make -o duo/base_b.stl -D mode=11 -D filter_count=2
+//@make -o duo/base_a.stl -D mode=10 -D filter_count=2 -D base_embed_power_port=true
+//@make -o duo/base_b.stl -D mode=11 -D filter_count=2 -D base_embed_power_port=true
 
 //@make -o duo/base_bank_a.stl -D mode=10 -D filter_count=2 -D base_embed_power_bank=true
 //@make -o duo/base_bank_b.stl -D mode=11 -D filter_count=2 -D base_embed_power_bank=true
@@ -339,6 +339,9 @@ base_clips = 4;
 // Enable a cavity and access tunnel for a power bank inside/between a pair of base plates.
 base_embed_power_bank = false;
 
+// Enable a cavity to install a usb pd trigger into, with cable ascent channel.
+base_embed_power_port = false;
+
 // Height under the power bank from base plate bottom; needs to be able to accomodate a row of joiner clips.
 base_power_bank_lift = 2*clip_pad + clip_size.z;
 
@@ -574,12 +577,14 @@ else if (mode >= 10 && mode < 20) {
       ], BOTTOM, overlap=clip_size.y - explode/4) clip(spin=90);
 
       if (base_i == 0) {
-        fwd(explode)
-        position("power_module")
-          recolor(power_module_color) power_module();
-        up(explode)
-        position("power_channel")
-          recolor(base_color) channel_plug(anchor=BOTTOM);
+        if (base_embed_power_port) {
+          fwd(explode)
+          position("power_module")
+            recolor(power_module_color) power_module();
+          up(explode)
+          position("power_channel")
+            recolor(base_color) channel_plug(anchor=BOTTOM);
+        }
 
         if (base_embed_power_bank) {
           translate(by * explode)
@@ -1000,13 +1005,15 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
           ], BOTTOM, overlap=clip_size.y - explode/4) clip(spin=90);
 
           if (i == 0) {
-            %position("power_module") recolor(power_module_color) power_module();
-            up(explode/2)
-              position("power_channel") recolor(base_color) channel_plug(anchor=BOTTOM);
+            if (base_embed_power_port) {
+              position("power_module") recolor(power_module_color) power_module();
+              up(explode/2)
+                position("power_channel") recolor(base_color) channel_plug(anchor=BOTTOM);
+            }
 
             if (base_embed_power_bank) {
               right(explode/2)
-                %position("power_bank") recolor(power_bank_color) power_bank();
+                position("power_bank") recolor(power_bank_color) power_bank();
             }
           }
 
@@ -2249,7 +2256,7 @@ module base(label = true, anchor = CENTER, spin = 0, orient = UP) {
     diff(remove="battery label port", keep="support") base_plate() {
 
       // USB C port and wire channel
-      if (base_i == 0) {
+      if (base_embed_power_port && base_i == 0) {
         tag("port")
         up(pms.z/2)
         translate(join_side * power_port_offset)
