@@ -1,4 +1,4 @@
-# Build v1.2
+# Build v1.2.1
 
 There are primarily 2 variants:
 1. a stationary variant that merely has a USB-C port in its base
@@ -21,13 +21,13 @@ There are primarily 2 variants:
 ## Material Cost Estimates
 
 Assuming filament cost of $14.99/kg:
-1. stationary costs about $88.29
-2. portable costs about $132.04
+1. stationary costs about $88.53
+2. portable costs about $132.28
 
 Breakdown:
 - 3d printed parts:
   1. stationary needs 893g of filament and around 25 hours of print time over 12 prints
-  2. portable needs 1.15kg of filament and around 33 hours of print time over 12 prints
+  2. portable needs 1.16kg of filament and around 33 hours of print time over 12 prints
 - commodity parts:
   - fans and filters cost around $58
   - mechanical hardware and electronics cost around $18 per unit
@@ -55,13 +55,15 @@ you'll likely spend more up front, and then have a lot of spare parts on hand.
 | [Shoulder Strap][amaz_shoulder_strap]               |  $9.99    | 1           |  $9.99     |  $9.99         |
 | [USB-C 1ft patch cable][amaz_usbc_patch]            |  $9.99    | 1/3         |  $9.99     |  $3.33         |
 |                                                     |           |             |            |                |
-| Sunlu PLA                                           | $14.99    | 1.141kg/1kg | $14.99     | $17.10         |
+| Sunlu PLA                                           | $14.99    | 1.157kg/1kg | $14.99     | $17.34         |
 
 ## Printed Parts
 
+NOTE: print material and times may vary by printer, print settings, and with minor revisions made to the design; these numbers are provided as a baseline estimate.
+
 | Name           | Amount  | Time | Quantity |
 | -------------- | ------- | ---- | -------- |
-| Cover A&B      | 121.51g | 3:06 | 2        |
+| Cover A&B      | 127.64g | 3:20 | 2        |
 | Grill Box A    |  91.13g | 3:30 | 1        |
 | Grill Box B    |  89.75g | 3:24 | 1        |
 | Base A         | 154.10g | 4:04 | 1        |
@@ -71,7 +73,7 @@ you'll likely spend more up front, and then have a lot of spare parts on hand.
 | Mesh Wall      |  27.39g | 0:47 | 6        |
 
 - Common parts:
-  - Cover: 243.02g , 6:12
+  - Cover: 255.28g , 6:40
   - Grill: 180.88g , 6:54
   - Mesh Wall: 164.34g , 4:42
 - Stationary Base: 304.71g , 7:55
@@ -100,7 +102,7 @@ Most parts come in an A (left) and B (right) side version; the A side is primary
 
 ### 1. Print Cover A
 
-Also print 2 joiner clips along with each cover plate, placing them inside the filter ring of the cover plate.
+Also print 2 joiner clips and 1 port grommet along with each cover plate, placing them inside the filter ring of the cover plate.
 **NOTE** joiner clips are best printed as "pure walls": 0 top/bottom layers, and enough wall perimeters so that they're all wall, no infill.
 
 Use a spudger, flathead screw driver, or similar to knock the tiny support fin out of each clip socket.
@@ -117,7 +119,9 @@ Install the PWM pcb through the hole in the grill front-right face.
 
 Plug the Y-splitter cable into the PWM pcb's header; it should comfortably clear/pass through the front hemi-octagonal cover port.
 
-Mount the grill/fan/cover with 4 M3x35 bolts. The fan's wire should pass through the back hemi-octagonal cover port.
+Mount the grill/fan/cover with 4 M3x35 bolts. The fan's wire should pass through the back hemi-octagonal cover port and its grommet.
+
+The port grommet is meant to be installed flat/thin end up (inside the grill box) with the tapered/thick end down inside the main body cavity.
 
 **NOTE** you can manage most of the fan's wire length by orienting the fan to wrap its wire around itself;
 i.e. place the corner where the fan wire exits farthest away from the cover/grill center.
@@ -203,6 +207,8 @@ Place the battery bank into its socket in either half.
 **NOTE** be sure to connect the JST connector between the A side base and cover.
 
 Join both half by setting them both on the same flat surface: align the clips, make sure the wiring won't be pinched, then press together.
+
+The cover port grommets should by flat end up / tapered end down, and should prevent the fan wiring from being pinched.
 
 ### 8. (optional) Dovetailed Seam Variants
 
