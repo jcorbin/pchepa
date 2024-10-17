@@ -1,7 +1,15 @@
 # Errata
 
-- the chosen battery bank option works okay, but the disingenuous capacity rating on it leave a bad taste;
-  other battery options would be welcome
+# v1.3.0
+
+- switched to an 18650 based 12v power supply for the portable variant:
+  - simple flow: usb-c in front, 12v out back
+  - so no need for usb pd trigger or patch cable
+  - also only needs a classic 5v usb source, so no need for higher volt/watt adaptors
+  - when loaded with 2x 9900mAh 3.7v cells, we get 4-5hrs of runtime from a full charge
+- minimized base plate height and clip socket placement
+  - since the new battery housing is taller than prior bank, this keeps the base plate from bulking up too much
+  - also this makes clip insertion and socket flex more consistent, as both rows now have a thing floor or roof
 
 # v1.2.1
 
@@ -48,7 +56,7 @@
 - pulled out label text/qr particulars into customizer parameters
 - internal git repository cleanups:
   - fixed bosl2 submodule url
-  - evicted all model and image assets into git-lfs blos storage
+  - evicted all model and image assets into git-lfs blob storage
   - minor fix to release script
 
 # v1.1.1
@@ -132,16 +140,16 @@
 
 # Dev Status and TODOs
 
-- [ ] TODO switch to an 18650 power supply module
+- [ ] TODO deprecate, minimize, or just drop power bank support
 - [ ] TODO further explore 18650 integration, something like:
   - minimal BMS board
-  - pd trigger mmodule for input
+  - pd trigger module for input
   - battery cells integrated directly into base plate cavities
 - [ ] TODO support scaling down to single-stack assembly
   - [ ] TODO car mount option: baseplate with a cupholder mount
 - [ ] TODO support N-filter stacks with a joiner plate
 - [ ] TODO support N-fan stacks, but also take care, and support inter-fan spacing
-- [ ] TODO support N-assembly: an un-curved plate mode to allow horizontal scale
+- [ ] TODO support N-assembly: straight plate mode to allow horizontal scale
 - [ ] TODO inter-filter structure for duo to support additional electronics inside the mesh wall
 - [ ] TODO evolve parameters, with presets for various fan/filter models
 - [ ] TODO support arduino based electronics package, including an [air quality sensor wing][aq_wing]
