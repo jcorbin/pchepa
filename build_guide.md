@@ -1,4 +1,4 @@
-# Build v1.2.1
+# Build v1.3.0
 
 There are primarily 2 variants:
 1. a stationary variant that merely has a USB-C port in its base
@@ -22,7 +22,7 @@ There are primarily 2 variants:
 
 Assuming filament cost of $14.99/kg:
 1. stationary costs about $88.53
-2. portable costs about $132.28
+2. portable costs about $112.26
 
 Breakdown:
 - 3d printed parts:
@@ -32,7 +32,7 @@ Breakdown:
   - fans and filters cost around $58
   - mechanical hardware and electronics cost around $18 per unit
     (pwm controller, usb pd trigger, various wires, metric bolts and heatset inserts)
-  - portable costs another $39.31 for a usb battery bank, patch cable, and carrying strap
+  - portable costs another $19.29 for a power supply, its batteries, and carrying strap
 
 **NOTE** due to most electronic and mechanical parts coming in kits/packs,
 you'll likely spend more up front, and then have a lot of spare parts on hand.
@@ -48,14 +48,18 @@ you'll likely spend more up front, and then have a lot of spare parts on hand.
 | Fan Cabling: [PWM fan splitter][amaz_fan_split_x10] | $24.99    | 1/10        | $24.99     |  $2.50         |
 | [M3x35 flat head screws][amaz_m3_bolts]             |  $8.59    | 8/40        |  $8.59     |  $1.72         |
 | [M3x4x5 heatset inserts][amaz_m3_heatsets]          |  $7.99    | 8/100       |  $7.99     |  $0.64         |
-| [USBC 15v PD Trigger][amaz_15v_pd_trigger]          |  $9.99    | 1/5         |  $9.99     |  $2.00         |
 | [JST ZH 2p male/female pair][amaz_jst_zh_2p_10pair] |  $9.99    | 1/10        |  $9.99     |  $1.00         |
 |                                                     |           |             |            |                |
-| Battery: [USUIE 12V USB-C][amaz_usuie_12v_bank]     | $25.99    | 1           | $25.99     | $25.99         |
-| [Shoulder Strap][amaz_shoulder_strap]               |  $9.99    | 1           |  $9.99     |  $9.99         |
-| [USB-C 1ft patch cable][amaz_usbc_patch]            |  $9.99    | 1/3         |  $9.99     |  $3.33         |
+| Stationary Variant:                                 |           |             |            |                |
+|   [USBC 15v PD Trigger][amaz_15v_pd_trigger]        |  $9.99    | 1/5         |  $9.99     |  $2.00         |
+|   Sunlu PLA                                         | $14.99    | 0.905kg/1kg | $14.99     | $13.57         |
 |                                                     |           |             |            |                |
-| Sunlu PLA                                           | $14.99    | 1.157kg/1kg | $14.99     | $17.34         |
+| Portable Variant:                                   |           |             |            |                |
+|   [Shoulder Strap][amaz_shoulder_strap]             |  $9.99    | 1           |  $9.99     |  $9.99         |
+|   [18650 9900mAh cells][amaz_18650_9900mah]         | $39.99    | 2/16        | $39.99     |  $5.00         |
+|   [12v 18650 UPS Power Supply][amaz_12v_ups]        | $11.99    | 1/2         | $11.99     |  $5.99         |
+|   [M3x10 cap head screws][amaz_m3x10_caphead]       |  $7.76    | 4/100       |  $7.76     |  $0.31         |
+|   Sunlu PLA                                         | $14.99    | 1.157kg/1kg | $14.99     | $17.34         |
 
 ## Printed Parts
 
@@ -229,17 +233,18 @@ The wall section model files come in 4 variations:
 - `wall_3.stl` -- both left and right dovetails
 - there are 4 similar files named `wall_noft_*.stl`, these are probably the ones you want as dovetail with foot is very difficult to assemble
 
+[amaz_12v_ups]: https://www.amazon.com/dp/B0D4TS6MPC
 [amaz_15v_pd_trigger]: https://www.amazon.com/gp/product/B09GVN9RZ3
+[amaz_18650_9900mah]: https://www.amazon.com/dp/B0D842C5CR
 [amaz_fan_split_x10]: https://www.amazon.com/dp/B0C6XDFRZF
 [amaz_jst_zh_2p_10pair]: https://www.amazon.com/dp/B0CNX4CJY4
 [amaz_m3_bolts]: https://www.amazon.com/gp/product/B01C3KUMSY
 [amaz_m3_heatsets]: https://www.amazon.com/Printing-M3x4x5mm-Threaded-Embedment-Automotive/dp/B0BTYF2MMD
+[amaz_m3x10_caphead]: https://www.amazon.com/Socket-Screws-Bolts-Thread-100pcs/dp/B07CMSBQ11
 [amaz_noctua_nf_p12]: https://www.amazon.com/gp/product/B07CG2PGY6
 [amaz_nyemo]: https://www.amazon.com/gp/product/B08Z32BDJY
 [amaz_shoulder_strap]: https://www.amazon.com/dp/B07P3LCZXN
 [amaz_taidacent_pwm]: https://www.amazon.com/Taidacent-2510-4P-Manual-Controller-Control/dp/B0BHNC776L
-[amaz_usbc_patch]: https://www.amazon.com/dp/B0B6BLQJ8B?psc=1&ref=ppx_yo2ov_dt_b_product_details
-[amaz_usuie_12v_bank]: https://www.amazon.com/dp/B0CNGM4V32
 
 [duo_makerworld]: https://makerworld.com/en/models/424917
 [duo_thangs]: https://than.gs/m/1050549
