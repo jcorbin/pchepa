@@ -565,12 +565,12 @@ else if (mode >= 10 && mode < 20) {
         up(explode)
         position("power_channel")
           recolor(base_color) channel_plug(anchor=BOTTOM);
-      }
 
-      if (base_embed_power_bank) {
-        translate(by * explode)
-        position("power_bank")
-          recolor(power_bank_color) power_bank();
+        if (base_embed_power_bank) {
+          translate(by * explode)
+          position("power_bank")
+            recolor(power_bank_color) power_bank();
+        }
       }
 
       up(explode) attach("filter", BOTTOM) hepa_filter();
