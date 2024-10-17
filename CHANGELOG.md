@@ -3,6 +3,17 @@
 - the chosen battery bank option works okay, but the disingenuous capacity rating on it leave a bad taste;
   other battery options would be welcome
 
+# v1.2.1
+
+- added a grommet for the cover plate wire ports to prevent
+  wires getting pinched between plates when (re)assembling
+- added a tiny (0.5mm) chamfer to bottom edge of base plate,
+  minor print quality improvement, and feels smoother
+- minor internal code cleanups towards different battery module
+- moved the pwm controller grill mount point 5mm inward,
+  improving its fan header clearance to cover plate port,
+  especially when using the new grommet part
+
 # v1.2.0
 
 - Mesh walls now serve as primary vertical integration,
@@ -121,9 +132,15 @@
 
 # Dev Status and TODOs
 
+- [ ] TODO switch to an 18650 power supply module
+- [ ] TODO further explore 18650 integration, something like:
+  - minimal BMS board
+  - pd trigger mmodule for input
+  - battery cells integrated directly into base plate cavities
+- [ ] TODO support scaling down to single-stack assembly
+  - [ ] TODO car mount option: baseplate with a cupholder mount
 - [ ] TODO support N-filter stacks with a joiner plate
 - [ ] TODO support N-fan stacks, but also take care, and support inter-fan spacing
-- [ ] TODO support scaling down to single-stack assembly
 - [ ] TODO support N-assembly: an un-curved plate mode to allow horizontal scale
 - [ ] TODO inter-filter structure for duo to support additional electronics inside the mesh wall
 - [ ] TODO evolve parameters, with presets for various fan/filter models
