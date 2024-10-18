@@ -225,7 +225,7 @@ grill_hole_degree = 6;
 grill_screw = "M3";
 
 // Screw preview color for grill assembly.
-grill_screw_color = "silver";
+grill_screw_color = "#333333";
 
 // Head type for the grill box mounting screw, default is flush/countersunk heads.
 grill_screw_head = "flat";
