@@ -26,6 +26,10 @@ explode = 50;
 // How big is your printer's printable area?
 build_plate_size = [250, 250];
 
+// purple: #7249b4
+// grass: #007477
+// teal: #007477
+
 /* [Part Selection] */
 
 //@make -o duo/render.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 -D base_embed_battery_holder=true --imgsize=1024,768 --camera=-48.4318,49.2886,16.9119,81.6,0,39.2,1279.49
@@ -138,7 +142,7 @@ $support_preview = false;
 /* [Joiner Clip Parameters] */
 
 // Preview color for joiner clips.
-clip_color = "#eeeeee";
+clip_color = "yellow";
 
 // Size of the joiner BOSL2 rabbit clips used to join base and cover plate pairs: [width, length, depth]
 clip_size = [14, 14, 3];
@@ -164,7 +168,7 @@ clip_fit_test = [0.2, 0.05, 0.6];
 /* [Wraparound Wall Metrics] */
 
 // Mesh wrap wall preview color.
-wrapwall_color = "#bb2424";
+wrapwall_color = "#007477";
 
 // Thickness of the mesh wrap wall, radially away from filter center; set to zero to disable mesh wall.
 wrapwall_thickness = 1.6;
@@ -228,7 +232,7 @@ fan_screw_spacing = 105;
 /* [Fan Grill Metrics] */
 
 // Fan grill box preview color.
-grill_color = "#24705b";
+grill_color = "#007477";
 
 // Amount of padding to add around each side of the fan within the grill box; should be at least enough to allow routing of fan cables.
 grill_padding = 5;
@@ -272,7 +276,7 @@ grill_window = [ 0, 0 ];
 /* [Filter Cover Parameters] */
 
 // Cover plate preview color.
-cover_color = "#4390e0";
+cover_color = "#7249b4";
 
 // Overall Z thickness of the cover plate between the filter and fan.
 cover_height = 20;
@@ -364,7 +368,7 @@ mid_notch_side = RIGHT;
 /* [Filter Base Parameters] */
 
 // Base plate preview color.
-base_color = "#4390e0";
+base_color = "#7249b4";
 
 // Base label cut/color depth.
 base_label_depth = 0.5;
@@ -557,7 +561,7 @@ batt_usb_socket_clearance = [18, 2];
 
 batt_usb_socket_rounding = 1;
 
-batt_housing_color = "grey";
+batt_housing_color = "#007477";
 
 // NOTE offsets from pcb edge
 batt_holder_mount_at = [
