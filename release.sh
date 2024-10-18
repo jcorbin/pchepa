@@ -65,7 +65,7 @@ edit_changelog() {
 }
 
 prep_next_version() {
-  next_version=$(get_next_version)
+  next_version=${1}
   [ -n "$next_version" ]
   t=$(git cat-file -t "${next_version}" || echo '')
   if [ "$t" = 'tag' ]; then
@@ -85,7 +85,11 @@ ed|edit)
   ;;
 
 prep|regen)
-  prep_next_version
+  if [ $# -lt 2 ]; then
+    prep_next_version "$(get_next_version)"
+  else
+    prep_next_version "$2"
+  fi
   ;;
 
 pub|tag)
