@@ -556,7 +556,6 @@ else if (mode >= 10 && mode < 20) {
   recolor(base_color) base($idx = base_i, label = true, anchor=BOTTOM) recolor(undef) {
     %if (buddy) {
 
-      recolor(clip_color)
       attach([
         for (i = [ base_i % 2 : 2 : len(base_clip_sockets())-1 ])
         str("clip_socket_", i)
@@ -600,7 +599,6 @@ else if (mode >= 20 && mode < 30) {
       attach(["screw_hole_0", "screw_hole_1", "screw_hole_2", "screw_hole_3"], BOTTOM)
         heatset_insert();
 
-      recolor(clip_color)
       attach([
         for (i = [ cover_i % 2 : 2 : cover_clips-1 ])
         str("clip_socket_", i)
@@ -940,7 +938,7 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
         attach(["screw_hole_0", "screw_hole_1", "screw_hole_2", "screw_hole_3"], BOTTOM)
           heatset_insert();
 
-        recolor(clip_color) attach([
+        attach([
           for (i = [ i % 2 : 2 : cover_clips-1 ])
           str("clip_socket_", i)
         ], BOTTOM, overlap=clip_size.y - explode/4) clip(spin=90);
@@ -970,7 +968,6 @@ module assembly(anchor = CENTER, spin = 0, orient = UP) {
       attach(BOTTOM, TOP, overlap=filter_recess)
         recolor(base_color) base($idx=i, label=!$preview) recolor(undef) {
 
-          recolor(clip_color)
           attach([
             for (i = [ i % 2 : 2 : len(base_clip_sockets())-1 ])
             str("clip_socket_", i)
@@ -1602,6 +1599,7 @@ module clip(
   compression = clip_compress,
   anchor = CENTER, spin = 0, orient = UP
 ) {
+  recolor(clip_color)
   rabbit_clip(type="double",
     length = clip_size.y,
     width = clip_size.x,
