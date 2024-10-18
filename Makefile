@@ -21,6 +21,7 @@ $(MODELS): $(SCAD)
 
 .PHONY: $(ANIMATED_MODELS)
 
+# FIXME: WARNING: The convert command is deprecated in IMv7, use "magick" instead of "convert" or "magick convert"
 $(ANIMATED_MODELS): $(patsubst %.gif,%.png,$@)
 	convert $$(ls -1 $(patsubst %.gif,%*.png,$@) ; ls -1 $(patsubst %.gif,%*.png,$@) | tac) -set delay 4 $@
 
