@@ -1,3 +1,13 @@
+# Errata
+
+- [*] pwm ctl fan header does not clear grommet inner wall
+  - updated default for pwm_ctl_inset to 5 ( was 10 )
+  - looks okay on assembly inspection
+  - TODO test print & assemble
+- [*] would like some clearance between battery housing exit and channel
+  - side cutaway to channel part, should terminate right above exit port
+  - TODO test assemble
+
 # v1.3.0
 
 - switched to an 18650 based 12v power supply for the portable variant:
