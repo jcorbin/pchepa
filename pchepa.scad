@@ -461,7 +461,7 @@ power_bank_sockets = [
 
 pwm_ctl_tolerance = 0.2;
 
-pwm_ctl_inset = 10;
+pwm_ctl_inset = 5;
 
 pwm_ctl_pcb_size = [20, 26, 1.2];
 
