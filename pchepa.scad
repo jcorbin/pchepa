@@ -31,8 +31,6 @@ build_plate_size = [250, 250];
 //@make -o duo/render.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 -D base_embed_battery_holder=true --imgsize=1024,768 --camera=-48.4318,49.2886,16.9119,81.6,0,39.2,1279.49
 //@make -o duo/as_explode.png --colorscheme='Tomorrow Night' -D mode=0 -D filter_count=2 -D base_embed_battery_holder=true --imgsize=1024,768 --animate=40 -D explode='50*$t' --camera=-48.4318,49.2886,16.9119,81.6,0,39.2,1279.49
 
-//@make -o user_guide/power_bank_ports.png --colorscheme='Tomorrow Night' -D mode=108 --camera=-1.47908,-49.6462,2.79803,84.4,0,351.6,172.84
-
 //@make -o duo/base_a.stl -D mode=10 -D filter_count=2 -D base_embed_power_port=true
 //@make -o duo/base_b.stl -D mode=11 -D filter_count=2 -D base_embed_power_port=true
 
