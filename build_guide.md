@@ -1,11 +1,11 @@
-# Build v1.2.1
+# Build v1.3.0
 
 There are primarily 2 variants:
 1. a stationary variant that merely has a USB-C port in its base
   - [Thangs STL models][duo_thangs]
   - [MakerWorld 3MF Slicer Layouts][duo_makerworld]
 
-2. a portable variant that integrates a USB-C battery bank into a thicker base
+2. a portable variant that integrates a USB-C battery pack into a thicker base
   - [Thangs STL models][duo_portable_thangs]
   - [MakerWorld 3MF Slicer Layouts][duo_portable_makerworld]
 
@@ -22,7 +22,7 @@ There are primarily 2 variants:
 
 Assuming filament cost of $14.99/kg:
 1. stationary costs about $88.53
-2. portable costs about $132.28
+2. portable costs about $112.26
 
 Breakdown:
 - 3d printed parts:
@@ -32,7 +32,7 @@ Breakdown:
   - fans and filters cost around $58
   - mechanical hardware and electronics cost around $18 per unit
     (pwm controller, usb pd trigger, various wires, metric bolts and heatset inserts)
-  - portable costs another $39.31 for a usb battery bank, patch cable, and carrying strap
+  - portable costs another $19.29 for a power supply, its batteries, and carrying strap
 
 **NOTE** due to most electronic and mechanical parts coming in kits/packs,
 you'll likely spend more up front, and then have a lot of spare parts on hand.
@@ -48,14 +48,18 @@ you'll likely spend more up front, and then have a lot of spare parts on hand.
 | Fan Cabling: [PWM fan splitter][amaz_fan_split_x10] | $24.99    | 1/10        | $24.99     |  $2.50         |
 | [M3x35 flat head screws][amaz_m3_bolts]             |  $8.59    | 8/40        |  $8.59     |  $1.72         |
 | [M3x4x5 heatset inserts][amaz_m3_heatsets]          |  $7.99    | 8/100       |  $7.99     |  $0.64         |
-| [USBC 15v PD Trigger][amaz_15v_pd_trigger]          |  $9.99    | 1/5         |  $9.99     |  $2.00         |
 | [JST ZH 2p male/female pair][amaz_jst_zh_2p_10pair] |  $9.99    | 1/10        |  $9.99     |  $1.00         |
 |                                                     |           |             |            |                |
-| Battery: [USUIE 12V USB-C][amaz_usuie_12v_bank]     | $25.99    | 1           | $25.99     | $25.99         |
-| [Shoulder Strap][amaz_shoulder_strap]               |  $9.99    | 1           |  $9.99     |  $9.99         |
-| [USB-C 1ft patch cable][amaz_usbc_patch]            |  $9.99    | 1/3         |  $9.99     |  $3.33         |
+| Stationary Variant:                                 |           |             |            |                |
+|   [USBC 15v PD Trigger][amaz_15v_pd_trigger]        |  $9.99    | 1/5         |  $9.99     |  $2.00         |
+|   Sunlu PLA                                         | $14.99    | 0.905kg/1kg | $14.99     | $13.57         |
 |                                                     |           |             |            |                |
-| Sunlu PLA                                           | $14.99    | 1.157kg/1kg | $14.99     | $17.34         |
+| Portable Variant:                                   |           |             |            |                |
+|   [Shoulder Strap][amaz_shoulder_strap]             |  $9.99    | 1           |  $9.99     |  $9.99         |
+|   [18650 9900mAh cells][amaz_18650_9900mah]         | $39.99    | 2/16        | $39.99     |  $5.00         |
+|   [12v 18650 UPS Power Supply][amaz_12v_ups]        | $11.99    | 1/2         | $11.99     |  $5.99         |
+|   [M3x10 cap head screws][amaz_m3x10_caphead]       |  $7.76    | 4/100       |  $7.76     |  $0.31         |
+|   Sunlu PLA                                         | $14.99    | 1.157kg/1kg | $14.99     | $17.34         |
 
 ## Printed Parts
 
@@ -86,7 +90,7 @@ If you're using a reliable printer and all the same BOM parts as cited above, sm
 However if you're changing out parts, customizing things, or doubt your printer's accuracy there are several ancillary test print models that may be printed first.
 
 All parts are designed to be printed without auto-generated supports; any parts that do require support,
-come with breakaway support structures builtin (e.g. every clip socket, and the battery bank tunnel).
+come with breakaway support structures builtin (e.g. every clip socket, and the battery tunnel).
 
 All of the recommended slicer settings, build plate layouts, and printer settings for a Bambu printer can be downloaded from MakerWorld:
 
@@ -143,7 +147,7 @@ Prepare the USB-C PD trigger by soldering on a pair of JST header wires of the *
 
 Remove support material:
 - as with the cover plate above, each clip socket has a tiny support fin
-- the battery bank version has a support framework inside its tunnel; a spudger slid down its interior gap should be able to pop most if out whole
+- the battery powered version has a support framework inside its tunnel; a spudger slid down its interior gap should be able to pop most if out whole
 
 Install the pd trigger into the base port cavity.
 Use a small spudger or other non-metal poke/pry tool to press the module forward once it has bottomed out inside the channel.
@@ -151,6 +155,15 @@ Use a small spudger or other non-metal poke/pry tool to press the module forward
 Insert the channel plug behind the pd trigger.
 The pd trigger should slide forward far enough that the plug can fully seat behind it,
 preventing the pd trigger from moving when plug/unplugged.
+
+#### (Optional) Print Battery Housing
+
+To build the portable variant with an 18650 battery pack (added in v1.3) you'll need to print out and assemble its battery pack, 3 parts:
+- battery housing -- mounts a [12v 18650 UPS Power Supply][amaz_12v_ups] PCB using 4 M3x10 bolts
+- battery housing lid -- slids over / snaps onto the housing base
+- battery housing wire exit channel -- guides the power wires up into the main filter body, protecting them from being pinched
+
+The wire exit channel should be CA glued onto the A-side base plate with it's open end down.
 
 ### 4. Print A Side Wall Sections
 
@@ -163,7 +176,7 @@ A good amount seems to be 60% tri-hexagon with a 90° direction.
 The basic wall section is flat and simply sits loosely in the plates' perimeter channel ( model file `wall_noft_0.stl` ).
 This panel has the advantage of easiest installation and later removal for maintenance.
 
-However if you're building a portable ( battery bank integrated ) variant, a much better option is to use wall sections with a triangular "foot" along their top/bottom edge.
+However if you're building a portable ( battery integrated ) variant, a much better option is to use wall sections with a triangular "foot" along their top/bottom edge.
 This provides a rigid grip between the cover and base plates, rather than only relying on the plate-filter grip to provide vertical integration.
 
 **NOTE** without rigidity from these wall panels, the portable filter can **rapidly disassemble itself** when being carried around roughly; a moderate amount of physical shock is enough to cause the filter grips to release.
@@ -202,11 +215,13 @@ Print another 3 wall sections and install as above.
 
 Install all joiner clips ( be sure to remove the tiny support fin from inside each socket ).
 
-Place the battery bank into its socket in either half.
+If using a battery pack, slide it into the A side's tunnel, using the exit channel part to guide and protect it wires.
 
 **NOTE** be sure to connect the JST connector between the A side base and cover.
 
 Join both half by setting them both on the same flat surface: align the clips, make sure the wiring won't be pinched, then press together.
+
+**NOTE** from v1.3 onwards use of cover grommet and battery exit channel parts should prevent any wire pinching.
 
 The cover port grommets should by flat end up / tapered end down, and should prevent the fan wiring from being pinched.
 
@@ -229,17 +244,18 @@ The wall section model files come in 4 variations:
 - `wall_3.stl` -- both left and right dovetails
 - there are 4 similar files named `wall_noft_*.stl`, these are probably the ones you want as dovetail with foot is very difficult to assemble
 
+[amaz_12v_ups]: https://www.amazon.com/dp/B0D4TS6MPC
 [amaz_15v_pd_trigger]: https://www.amazon.com/gp/product/B09GVN9RZ3
+[amaz_18650_9900mah]: https://www.amazon.com/dp/B0D842C5CR
 [amaz_fan_split_x10]: https://www.amazon.com/dp/B0C6XDFRZF
 [amaz_jst_zh_2p_10pair]: https://www.amazon.com/dp/B0CNX4CJY4
 [amaz_m3_bolts]: https://www.amazon.com/gp/product/B01C3KUMSY
 [amaz_m3_heatsets]: https://www.amazon.com/Printing-M3x4x5mm-Threaded-Embedment-Automotive/dp/B0BTYF2MMD
+[amaz_m3x10_caphead]: https://www.amazon.com/Socket-Screws-Bolts-Thread-100pcs/dp/B07CMSBQ11
 [amaz_noctua_nf_p12]: https://www.amazon.com/gp/product/B07CG2PGY6
 [amaz_nyemo]: https://www.amazon.com/gp/product/B08Z32BDJY
 [amaz_shoulder_strap]: https://www.amazon.com/dp/B07P3LCZXN
 [amaz_taidacent_pwm]: https://www.amazon.com/Taidacent-2510-4P-Manual-Controller-Control/dp/B0BHNC776L
-[amaz_usbc_patch]: https://www.amazon.com/dp/B0B6BLQJ8B?psc=1&ref=ppx_yo2ov_dt_b_product_details
-[amaz_usuie_12v_bank]: https://www.amazon.com/dp/B0CNGM4V32
 
 [duo_makerworld]: https://makerworld.com/en/models/424917
 [duo_thangs]: https://than.gs/m/1050549
