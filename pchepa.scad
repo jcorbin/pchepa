@@ -773,18 +773,20 @@ else if (mode >= 50 && mode < 59) {
 
 else if (mode == 70) {
   preview_cutaway(LEFT)
-  battery_housing()
-    if ($preview)
-    attach("mount", "mount")
-    battery_holder_mockup();
+  battery_housing() {
+    if ($preview && buddy)
+      attach("mount", "mount")
+        battery_holder_mockup();
+  }
 }
 
 else if (mode == 71) {
   preview_cutaway(FRONT)
-  battery_housing_lid(orient=$preview ? UP : DOWN)
-    if ($preview)
-    attach("under", TOP)
-    battery_housing();
+  battery_housing_lid(orient=$preview ? UP : DOWN) {
+    if ($preview && buddy)
+      attach("under", TOP)
+        battery_housing();
+  }
 }
 
 else if (mode == 72) {
