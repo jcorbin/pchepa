@@ -787,7 +787,7 @@ else if (mode == 70) {
 
 else if (mode == 71) {
   preview_cutaway(FRONT)
-  battery_housing_lid(orient=$preview ? UP : DOWN) {
+  battery_housing_lid(orient=$preview ? UP : BACK) {
     if ($preview && buddy)
       fwd(explode)
       attach("under", TOP)
@@ -3156,6 +3156,7 @@ function battery_housing_lid() = let (
   [ "walls", walls ],
   [ "size", size ],
   [ "chamfer", batt_housing_wall/2 ],
+  [ "fillet", 4*batt_housing_wall ],
   [ "chamfer_edges", [
     [0, 0, 1, 1], // yz -- +- -+ ++
     [0, 0, 1, 1], // xz
@@ -3171,6 +3172,7 @@ module battery_housing_lid(anchor = CENTER, spin = 0, orient = UP) {
   walls = struct_val(info, "walls");
   chamfer = struct_val(info, "chamfer");
   chamfer_edges = struct_val(info, "chamfer_edges");
+  fillet = struct_val(info, "fillet");
   size = struct_val(info, "size");
 
   attachable(anchor, spin, orient, size=size, anchors=[
@@ -3186,7 +3188,7 @@ module battery_housing_lid(anchor = CENTER, spin = 0, orient = UP) {
         housing_size.x + tols.x,
         size.y + 2*$eps,
         housing_size.z + tols.z + $eps
-      ], chamfer=batt_housing_wall/2, edges=[
+      ], chamfer=fillet, edges=[
         [0, 0, 0, 0], // yz -- +- -+ ++
         [0, 0, 1, 1], // xz
         [0, 0, 0, 0], // xy
@@ -3221,6 +3223,7 @@ function battery_housing() =
 
 module battery_housing(anchor = CENTER, spin = 0, orient = UP) {
   size = battery_housing();
+  lid_info = battery_housing_lid();
 
   // room for the pcb and its top-mounted battery holder
   over_size = [
@@ -3260,7 +3263,7 @@ module battery_housing(anchor = CENTER, spin = 0, orient = UP) {
   attachable(anchor, spin, orient, size=size, anchors=[
     named_anchor("mount", [0, 0, size.z/2-over_size.z], UP)
   ]) {
-    diff(remove="batt_side exit mount_hole over slot socket under window")
+    diff(remove="batt_side exit fillet mount_hole over slot socket under window")
     recolor(batt_housing_color) cuboid(size, chamfer=batt_housing_wall/2) {
 
       // main cavity carving
@@ -3282,6 +3285,14 @@ module battery_housing(anchor = CENTER, spin = 0, orient = UP) {
         move_copies(mount_hole_at)
           cyl(d=mount_hole_size.x, h=mount_hole_size.y + $eps, anchor=BOTTOM);
       }
+
+      // top side chamfers for lid fillets
+      tag("fillet")
+      edge_mask([TOP], except=[BACK,FRONT])
+        chamfer_edge_mask(
+          l=size.y + 2*$eps,
+          chamfer=struct_val(lid_info, "fillet") + batt_housing_wall
+        );
 
       // side slots for lid rails
       tag("slot")
