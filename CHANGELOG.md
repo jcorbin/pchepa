@@ -1,5 +1,15 @@
 # Errata
 
+# v1.3.1
+
+- improved recommended slicer project
+  - use a raft under the battery housing lid
+  - use mouse ears for all cover plates, base plates, and the battery housing
+- experimented with adding a fillet to strengthen the battery housing lid
+  - but battery holder supply proved to be too inconsistent
+  - later shipments no longer had rounded-top battery holders
+  - so the fillet won't work without expanding the overall size of the battery housing itself
+
 # v1.3.0
 
 - switched to an 18650 based 12v power supply for the portable variant:
