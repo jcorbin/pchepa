@@ -777,7 +777,11 @@ else if (mode == 70) {
     if ($preview && buddy)
       up(explode)
       attach("mount", "mount")
-        battery_holder_mockup();
+        battery_holder_mockup()
+          up(explode)
+          position(["batt1", "batt2"])
+            recolor("orange")
+            cyl(d=18, h=65, rounding=1, orient=FRONT);
   }
 }
 
@@ -787,7 +791,12 @@ else if (mode == 71) {
     if ($preview && buddy)
       fwd(explode)
       attach("under", TOP)
-        battery_housing();
+        battery_housing()
+          attach("mount", "mount")
+            battery_holder_mockup()
+              position(["batt1", "batt2"])
+                recolor("orange")
+                cyl(d=18, h=65, rounding=1, orient=FRONT);
   }
 }
 
