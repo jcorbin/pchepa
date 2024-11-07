@@ -1,5 +1,9 @@
 # Errata
 
+# v1.3.1
+
+- strengthened battery housing lid by increasing fillet and flipping print orientation
+
 # v1.3.0
 
 - switched to an 18650 based 12v power supply for the portable variant:
