@@ -775,6 +775,7 @@ else if (mode == 70) {
   preview_cutaway(LEFT)
   battery_housing() {
     if ($preview && buddy)
+      up(explode)
       attach("mount", "mount")
         battery_holder_mockup();
   }
@@ -784,6 +785,7 @@ else if (mode == 71) {
   preview_cutaway(FRONT)
   battery_housing_lid(orient=$preview ? UP : DOWN) {
     if ($preview && buddy)
+      fwd(explode)
       attach("under", TOP)
         battery_housing();
   }
