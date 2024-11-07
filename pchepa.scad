@@ -784,6 +784,7 @@ else if (mode == 71) {
   preview_cutaway(FRONT)
   battery_housing_lid(orient=$preview ? UP : DOWN) {
     if ($preview && buddy)
+      down(explode)
       attach("under", TOP)
         battery_housing();
   }
