@@ -775,6 +775,7 @@ else if (mode == 70) {
   preview_cutaway(LEFT)
   battery_housing() {
     if ($preview && buddy)
+      up(explode)
       attach("mount", "mount")
         battery_holder_mockup();
   }
