@@ -504,6 +504,8 @@ batt_pcb_size = [ 42.4, 88.6, 1.2 ];
 
 batt_holder_size = [ 42.4, 78.2, 21.5 ];
 
+batt_holder_rounding = 0;
+
 batt_holder_setback = 5.5;
 
 batt_pcb_mount_hole_d = 3.5;
@@ -3064,7 +3066,7 @@ module battery_holder_mockup(anchor = CENTER, spin = 0, orient = UP) {
       attach(TOP, BOTTOM)
         recolor("#222222")
         diff() cuboid(batt_holder_size, anchor=BOTTOM,
-          rounding=10, edges=[
+          rounding=batt_holder_rounding, edges=[
             [0, 0, 0, 0], // yz -- +- -+ ++
             [0, 0, 1, 1], // xz
             [0, 0, 0, 0], // xy
@@ -3149,14 +3151,15 @@ function battery_housing_lid() = let (
   housing_size = battery_housing(),
   tols = [ 0, 0, 0 ],
   walls = [ 2*batt_housing_wall, 0, batt_housing_wall ],
-  size = housing_size + tols + walls
+  size = housing_size + tols + walls,
+  fillet_walls = max(0, min(4, floor(batt_holder_rounding / batt_housing_wall - $eps)))
 ) [
   [ "housing_size", housing_size ],
   [ "tols", tols ],
   [ "walls", walls ],
   [ "size", size ],
   [ "chamfer", batt_housing_wall/2 ],
-  [ "fillet", 4*batt_housing_wall ],
+  [ "fillet", fillet_walls*batt_housing_wall ],
   [ "chamfer_edges", [
     [0, 0, 1, 1], // yz -- +- -+ ++
     [0, 0, 1, 1], // xz
@@ -3287,12 +3290,15 @@ module battery_housing(anchor = CENTER, spin = 0, orient = UP) {
       }
 
       // top side chamfers for lid fillets
-      tag("fillet")
-      edge_mask([TOP], except=[BACK,FRONT])
-        chamfer_edge_mask(
-          l=size.y + 2*$eps,
-          chamfer=struct_val(lid_info, "fillet") + batt_housing_wall
-        );
+      lid_fillet = struct_val(lid_info, "fillet");
+      if (lid_fillet > 0) {
+        tag("fillet")
+        edge_mask([TOP], except=[BACK,FRONT])
+          chamfer_edge_mask(
+            l=size.y + 2*$eps,
+            chamfer=lid_fillet + batt_housing_wall
+          );
+      }
 
       // side slots for lid rails
       tag("slot")
