@@ -1,8 +1,10 @@
-# PC fan driven HEPA filter -- [PCHEPA](https://github.com/jcorbin/pchepa)
+# PCHEPA -- PC fan driven HEPA filter
+
+[User Guide](user_guide/v1.md)
 
 ![Duo Portable Fully Assembled](duo/photos/front_complete.png)
 
-- Follow the [build guide](build_guide.md) to make your own
+- Follow the [Build Guide](build_guide.md) to make your own
 - Read [CHANGELOG](CHANGELOG.md) for development status and release notes
 
 Primary inspiration is the [Exhalaron][exhalaron] by cleanairkits.com, but there's also a strong similarity to other
