@@ -97,12 +97,18 @@ All of the recommended slicer settings, build plate layouts, and printer setting
 - [stationary variant][duo_makerworld]
 - [portable variant][duo_portable_makerworld]
 
+Most parts come in an A (left) and B (right) side version; the A side is primary, mounting the control module and power modules.
+
 General suggested slicer settings:
 - walls: 3 loops/perimeters
 - top/bottom: 3 layers
 - sparse infill: 7% tri-hexagon
 
-Most parts come in an A (left) and B (right) side version; the A side is primary, mounting the control module and power modules.
+The battery housing lid and wire exit parts need to be printed with a raft to prevent ripping off the build plate.
+
+The joiner clips can sometimes benefit from an outer brim, especially if placed near the edge of the build plate.
+
+The base plate, cover plate, and grill box parts can benefit from mouse ear brim painting at their corners to prevent warping.
 
 ### 1. Print Cover A
 
